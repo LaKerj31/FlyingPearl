@@ -135,7 +135,9 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .curtain.is-in{visibility:visible;transform:translateY(0);transition:transform .66s var(--ease-io)}
 .curtain.is-out{visibility:visible;transform:translateY(-100%);transition:transform .74s var(--ease-io)}
 .curtain__word{font-family:var(--f-display);font-weight:800;font-size:min(calc(88vw / (var(--n,6) * .84)),12rem);letter-spacing:-.05em;line-height:1;white-space:nowrap}
-.curtain .pearl{font-size:34px;background:radial-gradient(circle,var(--ember) 0 29%,var(--ink) 31%)}
+.cw-o{display:inline-block;width:0.852em;height:0.784em;margin-bottom:-0.017em;vertical-align:baseline;background:radial-gradient(circle closest-side,var(--ember) 0 30%,var(--paper) 32% 97%,transparent 100%)}
+.cw-i{position:relative}
+.cw-i::after{content:"";position:absolute;left:0.041em;top:-0.125em;width:0.28em;height:0.28em;border-radius:50%;background:radial-gradient(circle closest-side,var(--ember) 0 30%,var(--paper) 33% 96%,transparent 100%)}
 .curtain.is-in .curtain__word{animation:rise .7s var(--ease) .12s both}
 
 /* ---------- curseur perle ---------- */
@@ -239,14 +241,15 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 /* ---------- pages univers ---------- */
 .phead{position:relative;z-index:1;padding-top:clamp(130px,20vh,200px);padding-bottom:clamp(48px,7vw,96px)}
 .phead__meta{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:14px;margin:0 0 clamp(28px,5vw,64px)}
-.af{position:relative;display:inline-block;padding:.1em .16em .04em;margin-left:-.16em}
-.phead__title{margin:0;outline:none;font-family:var(--f-display);font-weight:800;font-size:min(calc(84vw / (var(--n) * .86)),15rem);line-height:.9;letter-spacing:-.055em}
+.af{position:relative;display:inline-block;font-size:min(calc(84vw / (var(--n) * .86)),15rem);line-height:.9}
+.ls0{letter-spacing:0}
+.phead__title{margin:0;outline:none;font-family:var(--f-display);font-weight:800;font-size:1em;line-height:.9;letter-spacing:-.055em}
 .af__c{position:absolute;width:clamp(14px,2vw,26px);height:clamp(14px,2vw,26px);border:0 solid var(--paper);opacity:0}
-.af__c--tl{top:0;left:0;border-top-width:2px;border-left-width:2px;--dx:-36px;--dy:-30px}
-.af__c--tr{top:0;right:0;border-top-width:2px;border-right-width:2px;--dx:36px;--dy:-30px}
-.af__c--bl{bottom:0;left:0;border-bottom-width:2px;border-left-width:2px;--dx:-36px;--dy:30px}
-.af__c--br{bottom:0;right:0;border-bottom-width:2px;border-right-width:2px;--dx:36px;--dy:30px}
-.af__tag{position:absolute;right:0;top:calc(100% + 10px);display:flex;align-items:center;gap:8px;color:var(--mute);opacity:0}
+.af__c--tl{top:calc(var(--t) * 1em);left:calc(var(--l) * 1em);border-top-width:2px;border-left-width:2px;--dx:-36px;--dy:-30px}
+.af__c--tr{top:calc(var(--t) * 1em);right:calc(var(--r) * 1em);border-top-width:2px;border-right-width:2px;--dx:36px;--dy:-30px}
+.af__c--bl{bottom:calc(var(--b) * 1em);left:calc(var(--l) * 1em);border-bottom-width:2px;border-left-width:2px;--dx:-36px;--dy:30px}
+.af__c--br{bottom:calc(var(--b) * 1em);right:calc(var(--r) * 1em);border-bottom-width:2px;border-right-width:2px;--dx:36px;--dy:30px}
+.af__tag{position:absolute;right:calc(var(--r) * 1em);top:calc(100% - var(--b) * 1em + 18px);display:flex;align-items:center;gap:8px;color:var(--mute);opacity:0}
 .af__tag i{width:7px;height:7px;border-radius:50%;background:var(--ember)}
 .af--go .phead__title{animation:focus 1.25s var(--ease) both}
 .af--go .af__c{animation:snap .85s var(--ease) .15s both}
@@ -467,7 +470,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   </ul>
 </div>
 
-<div class="curtain" aria-hidden="true"><span class="pearl"></span><span class="curtain__word">FILMS</span></div>
+<div class="curtain" aria-hidden="true"><span class="curtain__word">F<span class="cw-i">I</span>LMS</span></div>
 <div class="cursor" aria-hidden="true"><span class="cursor__ring"><span class="cursor__label"></span></span><span class="cursor__dot"></span></div>
 
 <main id="contenu" tabindex="-1">
@@ -538,8 +541,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   <div class="view" data-view="films" id="v-films" hidden>
     <header class="phead wrap" data-hud="Films">
       <p class="phead__meta mono"><span>Films</span><span>2.39:1 · 25 FPS</span></p>
-      <div class="af">
-        <h1 class="phead__title" data-title tabindex="-1" style="--n:5">FILMS</h1>
+      <div class="af" style="--n:5;--l:-0.055;--r:-0.087;--t:-0.062;--b:-0.062">
+        <h1 class="phead__title" data-title tabindex="-1">FILM<span class="ls0">S</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"></span>
         <span class="af__tag mono" aria-hidden="true"><i></i>AF</span>
       </div>
@@ -575,8 +578,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   <div class="view" data-view="photos" id="v-photos" hidden>
     <header class="phead wrap" data-hud="Photos">
       <p class="phead__meta mono"><span>Photos</span><span>3:2 · Planche-contact</span></p>
-      <div class="af">
-        <h1 class="phead__title" data-title tabindex="-1" style="--n:6">PHOTOS</h1>
+      <div class="af" style="--n:6;--l:-0.055;--r:-0.087;--t:-0.062;--b:-0.062">
+        <h1 class="phead__title" data-title tabindex="-1">PHOTO<span class="ls0">S</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"></span>
         <span class="af__tag mono" aria-hidden="true"><i></i>AF</span>
       </div>
@@ -601,8 +604,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   <div class="view" data-view="ia" id="v-ia" hidden>
     <header class="phead wrap" data-hud="IA">
       <p class="phead__meta mono"><span>IA</span><span>Image · Vidéo · Son</span></p>
-      <div class="af">
-        <h1 class="phead__title" data-title tabindex="-1" style="--n:3.2">IA</h1>
+      <div class="af" style="--n:3.2;--l:-0.055;--r:-0.121;--t:-0.045;--b:-0.045">
+        <h1 class="phead__title" data-title tabindex="-1">I<span class="ls0">A</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"></span>
         <span class="af__tag mono" aria-hidden="true"><i></i>AF</span>
       </div>
@@ -639,8 +642,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   <div class="view" data-view="contact" id="v-contact" hidden>
     <header class="phead wrap" data-hud="Contact">
       <p class="phead__meta mono"><span>Contact</span><span>E-mail</span></p>
-      <div class="af">
-        <h1 class="phead__title" data-title tabindex="-1" style="--n:7">CONTACT</h1>
+      <div class="af" style="--n:7;--l:-0.085;--r:-0.1;--t:-0.062;--b:-0.062">
+        <h1 class="phead__title" data-title tabindex="-1">CONTAC<span class="ls0">T</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"></span>
         <span class="af__tag mono" aria-hidden="true"><i></i>AF</span>
       </div>
@@ -831,7 +834,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     if (REDUCE || !current) { swap(name); focusTitle(); return; }
     busy = true;
     var w = name === 'home' ? 'FLYING PEARL' : NAMES[name].toUpperCase();
-    curtainWord.textContent = w; curtain.style.setProperty('--n', Math.max(3, w.length));
+    curtainWord.innerHTML = w.replace(/O/g, '<span class="cw-o"></span>').replace(/I/g, '<span class="cw-i">I</span>'); curtain.style.setProperty('--n', Math.max(3, w.length));
     curtain.classList.remove('is-out'); void curtain.offsetWidth; curtain.classList.add('is-in');
     wait(700).then(function () {
       swap(name);
