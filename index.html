@@ -259,12 +259,15 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 .phead__lede{margin:clamp(28px,4vw,48px) 0 0;max-width:44ch;font-size:clamp(1.05rem,1.5vw,1.3rem);color:var(--soft);text-wrap:pretty}
 
-.next{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:24px;padding-block:clamp(40px,6vw,72px);border-top:1px solid var(--line);text-decoration:none}
-.next__label{color:var(--mute);display:block;margin-bottom:10px}
-.next__title{display:block;font-family:var(--f-display);font-weight:800;font-size:clamp(2rem,7vw,6rem);letter-spacing:-.055em;line-height:1;transition:color .35s}
-.next__arrow{font-family:var(--f-display);font-size:clamp(1.8rem,4vw,3.4rem);transition:transform .6s var(--ease)}
-.next:hover .next__title,.next:focus-visible .next__title{color:var(--ember)}
-.next:hover .next__arrow,.next:focus-visible .next__arrow{transform:translateX(10px)}
+.pn{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding-block:clamp(36px,6vw,72px);border-top:1px solid var(--line)}
+.pn__link{display:flex;align-items:center;gap:clamp(10px,2vw,28px);min-width:0;text-decoration:none}
+.pn__link--next{justify-content:flex-end;text-align:right}
+.pn__label{display:block;margin-bottom:10px;color:var(--mute);white-space:nowrap}
+.pn__title{display:block;font-family:var(--f-display);font-weight:800;font-size:clamp(1.25rem,6vw,6rem);letter-spacing:-.055em;line-height:1;transition:color .35s}
+.pn__arrow{flex:none;font-family:var(--f-display);font-size:clamp(1.3rem,4vw,3.4rem);line-height:1;transition:transform .6s var(--ease)}
+.pn__link:hover .pn__title,.pn__link:focus-visible .pn__title{color:var(--ember)}
+.pn__link--prev:hover .pn__arrow,.pn__link--prev:focus-visible .pn__arrow{transform:translateX(-10px)}
+.pn__link--next:hover .pn__arrow,.pn__link--next:focus-visible .pn__arrow{transform:translateX(10px)}
 
 /* films */
 .reel{position:relative;z-index:1;display:grid;gap:clamp(64px,9vw,128px);padding-bottom:clamp(80px,10vw,140px)}
@@ -396,6 +399,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   .top{padding-left:max(var(--gx),26px);padding-right:max(var(--gx-r),26px);padding-top:calc(var(--sat) + 20px)}
   .brand span{display:none}
   .fhud .mono,.fhud.mono{font-size:9px}
+  .pn__label{font-size:10px;letter-spacing:.06em}
   .fhud__c{display:none}
 }
 @media (prefers-reduced-motion:reduce){
@@ -571,7 +575,10 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
         <div class="shot__info"><h2>Titre à venir</h2><p class="mono">Court-métrage</p></div>
       </article>
     </section>
-    <a class="next wrap" href="#photos" data-cursor="Suivant"><span><span class="next__label mono">Univers suivant</span><span class="next__title">PHOTOS</span></span><span class="next__arrow" aria-hidden="true">→</span></a>
+    <nav class="pn wrap" aria-label="Autres univers">
+      <a class="pn__link pn__link--prev" href="#accueil" data-cursor="Retour"><span class="pn__arrow" aria-hidden="true">←</span><span><span class="pn__label mono">Retour</span><span class="pn__title">ACCUEIL</span></span></a>
+      <a class="pn__link pn__link--next" href="#photos" data-cursor="Suivant"><span><span class="pn__label mono">Univers suivant</span><span class="pn__title">PHOTOS</span></span><span class="pn__arrow" aria-hidden="true">→</span></a>
+    </nav>
   </div>
 
   <!-- =================== PHOTOS =================== -->
@@ -596,7 +603,10 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       </div>
       <p class="sheet__note mono">Les images entourées au crayon gras sont les sélections.</p>
     </section>
-    <a class="next wrap" href="#ia" data-cursor="Suivant"><span><span class="next__label mono">Univers suivant</span><span class="next__title">IA</span></span><span class="next__arrow" aria-hidden="true">→</span></a>
+    <nav class="pn wrap" aria-label="Autres univers">
+      <a class="pn__link pn__link--prev" href="#films" data-cursor="Précédent"><span class="pn__arrow" aria-hidden="true">←</span><span><span class="pn__label mono">Univers précédent</span><span class="pn__title">FILMS</span></span></a>
+      <a class="pn__link pn__link--next" href="#ia" data-cursor="Suivant"><span><span class="pn__label mono">Univers suivant</span><span class="pn__title">IA</span></span><span class="pn__arrow" aria-hidden="true">→</span></a>
+    </nav>
   </div>
 
   <!-- =================== IA =================== -->
@@ -633,7 +643,10 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
         <p>Des chansons et des instrumentaux pour porter les images.</p>
       </article>
     </section>
-    <a class="next wrap" href="#contact" data-cursor="Suivant"><span><span class="next__label mono">Univers suivant</span><span class="next__title">CONTACT</span></span><span class="next__arrow" aria-hidden="true">→</span></a>
+    <nav class="pn wrap" aria-label="Autres univers">
+      <a class="pn__link pn__link--prev" href="#photos" data-cursor="Précédent"><span class="pn__arrow" aria-hidden="true">←</span><span><span class="pn__label mono">Univers précédent</span><span class="pn__title">PHOTOS</span></span></a>
+      <a class="pn__link pn__link--next" href="#contact" data-cursor="Suivant"><span><span class="pn__label mono">Univers suivant</span><span class="pn__title">CONTACT</span></span><span class="pn__arrow" aria-hidden="true">→</span></a>
+    </nav>
   </div>
 
   <!-- =================== CONTACT =================== -->
@@ -663,7 +676,10 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
         <div><dt class="mono">Réseaux</dt><dd>Bientôt</dd></div>
       </dl>
     </section>
-    <a class="next wrap" href="#accueil" data-cursor="Retour"><span><span class="next__label mono">Retour</span><span class="next__title">ACCUEIL</span></span><span class="next__arrow" aria-hidden="true">→</span></a>
+    <nav class="pn wrap" aria-label="Autres univers">
+      <a class="pn__link pn__link--prev" href="#ia" data-cursor="Précédent"><span class="pn__arrow" aria-hidden="true">←</span><span><span class="pn__label mono">Univers précédent</span><span class="pn__title">IA</span></span></a>
+      <a class="pn__link pn__link--next" href="#accueil" data-cursor="Retour"><span><span class="pn__label mono">Retour</span><span class="pn__title">ACCUEIL</span></span><span class="pn__arrow" aria-hidden="true">→</span></a>
+    </nav>
   </div>
 </main>
 
