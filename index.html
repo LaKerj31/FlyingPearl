@@ -171,14 +171,15 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .orbit--front{z-index:2}
 .hero__inner{--tfs:clamp(3.1rem,min(15.6vw,25vh),24rem);position:relative;z-index:1;flex:1;align-content:end;display:grid;gap:clamp(18px,3vh,30px);padding-top:clamp(100px,13vh,150px);padding-bottom:clamp(24px,4vh,48px)}
 .hero__kicker{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--mute)}
-.hero__title{margin:0;outline:none;font-family:var(--f-display);font-weight:800;font-size:var(--tfs);line-height:.86;letter-spacing:-.055em;display:grid;width:100%;max-width:calc(var(--tfs) * 6.3)}
+.hero__mark{display:grid;gap:clamp(18px,3vh,30px)}
+.hero__title{margin:0;outline:none;font-family:var(--f-display);font-weight:800;font-size:var(--tfs);line-height:.86;letter-spacing:-.055em;display:grid}
 .hero__title .ln{display:block;overflow:hidden;padding-block:.06em;margin-block:-.06em}
 .hero__title .ln--2{justify-self:end}
 .ch{display:inline-block}
 .hero.is-ready .ch{animation:chUp 1.15s var(--ease) both;animation-delay:calc(var(--i) * 55ms + 80ms)}
 .is-intro:not(.intro-open) .hero .ch{opacity:0}
 @keyframes chUp{from{transform:translateY(108%) rotate(5deg);opacity:0}to{transform:none;opacity:1}}
-.hero__sign{justify-self:start;width:min(100%,calc(var(--tfs) * 6.3));justify-content:flex-end;margin:-.2em 0 0;display:flex;align-items:center;gap:.08em;font-family:var(--f-display);font-weight:400;font-size:clamp(.85rem,1.5vw,1.3rem);letter-spacing:.42em;color:var(--ember)}
+.hero__sign{justify-self:end;margin:-.2em 0 0;display:flex;align-items:center;gap:.08em;font-family:var(--f-display);font-weight:400;font-size:clamp(.85rem,1.5vw,1.3rem);letter-spacing:.42em;color:var(--ember)}
 .hero__sign .pearl{font-size:1.05em;margin-left:-.1em}
 .hero__foot{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 40px;flex-wrap:wrap}
 .hero__lede{margin:0;max-width:36ch;font-size:clamp(1rem,1.3vw,1.2rem);color:var(--soft);text-wrap:pretty}
@@ -368,6 +369,12 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .foot__bottom button:hover{color:var(--paper)}
 
 /* ---------- responsive ---------- */
+/* ordinateur : bloc centré, le P de PEARL sous le N de FLYING (décalage calculé sur la fonte) */
+@media (min-width:1024px){
+  .hero__inner{--tfs:clamp(3.1rem,min(13.4vw,25vh),24rem)}
+  .hero__mark{justify-self:center;width:max-content;max-width:100%}
+  .hero__title .ln--2{justify-self:start;margin-left:2.635em}
+}
 @media (max-width:900px){
   .tabs{display:none}
   .menu-btn{display:inline-flex}
@@ -488,11 +495,13 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       <canvas class="orbit orbit--back" aria-hidden="true"></canvas>
       <div class="hero__inner wrap">
         <p class="hero__kicker mono"><span>Studio de création</span><span>Films · Photos · IA</span></p>
-        <h1 class="hero__title" id="t-home" data-title tabindex="-1" aria-label="Flying Pearl">
-          <span class="ln ln--1" aria-hidden="true" data-split>FLYING</span>
-          <span class="ln ln--2" aria-hidden="true" data-split>PEARL</span>
-        </h1>
-        <p class="hero__sign" aria-label="Studio">STUDI<span class="pearl" aria-hidden="true"></span></p>
+        <div class="hero__mark">
+          <h1 class="hero__title" id="t-home" data-title tabindex="-1" aria-label="Flying Pearl">
+            <span class="ln ln--1" aria-hidden="true" data-split>FLYING</span>
+            <span class="ln ln--2" aria-hidden="true" data-split>PEARL</span>
+          </h1>
+          <p class="hero__sign" aria-label="Studio">STUDI<span class="pearl" aria-hidden="true"></span></p>
+        </div>
         <div class="hero__foot">
           <p class="hero__lede">On tourne des films, on fait des photos et on génère des images, des vidéos et de la musique avec l'IA.</p>
           <p class="hero__cue mono" aria-hidden="true"><i></i>Défiler</p>
