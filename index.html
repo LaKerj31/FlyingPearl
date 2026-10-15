@@ -508,7 +508,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 
     <section class="sec manifesto wrap" data-hud="Le studio" aria-label="Le studio">
       <p class="label mono" data-reveal>(Le studio)</p>
-      <p class="manifesto__text">Flying Pearl est un studio de création indépendant. On tourne des <em>courts-métrages</em>, on fait des <em>photos</em>, et on génère des images, des vidéos et de la musique avec l'<em>IA</em>. Caméra ou prompt, on cherche toujours un cadre juste, une lumière qui raconte et une image qui reste.</p>
+      <p class="manifesto__text"><em>Flying Pearl</em> est un studio de création indépendant. On tourne des <em>courts-métrages</em>, on fait des <em>photos</em>, et on génère des images, des vidéos et de la musique avec l'<em>IA</em>. Caméra ou prompt, on cherche toujours un cadre juste, une lumière qui raconte et une image qui reste.</p>
     </section>
 
     <section class="sec duo" data-hud="Caméra & prompt" aria-label="Deux outils">
@@ -527,7 +527,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     <section class="sec index" data-hud="Univers" aria-labelledby="t-univers">
       <div class="index__head wrap"><h2 class="label mono" id="t-univers" data-reveal>(Univers)</h2><p class="index__note mono" data-reveal>Quatre portes d'entrée</p></div>
       <nav class="index__list" aria-label="Univers du studio">
-        <a class="row" href="#films" data-cursor="Entrer" data-reveal><span class="row__fmt mono">2.39:1 · 24 i/s</span><span class="row__title">FILMS</span><span class="row__desc">Courts-métrages et projets filmés.</span><span class="row__arrow" aria-hidden="true">→</span></a>
+        <a class="row" href="#films" data-cursor="Entrer" data-reveal><span class="row__fmt mono">2.39:1 · 25 FPS</span><span class="row__title">FILMS</span><span class="row__desc">Courts-métrages et projets filmés.</span><span class="row__arrow" aria-hidden="true">→</span></a>
         <a class="row" href="#photos" data-cursor="Entrer" data-reveal><span class="row__fmt mono">3:2 · Planche-contact</span><span class="row__title">PHOTOS</span><span class="row__desc">Séries, portraits et commandes photo.</span><span class="row__arrow" aria-hidden="true">→</span></a>
         <a class="row" href="#ia" data-cursor="Entrer" data-reveal><span class="row__fmt mono">Image · Vidéo · Son</span><span class="row__title">IA</span><span class="row__desc">Images, vidéos et musique générées.</span><span class="row__arrow" aria-hidden="true">→</span></a>
         <a class="row" href="#contact" data-cursor="Écrire" data-reveal><span class="row__fmt mono">E-mail</span><span class="row__title">CONTACT</span><span class="row__desc">Un projet ? Écrivez au studio.</span><span class="row__arrow" aria-hidden="true">→</span></a>
@@ -544,7 +544,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   <!-- =================== FILMS =================== -->
   <div class="view" data-view="films" id="v-films" hidden>
     <header class="phead wrap" data-hud="Films">
-      <p class="phead__meta mono"><span>Films</span><span>2.39:1 · 24 i/s</span></p>
+      <p class="phead__meta mono"><span>Films</span><span>2.39:1 · 25 FPS</span></p>
       <div class="af">
         <h1 class="phead__title" data-title tabindex="-1" style="--n:5">FILMS</h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"></span>
@@ -629,7 +629,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
         <p>Des images générées, puis travaillées comme des photos.</p>
       </article>
       <article class="cell" data-reveal style="--d:.1s">
-        <div class="cell__screen"><canvas data-fx="frames" aria-hidden="true"></canvas><div class="cell__hud mono"><b>Vidéo</b><span data-count>Image 001/048</span></div></div>
+        <div class="cell__screen"><canvas data-fx="frames" aria-hidden="true"></canvas><div class="cell__hud mono"><b>Vidéo</b><span data-count>Image 001/050</span></div></div>
         <h2>Vidéos</h2>
         <p>Des plans animés à partir d'images fixes, découpés comme un film.</p>
       </article>
@@ -773,10 +773,10 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     t0: performance.now(), lf: -1, lp: -1,
     setView: function (n) { this.view.textContent = n; this.sec.textContent = ''; },
     tick: function (now, p) {
-      var f = Math.floor((now - this.t0) / (1000 / 24));
+      var f = Math.floor((now - this.t0) / (1000 / 25));
       if (f !== this.lf) {
-        this.lf = f; var s = Math.floor(f / 24);
-        this.tc.textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60) + ':' + pad(f % 24);
+        this.lf = f; var s = Math.floor(f / 25);
+        this.tc.textContent = pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60) + ':' + pad(f % 25);
       }
       var q = Math.round(p * 100);
       if (q !== this.lp) { this.lp = q; this.pct.textContent = pad(q, 3) + '%'; }
@@ -892,8 +892,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   window.addEventListener('pointermove', function (e) {
     mouse.x = e.clientX / innerWidth * 2 - 1; mouse.y = e.clientY / innerHeight * 2 - 1;
     if (!cursor.active) return;
-    cursor.tx = e.clientX; cursor.ty = e.clientY;
-    if (!cursor.on) { cursor.on = true; cursor.x = cursor.tx; cursor.y = cursor.ty; cursor.el.classList.add('is-on'); }
+    cursor.el.style.transform = 'translate3d(' + e.clientX + 'px,' + e.clientY + 'px,0)';
+    if (!cursor.on) { cursor.on = true; cursor.el.classList.add('is-on'); }
   }, { passive: true });
   if (FINE && !REDUCE) {
     cursor.active = true; root.classList.add('has-cursor');
@@ -1134,7 +1134,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       function draw() {
         if (!W) return;
         ctx.setTransform(R, 0, 0, R, 0, 0); ctx.clearRect(0, 0, W, H);
-        var f = Math.floor(t * 24) % 48, u = f / 47, m = 16, top = 46, pw = W - m * 2;
+        var f = Math.floor(t * 25) % 50, u = f / 49, m = 16, top = 46, pw = W - m * 2;
         var n = 8, gap = 6, tw = (pw - gap * (n - 1)) / n, thh = tw * .66, ph = Math.max(60, H - top - 16 - thh - 22 - 26);
         ctx.fillStyle = '#141414'; ctx.fillRect(m, top, pw, ph);
         ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5; var k = 12, q = 8;
@@ -1147,13 +1147,13 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
           var x = m + i * (tw + gap);
           ctx.fillStyle = '#151515'; ctx.fillRect(x, sy, tw, thh);
           comet(x, sy, tw, thh, i / (n - 1), Math.max(1, tw * .03));
-          if (Math.floor(f / 6) === i) { ctx.strokeStyle = '#FF5A1F'; ctx.lineWidth = 1.5; ctx.strokeRect(x + .75, sy + .75, tw - 1.5, thh - 1.5); }
+          if (Math.min(n - 1, Math.floor(f * n / 50)) === i) { ctx.strokeStyle = '#FF5A1F'; ctx.lineWidth = 1.5; ctx.strokeRect(x + .75, sy + .75, tw - 1.5, thh - 1.5); }
         }
         var ly = sy + thh + 20;
         ctx.fillStyle = '#2a2a2a'; ctx.fillRect(m, ly, pw, 1);
         [0, .5, 1].forEach(function (kf) { var kx = m + pw * kf; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(kx, ly - 4); ctx.lineTo(kx + 4, ly); ctx.lineTo(kx, ly + 4); ctx.lineTo(kx - 4, ly); ctx.fill(); });
         ctx.fillStyle = '#FF5A1F'; ctx.fillRect(m + pw * u - 1, ly - 10, 2, 20);
-        cnt.textContent = 'Image ' + pad(f + 1, 3) + '/048';
+        cnt.textContent = 'Image ' + pad(f + 1, 3) + '/050';
       }
       fx.frames = { size: size, reset: function () { t = 0; }, step: function (dt) { t += dt; draw(); } };
     })();
@@ -1276,10 +1276,6 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     hud.tick(t, clamp(y / max, 0, 1));
     if (current === 'home') { orbit.step(dt, vel); trail.update(dt); updWords(vh); updDuo(vh); updMq(dt, vel); }
     else if (current === 'ia') lab.step(dt);
-    if (cursor.active && cursor.on) {
-      cursor.x = lerp(cursor.x, cursor.tx, 0.24); cursor.y = lerp(cursor.y, cursor.ty, 0.24);
-      cursor.el.style.transform = 'translate3d(' + cursor.x.toFixed(1) + 'px,' + cursor.y.toFixed(1) + 'px,0)';
-    }
     requestAnimationFrame(frame);
   }
 
