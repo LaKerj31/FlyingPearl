@@ -169,16 +169,16 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .orbit{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .orbit--back{z-index:0}
 .orbit--front{z-index:2}
-.hero__inner{position:relative;z-index:1;flex:1;align-content:end;display:grid;gap:clamp(18px,3vh,30px);padding-top:clamp(100px,13vh,150px);padding-bottom:clamp(24px,4vh,48px)}
+.hero__inner{--tfs:clamp(3.1rem,min(15.6vw,25vh),24rem);position:relative;z-index:1;flex:1;align-content:end;display:grid;gap:clamp(18px,3vh,30px);padding-top:clamp(100px,13vh,150px);padding-bottom:clamp(24px,4vh,48px)}
 .hero__kicker{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;color:var(--mute)}
-.hero__title{margin:0;outline:none;font-family:var(--f-display);font-weight:800;font-size:clamp(3.1rem,min(15.6vw,25vh),16rem);line-height:.86;letter-spacing:-.055em;display:grid}
+.hero__title{margin:0;outline:none;font-family:var(--f-display);font-weight:800;font-size:var(--tfs);line-height:.86;letter-spacing:-.055em;display:grid;width:100%;max-width:calc(var(--tfs) * 6.3)}
 .hero__title .ln{display:block;overflow:hidden;padding-block:.06em;margin-block:-.06em}
 .hero__title .ln--2{justify-self:end}
 .ch{display:inline-block}
 .hero.is-ready .ch{animation:chUp 1.15s var(--ease) both;animation-delay:calc(var(--i) * 55ms + 80ms)}
 .is-intro:not(.intro-open) .hero .ch{opacity:0}
 @keyframes chUp{from{transform:translateY(108%) rotate(5deg);opacity:0}to{transform:none;opacity:1}}
-.hero__sign{justify-self:end;margin:-.2em 0 0;display:flex;align-items:center;gap:.08em;font-family:var(--f-display);font-weight:400;font-size:clamp(.85rem,1.5vw,1.3rem);letter-spacing:.42em;color:var(--ember)}
+.hero__sign{justify-self:start;width:min(100%,calc(var(--tfs) * 6.3));justify-content:flex-end;margin:-.2em 0 0;display:flex;align-items:center;gap:.08em;font-family:var(--f-display);font-weight:400;font-size:clamp(.85rem,1.5vw,1.3rem);letter-spacing:.42em;color:var(--ember)}
 .hero__sign .pearl{font-size:1.05em;margin-left:-.1em}
 .hero__foot{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 40px;flex-wrap:wrap}
 .hero__lede{margin:0;max-width:36ch;font-size:clamp(1rem,1.3vw,1.2rem);color:var(--soft);text-wrap:pretty}
@@ -941,8 +941,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       var r = hero.getBoundingClientRect(), t = title.getBoundingClientRect();
       W = r.width; H = r.height; R = Math.min(1.5, window.devicePixelRatio || 1);
       [back, front].forEach(function (c) { c.width = Math.round(W * R); c.height = Math.round(H * R); });
-      cx = W * 0.5; cy = t.top - r.top + t.height * 0.5;
-      rx = Math.min(W * 0.47, 920); ry = Math.max(40, rx * 0.19); sc = clamp(W / 1400, 0.5, 1.15);
+      cx = t.left - r.left + t.width * 0.5; cy = t.top - r.top + t.height * 0.5;
+      rx = Math.min(t.width * 0.52, 920); ry = Math.max(40, rx * 0.19); sc = clamp(W / 1400, 0.5, 1.15);
       draw(0);
     }
     function pos(a, tilt, ryy) {
