@@ -1,9 +1,37 @@
-/* IA — lightbox de la collection TEARS (autonome, sans toucher au routage par hash) */
+/* IA — collection TEARS : chargement fiable des images + lightbox (autonome, sans toucher au routage par hash) */
 (function () {
   'use strict';
   var items = Array.prototype.slice.call(document.querySelectorAll('.tears'));
   if (!items.length || !document.body) return;
 
+  /* --- chargement des images quand la vue IA est visible ---
+     loading="lazy" ne se déclenche pas sous le scroll lissé Lenis (défilement par transform),
+     donc on force le chargement dès que la vue IA n'est plus masquée. */
+  function loadGallery() {
+    items.forEach(function (b) {
+      var im = b.querySelector('img');
+      if (!im) return;
+      im.loading = 'eager';
+      if (!im.complete || !im.naturalWidth) {
+        var s = im.getAttribute('src');
+        if (s) im.setAttribute('src', s);
+      }
+    });
+    var poster = document.querySelector('.show__video');
+    if (poster) { var p = poster.getAttribute('poster'); if (p) poster.setAttribute('poster', p); }
+  }
+  var iaView = document.querySelector('[data-view="ia"]');
+  if (iaView) {
+    if (!iaView.hasAttribute('hidden')) loadGallery();
+    try {
+      new MutationObserver(function () { if (!iaView.hasAttribute('hidden')) loadGallery(); })
+        .observe(iaView, { attributes: true, attributeFilter: ['hidden'] });
+    } catch (e) { loadGallery(); }
+  } else {
+    loadGallery();
+  }
+
+  /* --- lightbox --- */
   var figs = items.map(function (b) {
     var im = b.querySelector('img');
     return { full: b.getAttribute('data-full') || (im && im.src) || '', alt: (im && im.alt) || '', tag: b.getAttribute('data-tag') || '' };
