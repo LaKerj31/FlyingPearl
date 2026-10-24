@@ -15,6 +15,7 @@
   var lbOpen = false, lbList = [], lbIdx = 0;
   var lb = document.createElement('div');
   lb.className = 'lb';
+  lb.setAttribute('data-lenis-prevent', '');
   lb.setAttribute('aria-hidden', 'true');
   lb.setAttribute('role', 'dialog');
   lb.setAttribute('aria-modal', 'true');
@@ -60,6 +61,7 @@
   var pjOpen = false;
   var pj = document.createElement('div');
   pj.className = 'pj';
+  pj.setAttribute('data-lenis-prevent', '');
   pj.setAttribute('aria-hidden', 'true');
   pj.setAttribute('role', 'dialog');
   pj.setAttribute('aria-modal', 'true');
@@ -213,40 +215,77 @@
     });
   });
 
-  /* ---------- PHOTOS : grille de pellicules alignée sur la couverture ----------
-     Deux rangées de cases, gouttière comprise, font exactement la hauteur du cadre de couverture :
-     le haut de la rangée 1 et le bas de la rangée 2 coïncident avec le haut et le bas de la couverture.
-     La gouttière verticale (ligne EXIF + écart) est visuellement égale à la gouttière horizontale. */
+  /* ---------- PHOTOS : photos dans leur vrai format, quadrillage régulier ----------
+     Pour chaque série : les pellicules gardent le format natif des photos ; leur hauteur est calculée
+     pour que deux rangées, gouttière comprise, fassent la hauteur du cadre de couverture, et l'espace
+     horizontal est le même partout (couverture -> photo, photo -> photo), la dernière colonne finissant
+     à la marge droite. Si la largeur manque, la couverture est réduite (formule fermée) pour rester alignés. */
   var seriesEls = Array.prototype.slice.call(document.querySelectorAll('.serie'));
   var narrowMQ = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
-  function layoutSeries() {
-    seriesEls.forEach(function (serie) {
-      var film = serie.querySelector('.serie__film');
-      var frames = serie.querySelector('.serie__frames');
-      var fr = frames ? Array.prototype.slice.call(frames.querySelectorAll('.pframe')) : [];
-      if (!film || !frames || !fr.length) return;
-      if (narrowMQ && narrowMQ.matches) {
-        ['--fh', '--cols', '--g', '--rg'].forEach(function (k) { frames.style.removeProperty(k); });
-        return;
-      }
-      var cols = serie.classList.contains('serie--land') ? 2 : 3;
-      var rows = Math.max(1, Math.ceil(fr.length / cols));
-      var G = 28;
-      var f0 = fr[0], film0 = f0.querySelector('.pframe__film'), img0 = f0.querySelector('img');
-      var extraFilm = Math.max(0, film0.offsetHeight - img0.offsetHeight);
-      var exifH = Math.max(0, f0.offsetHeight - film0.offsetHeight);
-      var rowGap = Math.max(6, G - exifH);
-      var Hc = film.offsetHeight;
-      var R = (Hc - (rows - 1) * (exifH + rowGap)) / rows;
-      var imgH = Math.max(60, Math.floor(R - extraFilm));
-      frames.style.setProperty('--cols', cols);
-      frames.style.setProperty('--g', G + 'px');
-      frames.style.setProperty('--rg', rowGap + 'px');
-      frames.style.setProperty('--fh', imgH + 'px');
-    });
+  function resetSerie(serie, frames, cimg) {
+    ['--fh', '--cols', '--g', '--rg'].forEach(function (k) { frames.style.removeProperty(k); });
+    serie.style.removeProperty('--cg');
+    cimg.style.removeProperty('max-height');
   }
-  var layoutT = null;
-  function layoutSoon() { clearTimeout(layoutT); layoutT = setTimeout(layoutSeries, 60); }
+  function layoutOne(serie) {
+    var film = serie.querySelector('.serie__film');
+    var cimg = serie.querySelector('.serie__cimg img');
+    var frames = serie.querySelector('.serie__frames');
+    var fr = frames ? Array.prototype.slice.call(frames.querySelectorAll('.pframe')) : [];
+    if (!film || !cimg || !frames || !fr.length) return;
+    resetSerie(serie, frames, cimg);
+    if (narrowMQ && narrowMQ.matches) return;
+    void serie.offsetHeight;
+    var serieW = serie.getBoundingClientRect().width;
+    if (!serieW || !cimg.offsetHeight) return;
+    var cols = serie.classList.contains('serie--land') ? 2 : 3;
+    var rows = Math.max(1, Math.ceil(fr.length / cols));
+    var Gmin = 28, sidePad = 14;
+    var f0 = fr[0], film0 = f0.querySelector('.pframe__film'), img0 = f0.querySelector('img');
+    var extra = Math.max(0, film0.offsetHeight - img0.offsetHeight);
+    var exifH = Math.max(0, f0.offsetHeight - film0.offsetHeight);
+    var Hc0 = film.offsetHeight, coverW0 = film.offsetWidth;
+    var cimgH0 = cimg.offsetHeight, cimgW0 = cimg.offsetWidth;
+    var coverRatio = cimgW0 / cimgH0;
+    var padV = Hc0 - cimgH0, padH = coverW0 - cimgW0;
+    var ratio = 0;
+    fr.forEach(function (bt) {
+      var im = bt.querySelector('img');
+      var r = (parseInt(im.getAttribute('width'), 10) || 2) / (parseInt(im.getAttribute('height'), 10) || 3);
+      if (r > ratio) ratio = r;
+    });
+    var Hc = Hc0, Gv = Gmin, gapH = Gmin, imgH = 0;
+    for (var it = 0; it < 8; it++) {
+      var coverW = (Hc - padV) * coverRatio + padH;
+      imgH = (Hc - (rows - 1) * Gv) / rows - extra;
+      gapH = (serieW - coverW - cols * (imgH * ratio + sidePad)) / cols;
+      if (gapH >= Gmin) {
+        var gv2 = Math.min(72, Math.max(Gmin, gapH));
+        if (Math.abs(gv2 - Gv) < 1) break;
+        Gv = gv2; continue;
+      }
+      /* largeur insuffisante : hauteur de couverture telle que l'espace vaille exactement Gmin */
+      Gv = Gmin; gapH = Gmin;
+      Hc = (serieW + padV * coverRatio - padH - cols * Gmin - cols * sidePad + cols * ratio * ((rows - 1) * Gmin / rows + extra)) / (coverRatio + cols * ratio / rows);
+      Hc = Math.min(Hc, Hc0);
+      imgH = (Hc - (rows - 1) * Gv) / rows - extra;
+      break;
+    }
+    imgH = Math.max(60, Math.floor(imgH));
+    gapH = Math.max(Gmin, Math.floor(gapH));
+    if (Hc < Hc0 - 1) cimg.style.maxHeight = Math.max(120, Math.floor(Hc - padV)) + 'px';
+    frames.style.setProperty('--cols', cols);
+    frames.style.setProperty('--fh', imgH + 'px');
+    frames.style.setProperty('--g', gapH + 'px');
+    frames.style.setProperty('--rg', Math.max(4, Math.round(Gv) - exifH) + 'px');
+    serie.style.setProperty('--cg', gapH + 'px');
+  }
+  function layoutSeries() { seriesEls.forEach(layoutOne); }
+  var layoutTimers = [];
+  function layoutSoon() {
+    layoutTimers.forEach(clearTimeout); layoutTimers = [];
+    [60, 400, 1100].forEach(function (d) { layoutTimers.push(setTimeout(layoutSeries, d)); });
+  }
   if (seriesEls.length) {
     layoutSeries();
     window.addEventListener('resize', layoutSoon);
