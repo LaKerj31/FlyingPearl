@@ -638,20 +638,24 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       <div class="reel" data-reveal>
         <header class="reel__head">
           <h2 class="reel__name">ARGENTIQUE</h2>
-          <p class="reel__cam mono">Olympus XA2</p>
+          <p class="reel__cam mono">Olympus XA2 · N&amp;B · Déc. 2025</p>
         </header>
         <div class="reel__track">
-          <button class="shot" type="button" data-full="media/photos/argentique/IMG_3321.jpg" data-cap="Olympus XA2" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 1, agrandir">
+          <button class="shot" type="button" data-full="media/photos/argentique/IMG_3321.jpg" data-cap="ISO 400" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 1, agrandir">
             <img src="media/photos/argentique/IMG_3321.jpg" alt="Argentique, photo 1" width="2000" height="1326" loading="lazy" decoding="async">
+            <span class="shot__exif mono">ISO 400</span>
           </button>
-          <button class="shot" type="button" data-full="media/photos/argentique/IMG_3326.jpg" data-cap="Olympus XA2" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 2, agrandir">
+          <button class="shot" type="button" data-full="media/photos/argentique/IMG_3326.jpg" data-cap="ISO 400" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 2, agrandir">
             <img src="media/photos/argentique/IMG_3326.jpg" alt="Argentique, photo 2" width="2000" height="1326" loading="lazy" decoding="async">
+            <span class="shot__exif mono">ISO 400</span>
           </button>
-          <button class="shot" type="button" data-full="media/photos/argentique/IMG_3338.jpg" data-cap="Olympus XA2" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 3, agrandir">
+          <button class="shot" type="button" data-full="media/photos/argentique/IMG_3338.jpg" data-cap="ISO 400" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 3, agrandir">
             <img src="media/photos/argentique/IMG_3338.jpg" alt="Argentique, photo 3" width="2000" height="1327" loading="lazy" decoding="async">
+            <span class="shot__exif mono">ISO 400</span>
           </button>
-          <button class="shot" type="button" data-full="media/photos/argentique/IMG_3340.jpg" data-cap="Olympus XA2" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 4, agrandir">
+          <button class="shot" type="button" data-full="media/photos/argentique/IMG_3340.jpg" data-cap="ISO 400" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 4, agrandir">
             <img src="media/photos/argentique/IMG_3340.jpg" alt="Argentique, photo 4" width="2000" height="1326" loading="lazy" decoding="async">
+            <span class="shot__exif mono">ISO 400</span>
           </button>
         </div>
       </div>
@@ -733,7 +737,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 
     <style>
     /* IA : Derniers projets + visionneuses */
-    .proj{margin-top:clamp(40px,6vw,96px)}
+    .proj{margin-top:clamp(40px,6vw,96px);margin-bottom:clamp(48px,8vw,110px)}
     .proj__meta{display:flex;gap:1.4em;color:var(--mute)}
     .proj__title{margin:.4em 0 0;font-family:var(--f-display);font-weight:800;line-height:.92;letter-spacing:-.05em;font-size:clamp(2rem,6vw,4.4rem)}
     .proj__title-b{color:var(--ember)}
@@ -777,8 +781,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     .reel__track{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:9px 0;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--dim) transparent;background:repeating-linear-gradient(90deg,transparent 0 13px,rgba(255,255,255,.13) 13px 19px) top/100% 6px no-repeat,repeating-linear-gradient(90deg,transparent 0 13px,rgba(255,255,255,.13) 13px 19px) bottom/100% 6px no-repeat,var(--ink-2)}
     .reel__track::-webkit-scrollbar{height:8px}
     .reel__track::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
-    .shot{position:relative;flex:0 0 auto;height:clamp(240px,42vh,440px);padding:0;border:0;margin:0;background:var(--ink-3);cursor:pointer;overflow:hidden;scroll-snap-align:start;outline:none;-webkit-tap-highlight-color:transparent}
-    .shot img{height:100%;width:auto;max-width:none;display:block;object-fit:cover;filter:saturate(.98) contrast(1.02);transition:transform 1s var(--ease),filter .5s var(--ease)}
+    .shot{position:relative;flex:0 0 auto;height:clamp(220px,38vh,380px);aspect-ratio:4/5;padding:0;border:0;margin:0;background:var(--ink-3);cursor:pointer;overflow:hidden;scroll-snap-align:start;outline:none;-webkit-tap-highlight-color:transparent}
+    .shot img{width:100%;height:100%;display:block;object-fit:cover;object-position:center;filter:saturate(.98) contrast(1.02);transition:transform 1s var(--ease),filter .5s var(--ease)}
     .shot:hover img,.shot:focus-visible img{transform:scale(1.04);filter:saturate(1.06) contrast(1.03)}
     .shot:focus-visible{box-shadow:inset 0 0 0 2px var(--ember)}
     .shot__exif{position:absolute;left:8px;bottom:8px;color:var(--paper);opacity:0;transform:translateY(6px);transition:opacity .35s var(--ease),transform .35s var(--ease);text-shadow:0 1px 6px rgba(0,0,0,.95);pointer-events:none;font-size:10px}
@@ -900,7 +904,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 </footer>
 
 <script src="js/lenis.min.js"></script>
-<script src="js/ia.js" defer></script>
+<script src="js/ia.js?v=2" defer></script>
 <script>
 (function () {
   'use strict';
