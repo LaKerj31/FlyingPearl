@@ -57,7 +57,7 @@
   lb.querySelector('.lb__next').addEventListener('click', function () { lbShow(lbIdx + 1); });
 
   /* ---------- bobines photo ---------- */
-  var shots = Array.prototype.slice.call(document.querySelectorAll('.bobine .vignette'));
+  var shots = Array.prototype.slice.call(document.querySelectorAll('.bobine .bcell'));
   var groups = {};
   shots.forEach(function (b) {
     var g = b.getAttribute('data-group') || '_';
@@ -196,5 +196,5 @@
     } catch (e) { imgsFn(); }
   }
   watchView('[data-view="ia"]', function () { forceLoad(Array.prototype.slice.call(document.querySelectorAll('.card__cover img'))); });
-  watchView('[data-view="photos"]', function () { forceLoad(Array.prototype.slice.call(document.querySelectorAll('.bobine .vignette img'))); });
+  watchView('[data-view="photos"]', function () { forceLoad(Array.prototype.slice.call(document.querySelectorAll('.bobine .bcell img'))); });
 })();
