@@ -610,8 +610,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
           <p class="serie__desc">Première série photographique, réalisée au Sony Alpha 7 IV dans les rues de San Francisco. Les premiers cadres : brume sur le pont, structures, lumière de fin d’été.</p>
         </header>
         <button class="serie__cover" type="button" data-reveal="scale" data-full="media/photos/san-francisco/COUVERTURE.jpg" data-cap="1/800 · f/4 · ISO 125" data-cursor="Entrer" aria-label="Entrer dans la série San Francisco, 7 photos">
-          <img src="media/photos/san-francisco/COUVERTURE.jpg" alt="San Francisco, couverture" width="1333" height="2000" loading="lazy" decoding="async">
-          <span class="serie__enter mono">Entrer · 7 photos</span>
+          <span class="serie__film"><span class="serie__cimg"><img src="media/photos/san-francisco/COUVERTURE.jpg" alt="San Francisco, couverture" width="1333" height="2000" loading="lazy" decoding="async"><span class="serie__enter mono">Entrer · 7 photos</span></span></span>
+          <span class="serie__exif mono"><span>Couverture</span><span>1/800 · f/4 · ISO 125</span></span>
         </button>
         <div class="serie__frames">
           <button class="pframe" type="button" data-reveal data-full="media/photos/san-francisco/A7401369.jpg" data-cap="1/100 · f/11 · ISO 160" data-cursor="Agrandir" aria-label="San Francisco, photo 2, agrandir">
@@ -647,8 +647,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
           <p class="serie__desc">Première série à l’argentique, à l’Olympus XA2 sur une pellicule ISO 400 noir et blanc. Pas d’écran, pas de seconde chance : chaque déclenchement compte, et le grain fait le reste.</p>
         </header>
         <button class="serie__cover" type="button" data-reveal="scale" data-full="media/photos/argentique/COUVERTURE.jpg" data-cap="ISO 400" data-cursor="Entrer" aria-label="Entrer dans la série Argentique, 5 photos">
-          <img src="media/photos/argentique/COUVERTURE.jpg" alt="Argentique, couverture" width="2000" height="1327" loading="lazy" decoding="async">
-          <span class="serie__enter mono">Entrer · 5 photos</span>
+          <span class="serie__film"><span class="serie__cimg"><img src="media/photos/argentique/COUVERTURE.jpg" alt="Argentique, couverture" width="2000" height="1327" loading="lazy" decoding="async"><span class="serie__enter mono">Entrer · 5 photos</span></span></span>
+          <span class="serie__exif mono"><span>Couverture</span><span>ISO 400</span></span>
         </button>
         <div class="serie__frames">
           <button class="pframe" type="button" data-reveal data-full="media/photos/argentique/IMG_3321.jpg" data-cap="ISO 400" data-cursor="Agrandir" aria-label="Argentique, photo 2, agrandir">
@@ -676,8 +676,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
           <p class="serie__desc">Affirmation d’un style. Cadres plus serrés, lumières de nuit et contrastes assumés : au Japon, le regard se précise et la série prend son identité.</p>
         </header>
         <button class="serie__cover" type="button" data-reveal="scale" data-full="media/photos/japon/COUVERTURE.jpg" data-cap="1/200 · f/4 · ISO 3200" data-cursor="Entrer" aria-label="Entrer dans la série Japon, 7 photos">
-          <img src="media/photos/japon/COUVERTURE.jpg" alt="Japon, couverture" width="1333" height="2000" loading="lazy" decoding="async">
-          <span class="serie__enter mono">Entrer · 7 photos</span>
+          <span class="serie__film"><span class="serie__cimg"><img src="media/photos/japon/COUVERTURE.jpg" alt="Japon, couverture" width="1333" height="2000" loading="lazy" decoding="async"><span class="serie__enter mono">Entrer · 7 photos</span></span></span>
+          <span class="serie__exif mono"><span>Couverture</span><span>1/200 · f/4 · ISO 3200</span></span>
         </button>
         <div class="serie__frames">
           <button class="pframe" type="button" data-reveal data-full="media/photos/japon/A7400623.jpg" data-cap="1/1000 · f/11 · ISO 800" data-cursor="Agrandir" aria-label="Japon, photo 2, agrandir">
@@ -798,41 +798,47 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     .serie__name{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(1.5rem,3.4vw,2.6rem);letter-spacing:-.04em;line-height:1}
     .serie__cam{margin:0;color:var(--mute)}
     .serie__desc{grid-column:1/-1;margin:.2em 0 0;max-width:64ch;color:var(--soft);font-size:clamp(.95rem,1.15vw,1.08rem);line-height:1.55;text-wrap:pretty}
-    .serie__cover{position:relative;display:block;grid-column:1;padding:0;border:0;margin:0;background:var(--ink-2);cursor:pointer;overflow:hidden;outline:none;-webkit-tap-highlight-color:transparent}
-    .serie__cover img{display:block;max-width:100%;max-height:min(78vh,900px);width:auto;height:auto;transition:transform 1.4s var(--ease),filter .6s var(--ease)}
-    .serie--land .serie__cover img{max-height:min(60vh,700px)}
-    .serie__cover:hover img,.serie__cover:focus-visible img{transform:scale(1.025);filter:saturate(1.05)}
-    .serie__cover:focus-visible{box-shadow:inset 0 0 0 2px var(--ember)}
+    .serie__cover{position:relative;display:block;grid-column:1;padding:0;border:0;margin:0;background:none;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;text-align:left}
+    .serie__film{display:block;padding:19px 11px;border-radius:2px;box-shadow:0 24px 70px rgba(0,0,0,.6);background:repeating-linear-gradient(90deg,transparent 0 13px,rgba(255,255,255,.15) 13px 23px) 0 5px/100% 9px no-repeat,repeating-linear-gradient(90deg,transparent 0 13px,rgba(255,255,255,.15) 13px 23px) 0 calc(100% - 5px)/100% 9px no-repeat,#161616;transition:transform 1s var(--ease),box-shadow 1s var(--ease)}
+    .serie__cimg{position:relative;display:block;overflow:hidden;background:var(--ink-3)}
+    .serie__cimg img{display:block;max-width:100%;max-height:min(78vh,1000px);width:auto;height:auto;transition:transform 1.4s var(--ease),filter .6s var(--ease)}
+    .serie--land .serie__cimg img{max-height:min(60vh,700px);max-width:52vw}
+    .serie__cover:hover .serie__film,.serie__cover:focus-visible .serie__film{transform:translateY(-4px);box-shadow:0 32px 80px rgba(0,0,0,.7)}
+    .serie__cover:hover .serie__cimg img,.serie__cover:focus-visible .serie__cimg img{transform:scale(1.025);filter:saturate(1.05)}
+    .serie__cover:focus-visible .serie__film{box-shadow:0 0 0 2px var(--ember)}
+    .serie__exif{display:flex;justify-content:space-between;gap:12px;margin-top:8px;color:var(--dim);font-size:10px;letter-spacing:.1em;text-transform:uppercase;transition:color .3s var(--ease)}
+    .serie__cover:hover .serie__exif{color:var(--mute)}
     .serie__enter{position:absolute;left:12px;bottom:12px;padding:7px 11px;background:rgba(0,0,0,.55);color:var(--paper);font-size:10px;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(255,255,255,.18);border-radius:999px;pointer-events:none}
-    .serie__frames{grid-column:2;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:clamp(10px,1.4vw,22px);align-content:start;max-width:1100px;padding-top:clamp(8px,1vw,16px)}
-    .pframe{position:relative;display:block;grid-column:span 2;padding:0;border:0;margin:0;background:none;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;text-align:left}
+    /* pellicules : taille calculée par ia.js (--fh) pour tenir entre le haut et le bas de la couverture */
+    .serie__frames{grid-column:2;display:grid;grid-template-columns:repeat(var(--cols,3),max-content);column-gap:var(--g,28px);row-gap:var(--rg,20px);align-items:start;align-content:start;justify-content:start}
+    .pframe{position:relative;display:block;padding:0;border:0;margin:0;margin-top:calc(var(--slack,0px) * var(--k,0));background:none;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;text-align:left}
     .pframe__film{display:block;padding:12px 7px;border-radius:2px;box-shadow:0 14px 40px rgba(0,0,0,.55);background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(255,255,255,.15) 9px 15px) 0 3px/100% 6px no-repeat,repeating-linear-gradient(90deg,transparent 0 9px,rgba(255,255,255,.15) 9px 15px) 0 calc(100% - 3px)/100% 6px no-repeat,#161616;transition:transform .8s var(--ease),box-shadow .8s var(--ease)}
     .pframe__img{display:block;overflow:hidden;background:var(--ink-3)}
-    .pframe__img img{display:block;width:100%;height:auto;filter:saturate(.98) contrast(1.02);transition:transform 1s var(--ease),filter .5s var(--ease)}
+    .pframe__img img{display:block;height:var(--fh,300px);width:auto;max-width:none;filter:saturate(.98) contrast(1.02);transition:transform 1s var(--ease),filter .5s var(--ease)}
     .pframe:hover .pframe__film,.pframe:focus-visible .pframe__film{transform:translateY(-4px);box-shadow:0 22px 50px rgba(0,0,0,.65)}
     .pframe:hover .pframe__img img,.pframe:focus-visible .pframe__img img{transform:scale(1.03);filter:saturate(1.06) contrast(1.03)}
     .pframe:focus-visible .pframe__film{box-shadow:0 0 0 2px var(--ember)}
     .pframe__exif{display:flex;justify-content:space-between;gap:10px;margin-top:7px;color:var(--dim);font-size:9px;letter-spacing:.1em;text-transform:uppercase;transition:color .3s var(--ease)}
     .pframe:hover .pframe__exif{color:var(--mute)}
-    /* dispersion (portrait : trois par rangée) */
-    .pframe:nth-child(6n+1){margin-top:clamp(20px,3vw,48px);left:0;--d:0s}
-    .pframe:nth-child(6n+2){margin-top:0;left:-3%;--d:.08s}
-    .pframe:nth-child(6n+3){margin-top:clamp(36px,5vw,72px);left:2%;--d:.16s}
-    .pframe:nth-child(6n+4){margin-top:clamp(8px,1vw,18px);left:4%;--d:.24s}
-    .pframe:nth-child(6n+5){margin-top:clamp(28px,4vw,60px);left:-2%;--d:.32s}
-    .pframe:nth-child(6n+6){margin-top:0;left:1%;--d:.4s}
-    /* dispersion (paysage : deux par rangée) */
-    .serie--land .pframe{grid-column:span 3}
-    .serie--land .pframe:nth-child(odd){margin-top:0;left:-1%}
-    .serie--land .pframe:nth-child(even){margin-top:clamp(28px,4vw,64px);left:2%}
+    /* décalage vertical : fraction de la marge disponible (rangée 1 + rangée 2 = 1, jamais au-delà de la couverture) */
+    .pframe:nth-child(6n+1){--k:.3;--d:0s}
+    .pframe:nth-child(6n+2){--k:0;--d:.08s}
+    .pframe:nth-child(6n+3){--k:.5;--d:.16s}
+    .pframe:nth-child(6n+4){--k:.1;--d:.24s}
+    .pframe:nth-child(6n+5){--k:.5;--d:.32s}
+    .pframe:nth-child(6n+6){--k:0;--d:.4s}
+    .serie--land .pframe:nth-child(4n+1){--k:.4}
+    .serie--land .pframe:nth-child(4n+2){--k:0}
+    .serie--land .pframe:nth-child(4n+3){--k:.1}
+    .serie--land .pframe:nth-child(4n+4){--k:.6}
     @media(max-width:900px){
       .serie{grid-template-columns:1fr}
       .serie__cover{grid-column:1}
-      .serie__cover img{max-height:70vh}
-      .serie__frames{grid-column:1;max-width:none;margin-top:clamp(20px,3vw,32px)}
-    }
-    @media(max-width:560px){
-      .pframe,.serie--land .pframe{grid-column:span 3}
+      .serie__cimg img,.serie--land .serie__cimg img{max-height:70vh;max-width:100%}
+      .serie__frames{grid-column:1;grid-template-columns:repeat(3,1fr);column-gap:14px;row-gap:22px;margin-top:clamp(20px,3vw,32px)}
+      .serie--land .serie__frames{grid-template-columns:repeat(2,1fr)}
+      .pframe{margin-top:0}
+      .pframe__img img{height:auto;width:100%}
     }
 
     /* IA : fiche projet (overlay) */
@@ -866,7 +872,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     .pj__video{width:100%;height:auto;max-height:80vh;display:block;background:#000;border:1px solid var(--line);border-radius:3px}
     .lb{z-index:1001}
     .cursor{z-index:1200}
-    @media(prefers-reduced-motion:reduce){.serie__cover img,.pframe__film,.pframe__img img,.pframe__exif,.pj__shot img{transition:none}}
+    @media(prefers-reduced-motion:reduce){.serie__film,.serie__cimg img,.pframe__film,.pframe__img img,.pframe__exif,.pj__shot img{transition:none}}
     </style>
 
     <section class="proj wrap" data-hud="Projets" aria-label="Derniers projets">
@@ -960,7 +966,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 </footer>
 
 <script src="js/lenis.min.js"></script>
-<script src="js/ia.js?v=7" defer></script>
+<script src="js/ia.js?v=8" defer></script>
 <script>
 (function () {
   'use strict';
