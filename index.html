@@ -630,6 +630,32 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       </div>
       <p class="phead__lede">On génère des images, des vidéos et de la musique, avec la même exigence de cadre et de lumière qu'en tournage.</p>
     </header>
+    <!-- Demos conservees mais masquees : requises par le script d'animation du site -->
+    <section class="prompt wrap" data-hud="Prompt" aria-label="Exemple de prompt" hidden aria-hidden="true">
+      <div class="prompt__box" data-reveal>
+        <div class="prompt__head mono"><span>Prompt</span><span class="prompt__status">Saisie</span></div>
+        <p class="prompt__text"><span class="prompt__typed">a white pearl flying through the night, long orange light trail, 16mm grain, soft halation</span><span class="caret" aria-hidden="true"></span></p>
+        <div class="prompt__bar" aria-hidden="true"><span></span></div>
+      </div>
+    </section>
+    <section class="lab wrap" data-hud="Laboratoire" aria-label="Ce qu'on génère" hidden aria-hidden="true">
+      <article class="cell" data-reveal>
+        <div class="cell__screen"><canvas class="px" data-fx="diffusion" aria-hidden="true"></canvas><div class="cell__hud mono"><b>Image</b><span data-count>Étape 30/30</span></div></div>
+        <h2>Images</h2>
+        <p>Des images générées, puis travaillées comme des photos.</p>
+      </article>
+      <article class="cell" data-reveal style="--d:.1s">
+        <div class="cell__screen"><canvas data-fx="frames" aria-hidden="true"></canvas><div class="cell__hud mono"><b>Vidéo</b><span data-count>Image 001/050</span></div></div>
+        <h2>Vidéos</h2>
+        <p>Des plans animés à partir d'images fixes, découpés comme un film.</p>
+      </article>
+      <article class="cell" data-reveal style="--d:.2s">
+        <div class="cell__screen"><canvas data-fx="wave" aria-hidden="true"></canvas><div class="cell__hud mono"><b>Musique</b><span data-count>00:00.0</span></div></div>
+        <h2>Musique</h2>
+        <p>Des chansons et des instrumentaux pour porter les images.</p>
+      </article>
+    </section>
+
 
     <style>
     /* IA : Derniers projets + visionneuses */
