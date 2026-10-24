@@ -88,10 +88,10 @@
     '<div class="pj__panel">' +
       '<p class="pj__eyebrow mono">Projet</p>' +
       '<h2 class="pj__title"></h2>' +
-      '<dl class="pj__spec">' +
+      '<p class="pj__desc"></p>' +
+      '<dl class="pj__meta">' +
         '<div><dt>Outils</dt><dd class="pj__tools"></dd></div>' +
         '<div><dt>Date</dt><dd class="pj__date"></dd></div>' +
-        '<div><dt>Description</dt><dd class="pj__desc"></dd></div>' +
       '</dl>' +
       '<div class="pj__content"></div>' +
     '</div>';
