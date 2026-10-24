@@ -213,9 +213,10 @@
     });
   });
 
-  /* ---------- PHOTOS : pellicules contenues entre le haut et le bas de la couverture ----------
-     La taille des pellicules (--fh) et la marge de décalage (--slack) sont calculées pour que
-     deux rangées, décalages compris, tiennent exactement dans la hauteur du cadre de couverture. */
+  /* ---------- PHOTOS : grille de pellicules alignée sur la couverture ----------
+     Deux rangées de cases, gouttière comprise, font exactement la hauteur du cadre de couverture :
+     le haut de la rangée 1 et le bas de la rangée 2 coïncident avec le haut et le bas de la couverture.
+     La gouttière verticale (ligne EXIF + écart) est visuellement égale à la gouttière horizontale. */
   var seriesEls = Array.prototype.slice.call(document.querySelectorAll('.serie'));
   var narrowMQ = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
   function layoutSeries() {
@@ -225,33 +226,23 @@
       var fr = frames ? Array.prototype.slice.call(frames.querySelectorAll('.pframe')) : [];
       if (!film || !frames || !fr.length) return;
       if (narrowMQ && narrowMQ.matches) {
-        frames.style.removeProperty('--fh'); frames.style.removeProperty('--slack'); frames.style.removeProperty('--cols');
+        ['--fh', '--cols', '--g', '--rg'].forEach(function (k) { frames.style.removeProperty(k); });
         return;
       }
       var cols = serie.classList.contains('serie--land') ? 2 : 3;
-      var rows = Math.ceil(fr.length / cols);
-      frames.style.setProperty('--cols', cols);
-      var G = 28, rowGap = 20;
-      frames.style.setProperty('--g', G + 'px'); frames.style.setProperty('--rg', rowGap + 'px');
-      var Hc = film.offsetHeight;
-      var W = frames.clientWidth;
+      var rows = Math.max(1, Math.ceil(fr.length / cols));
+      var G = 28;
       var f0 = fr[0], film0 = f0.querySelector('.pframe__film'), img0 = f0.querySelector('img');
       var extraFilm = Math.max(0, film0.offsetHeight - img0.offsetHeight);
       var exifH = Math.max(0, f0.offsetHeight - film0.offsetHeight);
-      var S = Math.round(Hc * 0.10);
-      var R = (Hc - (rows - 1) * (exifH + rowGap) - S) / rows;
-      var imgH = R - extraFilm;
-      var ratio = 0;
-      fr.forEach(function (b) {
-        var im = b.querySelector('img');
-        var r = (parseInt(im.getAttribute('width'), 10) || 2) / (parseInt(im.getAttribute('height'), 10) || 3);
-        if (r > ratio) ratio = r;
-      });
-      var maxW = (W - (cols - 1) * G) / cols - 14;
-      if (maxW > 0 && ratio > 0) imgH = Math.min(imgH, maxW / ratio);
-      imgH = Math.max(80, Math.floor(imgH));
+      var rowGap = Math.max(6, G - exifH);
+      var Hc = film.offsetHeight;
+      var R = (Hc - (rows - 1) * (exifH + rowGap)) / rows;
+      var imgH = Math.max(60, Math.floor(R - extraFilm));
+      frames.style.setProperty('--cols', cols);
+      frames.style.setProperty('--g', G + 'px');
+      frames.style.setProperty('--rg', rowGap + 'px');
       frames.style.setProperty('--fh', imgH + 'px');
-      frames.style.setProperty('--slack', S + 'px');
     });
   }
   var layoutT = null;
