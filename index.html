@@ -511,8 +511,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       </div>
       <div class="marquee" aria-hidden="true">
         <div class="marquee__track">
-          <div class="mq"><span>FILMS</span><span class="pearl"></span><span class="o">PHOTOS</span><span class="pearl"></span><span>IA</span><span class="pearl"></span><span class="o">IMAGE</span><span class="pearl"></span><span>VIDÉO</span><span class="pearl"></span></div>
-          <div class="mq"><span>FILMS</span><span class="pearl"></span><span class="o">PHOTOS</span><span class="pearl"></span><span>IA</span><span class="pearl"></span><span class="o">IMAGE</span><span class="pearl"></span><span>VIDÉO</span><span class="pearl"></span></div>
+          <div class="mq"><span>FILMS</span><span class="pearl"></span><span class="o">PHOTOS</span><span class="pearl"></span><span>IA</span><span class="pearl"></span><span class="o">IMAGE</span><span class="pearl"></span><span>VIDÉO</span><span class="pearl"></span><span class="o">FILMS</span><span class="pearl"></span><span>PHOTOS</span><span class="pearl"></span><span class="o">IA</span><span class="pearl"></span><span>IMAGE</span><span class="pearl"></span><span class="o">VIDÉO</span><span class="pearl"></span><span>FILMS</span><span class="pearl"></span><span class="o">PHOTOS</span><span class="pearl"></span><span>IA</span><span class="pearl"></span><span class="o">IMAGE</span><span class="pearl"></span><span>VIDÉO</span><span class="pearl"></span><span class="o">FILMS</span><span class="pearl"></span><span>PHOTOS</span><span class="pearl"></span><span class="o">IA</span><span class="pearl"></span><span>IMAGE</span><span class="pearl"></span><span class="o">VIDÉO</span><span class="pearl"></span></div>
+          <div class="mq"><span>FILMS</span><span class="pearl"></span><span class="o">PHOTOS</span><span class="pearl"></span><span>IA</span><span class="pearl"></span><span class="o">IMAGE</span><span class="pearl"></span><span>VIDÉO</span><span class="pearl"></span><span class="o">FILMS</span><span class="pearl"></span><span>PHOTOS</span><span class="pearl"></span><span class="o">IA</span><span class="pearl"></span><span>IMAGE</span><span class="pearl"></span><span class="o">VIDÉO</span><span class="pearl"></span><span>FILMS</span><span class="pearl"></span><span class="o">PHOTOS</span><span class="pearl"></span><span>IA</span><span class="pearl"></span><span class="o">IMAGE</span><span class="pearl"></span><span>VIDÉO</span><span class="pearl"></span><span class="o">FILMS</span><span class="pearl"></span><span>PHOTOS</span><span class="pearl"></span><span class="o">IA</span><span class="pearl"></span><span>IMAGE</span><span class="pearl"></span><span class="o">VIDÉO</span><span class="pearl"></span></div>
         </div>
       </div>
       <canvas class="orbit orbit--front" aria-hidden="true"></canvas>
@@ -602,95 +602,107 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       </div>
       <p class="phead__lede">La photographie du studio. Quelques séries déjà réalisées, d’un univers à l’autre : les rues de San Francisco, les lumières du Japon, l’argentique en noir et blanc.</p>
     </header>
-    <section class="bobines wrap" data-hud="Bobines" aria-label="Séries photo">
-      <div class="bobine" data-reveal>
-        <header class="bobine__head">
-          <h2 class="bobine__name">SAN FRANCISCO</h2>
-          <p class="bobine__cam mono">Sony Alpha 7 IV · Sept. 2024</p>
+    <section class="series wrap" data-hud="Séries" aria-label="Séries photo">
+      <article class="serie" data-reveal data-group="sf" data-title="SAN FRANCISCO" data-k1="Appareil" data-v1="Sony Alpha 7 IV" data-k2="Date" data-v2="Septembre 2024">
+        <header class="serie__head">
+          <h2 class="serie__name">SAN FRANCISCO</h2>
+          <p class="serie__cam mono">Sony Alpha 7 IV · Sept. 2024</p>
         </header>
-        <div class="bobine__track">
-          <button class="bcell" type="button" data-full="media/photos/san-francisco/A7401369.jpg" data-cap="1/100 · f/11 · ISO 160" data-group="sf" data-cursor="Agrandir" aria-label="San Francisco, photo 1, agrandir">
-            <img src="media/photos/san-francisco/A7401369.jpg" alt="San Francisco, photo 1" width="1333" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/100 · f/11 · ISO 160</span>
+        <button class="serie__cover" type="button" data-full="media/photos/san-francisco/COUVERTURE.jpg" data-cap="1/800 · f/4 · ISO 125" data-cursor="Entrer" aria-label="Entrer dans la série San Francisco, 7 photos">
+          <img src="media/photos/san-francisco/COUVERTURE.jpg" alt="San Francisco, couverture" width="1333" height="2000" loading="lazy" decoding="async">
+          <span class="serie__enter mono">Entrer · 7 photos</span>
+        </button>
+        <div class="serie__frames">
+          <button class="pframe" type="button" data-full="media/photos/san-francisco/A7401369.jpg" data-cap="1/100 · f/11 · ISO 160" data-cursor="Agrandir" aria-label="San Francisco, photo 2, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/san-francisco/A7401369.jpg" alt="San Francisco, photo 1" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7401369</span><span>1/100 · f/11 · ISO 160</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/san-francisco/A7401538.jpg" data-cap="1/160 · f/4 · ISO 3200" data-group="sf" data-cursor="Agrandir" aria-label="San Francisco, photo 2, agrandir">
-            <img src="media/photos/san-francisco/A7401538.jpg" alt="San Francisco, photo 2" width="1333" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/160 · f/4 · ISO 3200</span>
+          <button class="pframe" type="button" data-full="media/photos/san-francisco/A7401538.jpg" data-cap="1/160 · f/4 · ISO 3200" data-cursor="Agrandir" aria-label="San Francisco, photo 3, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/san-francisco/A7401538.jpg" alt="San Francisco, photo 2" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7401538</span><span>1/160 · f/4 · ISO 3200</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/san-francisco/A7401837.jpg" data-cap="1/500 · f/4 · ISO 320" data-group="sf" data-cursor="Agrandir" aria-label="San Francisco, photo 3, agrandir">
-            <img src="media/photos/san-francisco/A7401837.jpg" alt="San Francisco, photo 3" width="1306" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/500 · f/4 · ISO 320</span>
+          <button class="pframe" type="button" data-full="media/photos/san-francisco/A7401837.jpg" data-cap="1/500 · f/4 · ISO 320" data-cursor="Agrandir" aria-label="San Francisco, photo 4, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/san-francisco/A7401837.jpg" alt="San Francisco, photo 3" width="1306" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7401837</span><span>1/500 · f/4 · ISO 320</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/san-francisco/A7401971.jpg" data-cap="1/500 · f/22 · ISO 4000" data-group="sf" data-cursor="Agrandir" aria-label="San Francisco, photo 4, agrandir">
-            <img src="media/photos/san-francisco/A7401971.jpg" alt="San Francisco, photo 4" width="1333" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/500 · f/22 · ISO 4000</span>
+          <button class="pframe" type="button" data-full="media/photos/san-francisco/A7401971.jpg" data-cap="1/500 · f/22 · ISO 4000" data-cursor="Agrandir" aria-label="San Francisco, photo 5, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/san-francisco/A7401971.jpg" alt="San Francisco, photo 4" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7401971</span><span>1/500 · f/22 · ISO 4000</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/san-francisco/A7402128.jpg" data-cap="1/500 · f/22 · ISO 4000" data-group="sf" data-cursor="Agrandir" aria-label="San Francisco, photo 5, agrandir">
-            <img src="media/photos/san-francisco/A7402128.jpg" alt="San Francisco, photo 5" width="1333" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/500 · f/22 · ISO 4000</span>
+          <button class="pframe" type="button" data-full="media/photos/san-francisco/A7402128.jpg" data-cap="1/500 · f/22 · ISO 4000" data-cursor="Agrandir" aria-label="San Francisco, photo 6, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/san-francisco/A7402128.jpg" alt="San Francisco, photo 5" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7402128</span><span>1/500 · f/22 · ISO 4000</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/san-francisco/A7402192.jpg" data-cap="1/500 · f/22 · ISO 6400" data-group="sf" data-cursor="Agrandir" aria-label="San Francisco, photo 6, agrandir">
-            <img src="media/photos/san-francisco/A7402192.jpg" alt="San Francisco, photo 6" width="1333" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/500 · f/22 · ISO 6400</span>
+          <button class="pframe" type="button" data-full="media/photos/san-francisco/A7402192.jpg" data-cap="1/500 · f/22 · ISO 6400" data-cursor="Agrandir" aria-label="San Francisco, photo 7, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/san-francisco/A7402192.jpg" alt="San Francisco, photo 6" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7402192</span><span>1/500 · f/22 · ISO 6400</span></span>
           </button>
         </div>
-      </div>
-      <div class="bobine" data-reveal>
-        <header class="bobine__head">
-          <h2 class="bobine__name">ARGENTIQUE</h2>
-          <p class="bobine__cam mono">Olympus XA2 · N&amp;B · Déc. 2025</p>
+      </article>
+      <article class="serie serie--land" data-reveal data-group="arg" data-title="ARGENTIQUE" data-k1="Appareil" data-v1="Olympus XA2" data-k2="Date" data-v2="Décembre 2025" data-k3="Pellicule" data-v3="ISO 400, noir et blanc">
+        <header class="serie__head">
+          <h2 class="serie__name">ARGENTIQUE</h2>
+          <p class="serie__cam mono">Olympus XA2 · N&amp;B · Déc. 2025</p>
         </header>
-        <div class="bobine__track">
-          <button class="bcell" type="button" data-full="media/photos/argentique/IMG_3321.jpg" data-cap="ISO 400" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 1, agrandir">
-            <img src="media/photos/argentique/IMG_3321.jpg" alt="Argentique, photo 1" width="2000" height="1326" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">ISO 400</span>
+        <button class="serie__cover" type="button" data-full="media/photos/argentique/COUVERTURE.jpg" data-cap="ISO 400" data-cursor="Entrer" aria-label="Entrer dans la série Argentique, 5 photos">
+          <img src="media/photos/argentique/COUVERTURE.jpg" alt="Argentique, couverture" width="2000" height="1327" loading="lazy" decoding="async">
+          <span class="serie__enter mono">Entrer · 5 photos</span>
+        </button>
+        <div class="serie__frames">
+          <button class="pframe" type="button" data-full="media/photos/argentique/IMG_3321.jpg" data-cap="ISO 400" data-cursor="Agrandir" aria-label="Argentique, photo 2, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/argentique/IMG_3321.jpg" alt="Argentique, photo 1" width="2000" height="1326" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>IMG_3321</span><span>ISO 400</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/argentique/IMG_3326.jpg" data-cap="ISO 400" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 2, agrandir">
-            <img src="media/photos/argentique/IMG_3326.jpg" alt="Argentique, photo 2" width="2000" height="1326" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">ISO 400</span>
+          <button class="pframe" type="button" data-full="media/photos/argentique/IMG_3326.jpg" data-cap="ISO 400" data-cursor="Agrandir" aria-label="Argentique, photo 3, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/argentique/IMG_3326.jpg" alt="Argentique, photo 2" width="2000" height="1326" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>IMG_3326</span><span>ISO 400</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/argentique/IMG_3338.jpg" data-cap="ISO 400" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 3, agrandir">
-            <img src="media/photos/argentique/IMG_3338.jpg" alt="Argentique, photo 3" width="2000" height="1327" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">ISO 400</span>
+          <button class="pframe" type="button" data-full="media/photos/argentique/IMG_3338.jpg" data-cap="ISO 400" data-cursor="Agrandir" aria-label="Argentique, photo 4, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/argentique/IMG_3338.jpg" alt="Argentique, photo 3" width="2000" height="1327" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>IMG_3338</span><span>ISO 400</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/argentique/IMG_3340.jpg" data-cap="ISO 400" data-group="arg" data-cursor="Agrandir" aria-label="Argentique, photo 4, agrandir">
-            <img src="media/photos/argentique/IMG_3340.jpg" alt="Argentique, photo 4" width="2000" height="1326" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">ISO 400</span>
+          <button class="pframe" type="button" data-full="media/photos/argentique/IMG_3340.jpg" data-cap="ISO 400" data-cursor="Agrandir" aria-label="Argentique, photo 5, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/argentique/IMG_3340.jpg" alt="Argentique, photo 4" width="2000" height="1326" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>IMG_3340</span><span>ISO 400</span></span>
           </button>
         </div>
-      </div>
-      <div class="bobine" data-reveal>
-        <header class="bobine__head">
-          <h2 class="bobine__name">JAPON</h2>
-          <p class="bobine__cam mono">Sony Alpha 7 IV · Juil. 2025</p>
+      </article>
+      <article class="serie" data-reveal data-group="jp" data-title="JAPON" data-k1="Appareil" data-v1="Sony Alpha 7 IV" data-k2="Date" data-v2="Juillet 2025">
+        <header class="serie__head">
+          <h2 class="serie__name">JAPON</h2>
+          <p class="serie__cam mono">Sony Alpha 7 IV · Juil. 2025</p>
         </header>
-        <div class="bobine__track">
-          <button class="bcell" type="button" data-full="media/photos/japon/A7400623.jpg" data-cap="1/1000 · f/11 · ISO 800" data-group="jp" data-cursor="Agrandir" aria-label="Japon, photo 1, agrandir">
-            <img src="media/photos/japon/A7400623.jpg" alt="Japon, photo 1" width="1333" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/1000 · f/11 · ISO 800</span>
+        <button class="serie__cover" type="button" data-full="media/photos/japon/COUVERTURE.jpg" data-cap="1/200 · f/4 · ISO 3200" data-cursor="Entrer" aria-label="Entrer dans la série Japon, 7 photos">
+          <img src="media/photos/japon/COUVERTURE.jpg" alt="Japon, couverture" width="1333" height="2000" loading="lazy" decoding="async">
+          <span class="serie__enter mono">Entrer · 7 photos</span>
+        </button>
+        <div class="serie__frames">
+          <button class="pframe" type="button" data-full="media/photos/japon/A7400623.jpg" data-cap="1/1000 · f/11 · ISO 800" data-cursor="Agrandir" aria-label="Japon, photo 2, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/japon/A7400623.jpg" alt="Japon, photo 1" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7400623</span><span>1/1000 · f/11 · ISO 800</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/japon/A7406577.jpg" data-cap="1/500 · f/5.6 · ISO 800" data-group="jp" data-cursor="Agrandir" aria-label="Japon, photo 2, agrandir">
-            <img src="media/photos/japon/A7406577.jpg" alt="Japon, photo 2" width="1333" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/500 · f/5.6 · ISO 800</span>
+          <button class="pframe" type="button" data-full="media/photos/japon/A7406577.jpg" data-cap="1/500 · f/5.6 · ISO 800" data-cursor="Agrandir" aria-label="Japon, photo 3, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/japon/A7406577.jpg" alt="Japon, photo 2" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7406577</span><span>1/500 · f/5.6 · ISO 800</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/japon/A7408564.jpg" data-cap="1/200 · f/4 · ISO 6400" data-group="jp" data-cursor="Agrandir" aria-label="Japon, photo 3, agrandir">
-            <img src="media/photos/japon/A7408564.jpg" alt="Japon, photo 3" width="1333" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/200 · f/4 · ISO 6400</span>
+          <button class="pframe" type="button" data-full="media/photos/japon/A7408564.jpg" data-cap="1/200 · f/4 · ISO 6400" data-cursor="Agrandir" aria-label="Japon, photo 4, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/japon/A7408564.jpg" alt="Japon, photo 3" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7408564</span><span>1/200 · f/4 · ISO 6400</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/japon/A7408818.jpg" data-cap="1/320 · f/4 · ISO 12800" data-group="jp" data-cursor="Agrandir" aria-label="Japon, photo 4, agrandir">
-            <img src="media/photos/japon/A7408818.jpg" alt="Japon, photo 4" width="1334" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/320 · f/4 · ISO 12800</span>
+          <button class="pframe" type="button" data-full="media/photos/japon/A7408818.jpg" data-cap="1/320 · f/4 · ISO 12800" data-cursor="Agrandir" aria-label="Japon, photo 5, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/japon/A7408818.jpg" alt="Japon, photo 4" width="1334" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7408818</span><span>1/320 · f/4 · ISO 12800</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/japon/A7408846.jpg" data-cap="1/30 · f/4 · ISO 12800" data-group="jp" data-cursor="Agrandir" aria-label="Japon, photo 5, agrandir">
-            <img src="media/photos/japon/A7408846.jpg" alt="Japon, photo 5" width="1333" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/30 · f/4 · ISO 12800</span>
+          <button class="pframe" type="button" data-full="media/photos/japon/A7408846.jpg" data-cap="1/30 · f/4 · ISO 12800" data-cursor="Agrandir" aria-label="Japon, photo 6, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/japon/A7408846.jpg" alt="Japon, photo 5" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7408846</span><span>1/30 · f/4 · ISO 12800</span></span>
           </button>
-          <button class="bcell" type="button" data-full="media/photos/japon/A7409085.jpg" data-cap="1/1000 · f/5 · ISO 800" data-group="jp" data-cursor="Agrandir" aria-label="Japon, photo 6, agrandir">
-            <img src="media/photos/japon/A7409085.jpg" alt="Japon, photo 6" width="1333" height="2000" loading="lazy" decoding="async">
-            <span class="bcell__exif mono">1/1000 · f/5 · ISO 800</span>
+          <button class="pframe" type="button" data-full="media/photos/japon/A7409085.jpg" data-cap="1/1000 · f/5 · ISO 800" data-cursor="Agrandir" aria-label="Japon, photo 7, agrandir">
+            <span class="pframe__film"><span class="pframe__img"><img src="media/photos/japon/A7409085.jpg" alt="Japon, photo 6" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
+            <span class="pframe__exif mono"><span>A7409085</span><span>1/1000 · f/5 · ISO 800</span></span>
           </button>
         </div>
-      </div>
+      </article>
     </section>
     <nav class="pn wrap" aria-label="Autres univers">
       <a class="pn__link pn__link--prev" href="#films" data-cursor="Précédent"><span class="pn__arrow" aria-hidden="true">←</span><span><span class="pn__label mono">Univers précédent</span><span class="pn__title">FILMS</span></span></a>
@@ -773,20 +785,44 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     @media(max-width:520px){.lb__prev{left:10px}.lb__next{right:10px}.lb__btn,.vb__close{width:40px;height:40px;font-size:20px}}
     @media(prefers-reduced-motion:reduce){.card__cover img,.card__go,.card__play{transition:none}}
 
-    /* PHOTOS : bobines */
-    .bobines{margin-top:clamp(28px,4vw,56px);display:flex;flex-direction:column;gap:clamp(40px,5.5vw,80px)}
-    .bobine__head{display:flex;flex-wrap:wrap;align-items:baseline;gap:.3em 1.2em;margin:0 0 clamp(12px,1.5vw,20px)}
-    .bobine__name{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(1.5rem,3.4vw,2.6rem);letter-spacing:-.04em;line-height:1}
-    .bobine__cam{color:var(--mute)}
-    .bobine__track{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;padding:9px 0;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--dim) transparent;background:repeating-linear-gradient(90deg,transparent 0 13px,rgba(255,255,255,.13) 13px 19px) top/100% 6px no-repeat,repeating-linear-gradient(90deg,transparent 0 13px,rgba(255,255,255,.13) 13px 19px) bottom/100% 6px no-repeat,var(--ink-2)}
-    .bobine__track::-webkit-scrollbar{height:8px}
-    .bobine__track::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
-    .bcell{position:relative;flex:0 0 auto;height:clamp(220px,38vh,380px);padding:0;border:0;margin:0;background:var(--ink-3);cursor:pointer;overflow:hidden;scroll-snap-align:start;outline:none;-webkit-tap-highlight-color:transparent}
-    .bcell img{height:100%;width:auto;display:block;object-fit:contain;filter:saturate(.98) contrast(1.02);transition:transform 1s var(--ease),filter .5s var(--ease)}
-    .bcell:hover img,.bcell:focus-visible img{transform:scale(1.04);filter:saturate(1.06) contrast(1.03)}
-    .bcell:focus-visible{box-shadow:inset 0 0 0 2px var(--ember)}
-    .bcell__exif{position:absolute;left:8px;bottom:8px;color:var(--paper);opacity:0;transform:translateY(6px);transition:opacity .35s var(--ease),transform .35s var(--ease);text-shadow:0 1px 6px rgba(0,0,0,.95);pointer-events:none;font-size:10px}
-    .bcell:hover .bcell__exif,.bcell:focus-visible .bcell__exif{opacity:.95;transform:none}
+    /* PHOTOS : séries (couverture + une image de pellicule par photo) */
+    .series{margin-top:clamp(28px,4vw,56px);display:flex;flex-direction:column;gap:clamp(72px,10vw,150px)}
+    .serie__head{display:flex;flex-wrap:wrap;align-items:baseline;gap:.3em 1.2em;margin:0 0 clamp(16px,2vw,28px)}
+    .serie__name{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(1.5rem,3.4vw,2.6rem);letter-spacing:-.04em;line-height:1}
+    .serie__cam{color:var(--mute)}
+    .serie__cover{position:relative;display:block;padding:0;border:0;margin:0;background:var(--ink-2);cursor:pointer;overflow:hidden;outline:none;-webkit-tap-highlight-color:transparent}
+    .serie:nth-child(even) .serie__cover{margin-left:auto}
+    .serie__cover img{display:block;max-width:100%;max-height:78vh;width:auto;height:auto;transition:transform 1.4s var(--ease),filter .6s var(--ease)}
+    .serie__cover:hover img,.serie__cover:focus-visible img{transform:scale(1.025);filter:saturate(1.05)}
+    .serie__cover:focus-visible{box-shadow:inset 0 0 0 2px var(--ember)}
+    .serie__enter{position:absolute;left:12px;bottom:12px;padding:7px 11px;background:rgba(0,0,0,.55);color:var(--paper);font-size:10px;letter-spacing:.12em;text-transform:uppercase;border:1px solid rgba(255,255,255,.18);border-radius:999px;pointer-events:none}
+    .serie__frames{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(12px,2vw,28px);margin-top:clamp(28px,4vw,56px);align-items:start}
+    .pframe{position:relative;display:block;padding:0;border:0;margin:0;background:none;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;grid-column:span 4;text-align:left}
+    .pframe__film{display:block;padding:15px 9px;border-radius:2px;box-shadow:0 18px 50px rgba(0,0,0,.55);background:repeating-linear-gradient(90deg,transparent 0 11px,rgba(255,255,255,.15) 11px 18px) 0 4px/100% 7px no-repeat,repeating-linear-gradient(90deg,transparent 0 11px,rgba(255,255,255,.15) 11px 18px) 0 calc(100% - 4px)/100% 7px no-repeat,#161616;transition:transform .8s var(--ease),box-shadow .8s var(--ease)}
+    .pframe__img{display:block;overflow:hidden;background:var(--ink-3)}
+    .pframe__img img{display:block;width:100%;height:auto;filter:saturate(.98) contrast(1.02);transition:transform 1s var(--ease),filter .5s var(--ease)}
+    .pframe:hover .pframe__film,.pframe:focus-visible .pframe__film{transform:translateY(-4px);box-shadow:0 26px 60px rgba(0,0,0,.65)}
+    .pframe:hover .pframe__img img,.pframe:focus-visible .pframe__img img{transform:scale(1.03);filter:saturate(1.06) contrast(1.03)}
+    .pframe:focus-visible .pframe__film{box-shadow:0 0 0 2px var(--ember)}
+    .pframe__exif{display:flex;justify-content:space-between;gap:12px;margin-top:9px;color:var(--dim);font-size:10px;letter-spacing:.1em;text-transform:uppercase;transition:color .3s var(--ease)}
+    .pframe:hover .pframe__exif{color:var(--mute)}
+    /* dispersion : portrait, deux par rangée, décalées */
+    .pframe:nth-child(6n+1){grid-column:1/span 4}
+    .pframe:nth-child(6n+2){grid-column:7/span 4;margin-top:clamp(40px,9vw,140px)}
+    .pframe:nth-child(6n+3){grid-column:3/span 4;margin-top:clamp(-28px,-2vw,0px)}
+    .pframe:nth-child(6n+4){grid-column:9/span 4;margin-top:clamp(30px,6vw,100px)}
+    .pframe:nth-child(6n+5){grid-column:2/span 4;margin-top:clamp(10px,2vw,36px)}
+    .pframe:nth-child(6n+6){grid-column:7/span 4;margin-top:clamp(60px,10vw,160px)}
+    /* dispersion : paysage, en quinconce */
+    .serie--land .pframe:nth-child(odd){grid-column:1/span 7;margin-top:0}
+    .serie--land .pframe:nth-child(even){grid-column:6/span 7;margin-top:clamp(24px,5vw,80px)}
+    @media(max-width:760px){
+      .serie__frames{grid-template-columns:1fr;gap:28px}
+      .pframe,.pframe:nth-child(n),.serie--land .pframe:nth-child(n){grid-column:1/-1;width:min(100%,420px);margin-top:0}
+      .pframe:nth-child(even){justify-self:end}
+      .serie__cover img{max-height:70vh}
+    }
+
     /* IA : fiche projet (overlay) */
     .pj{position:fixed;inset:0;z-index:1000;display:none;overflow-y:auto;background:rgba(6,6,6,.975);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
     .pj.is-open{display:block}
@@ -809,10 +845,16 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     .pj__shot img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 1s var(--ease)}
     .pj__shot:hover img,.pj__shot:focus-visible img{transform:scale(1.05)}
     .pj__shot:focus-visible{box-shadow:0 0 0 2px var(--ember)}
+    .pj__grid--serie{grid-template-columns:repeat(2,1fr);gap:clamp(12px,2vw,28px);align-items:start}
+    @media(max-width:640px){.pj__grid--serie{grid-template-columns:1fr}}
+    .pj__shot--nat{aspect-ratio:auto;background:var(--ink-3)}
+    .pj__shot--nat img{height:auto;object-fit:contain}
+    .pj__shot__cap{position:absolute;left:8px;bottom:8px;color:var(--paper);font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:0;transition:opacity .35s var(--ease);text-shadow:0 1px 6px rgba(0,0,0,.95);pointer-events:none}
+    .pj__shot:hover .pj__shot__cap,.pj__shot:focus-visible .pj__shot__cap{opacity:.95}
     .pj__video{width:100%;height:auto;max-height:80vh;display:block;background:#000;border:1px solid var(--line);border-radius:3px}
     .lb{z-index:1001}
     .cursor{z-index:1200}
-    @media(prefers-reduced-motion:reduce){.bcell img,.bcell__exif,.pj__shot img{transition:none}}
+    @media(prefers-reduced-motion:reduce){.serie__cover img,.pframe__film,.pframe__img img,.pframe__exif,.pj__shot img{transition:none}}
     </style>
 
     <section class="proj wrap" data-hud="Projets" aria-label="Derniers projets">
@@ -906,7 +948,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 </footer>
 
 <script src="js/lenis.min.js"></script>
-<script src="js/ia.js?v=5" defer></script>
+<script src="js/ia.js?v=6" defer></script>
 <script>
 (function () {
   'use strict';
