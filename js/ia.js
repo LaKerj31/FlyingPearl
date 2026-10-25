@@ -394,14 +394,15 @@
        d'une photo prise hors champ (Sitges) ; les lignes de rappel restent à part, car les vignettes ne bougent pas */
     var gPan = svgEl('g', { 'class': 'zpan' });
     gPan.appendChild(gG); gPan.appendChild(gR); gPan.appendChild(gC); gPan.appendChild(gP);
-    var gL = svgEl('g', { 'class': 'zpins zleads' });
+    var gL = svgEl('g', { 'class': 'zleads' });
     var halo = svgEl('circle', { 'class': 'globe__halo', r: 14 }); var pin = svgEl('circle', { 'class': 'globe__pin', r: 6 });
     svg.appendChild(gPan); svg.appendChild(gL); svg.appendChild(halo); svg.appendChild(pin);
     stage.appendChild(svg);
     var shots = document.createElement('div'); shots.className = 'stageshots'; stage.appendChild(shots);
     var st = { serie: serie, stage: stage, svg: svg, gG: gG, sphere: sphere, grat: grat, land: land, gR: gR, rPath: rPath, gC: gC, cOut: cOut, cLines: cLines, gP: gP, gPan: gPan, gL: gL, halo: halo, pin: pin,
                shots: shots, figs: figs, located: located, center: center, extent: extent, layers: null, state: 'idle', raf: 0, W: 0, H: 0, cx: 0, cy: 0, R0: 0, Zf: 1, Zr: 1, t0: null, ready: false,
-               pinPos: [], leads: [], pinEls: [], shotEls: [], panQ: 0, panK: -1, panRaf: 0, oRf: 1 };
+               pinPos: [], leads: [], pinEls: [], shotEls: [], leadGeo: [], leadLen: [], shotOn: [], revRaf: 0, revDone: false,
+               panQ: 0, panK: -1, panRaf: 0, oRf: 1 };
     loadJSON(layersUrl, function (d) {
       if (!d) return;
       st.layers = { region: decodeLines(d.region, d.q), city: d.city ? { outline: decodeLines(d.city.outline, d.q), lines: decodeLines(d.city.lines, d.q) } : null };
@@ -436,17 +437,24 @@
     return st;
   }
   /* glissement de la carte : q = 0 (carte centrée) à 1 (lieu hors champ amené au centre) */
+  function panOffset(st) {
+    var k = st.panK, v = (k >= 0 && st.located[k] && st.located[k].pan) || { dx: 0, dy: 0 };
+    return { dx: v.dx * st.panQ, dy: v.dy * st.panQ };
+  }
+  /* trace la ligne de rappel k sur une longueur len (Infinity = jusqu'à la photo), depuis l'épingle (décalée par le glissement) */
+  function setLead(st, k, len) {
+    var g = st.leadGeo[k], ld = st.leads[k]; if (!g || !ld) return;
+    var o = panOffset(st), x1 = g.px + o.dx, y1 = g.py + o.dy, dx = g.cx - x1, dy = g.cy - y1, L = Math.hypot(dx, dy) || 1;
+    var t = Math.max(0, Math.min(1, len / L));
+    ld.setAttribute('x1', x1.toFixed(1)); ld.setAttribute('y1', y1.toFixed(1));
+    ld.setAttribute('x2', (x1 + dx * t).toFixed(1)); ld.setAttribute('y2', (y1 + dy * t).toFixed(1));
+  }
+  /* glissement de la carte : q = 0 (carte centrée) à 1 (lieu hors champ amené au centre). Les autres lignes de rappel
+     restent visibles : elles pointent hors de la carte, vers Barcelone, comme une direction à suivre */
   function applyPan(st, q) {
-    var k = st.panK, v = (k >= 0 && st.located[k].pan) || { dx: 0, dy: 0 };
-    var dx = v.dx * q, dy = v.dy * q;
-    st.gPan.setAttribute('transform', 'translate(' + dx.toFixed(1) + ' ' + dy.toFixed(1) + ')');
-    st.located.forEach(function (f, i) {
-      var p = st.pinPos[i], ld = st.leads[i]; if (!p || !ld) return;
-      ld.setAttribute('x1', (p.x + dx).toFixed(1)); ld.setAttribute('y1', (p.y + dy).toFixed(1));
-      var o = (k < 0 || i === k) ? 1 : 1 - q;   /* les autres repères s'effacent pendant le glissement */
-      ld.style.opacity = o.toFixed(3);
-      st.pinEls[i].forEach(function (el) { el.style.opacity = o.toFixed(3); });
-    });
+    var o = panOffset(st);
+    st.gPan.setAttribute('transform', 'translate(' + o.dx.toFixed(1) + ' ' + o.dy.toFixed(1) + ')');
+    st.located.forEach(function (f, i) { setLead(st, i, st.leadLen[i] || 0); });
     if (st.layers && st.layers.city) st.gR.style.opacity = (st.oRf + (1 - st.oRf) * q).toFixed(3);   /* les côtes reprennent de la présence hors de la ville */
   }
   function panTo(st, k) {
@@ -537,20 +545,60 @@
       return p;
     });
     var spots = placeShots(st, pins);
+    st.leadGeo = [];
     st.located.forEach(function (f, k) {
-      var p = pins[k], tx = spots[k].x, ty = spots[k].y;
-      var lead = svgEl('line', { 'class': 'map__lead', x1: p.x.toFixed(1), y1: p.y.toFixed(1), x2: tx.toFixed(1), y2: ty.toFixed(1) });
+      var p = pins[k], b = spots[k];
+      var lead = svgEl('line', { 'class': 'map__lead', x1: p.x.toFixed(1), y1: p.y.toFixed(1), x2: p.x.toFixed(1), y2: p.y.toFixed(1) });
       st.gL.appendChild(lead);
       var ring = svgEl('circle', { 'class': 'map__ring', cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 7 });
       ring.style.setProperty('--pd', (k * 0.35) + 's');
       var dot = svgEl('circle', { 'class': 'map__pin', cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 4.5 });
       st.gP.appendChild(ring); st.gP.appendChild(dot);
       st.pinPos.push(p); st.leads.push(lead); st.pinEls.push([ring, dot]);
+      /* longueur jusqu'au bord de la photo (le trait « arrive » sur elle) et point d'entrée dans la carte (épingle hors champ) */
+      var dx = b.x - p.x, dy = b.y - p.y, L = Math.hypot(dx, dy) || 1;
+      var inner = Math.min(dx ? (b.hw / 1.04) / Math.abs(dx) : 1e9, dy ? (b.hh / 1.04) / Math.abs(dy) : 1e9);
+      var edge = Math.max(0, 1 - Math.min(1, inner)) * L;
+      var t0 = 0, t1 = 1;
+      [[-dx, p.x], [dx, W - p.x], [-dy, p.y], [dy, H - p.y]].forEach(function (c) {
+        if (c[0] === 0) { if (c[1] < 0) t1 = -1; return; }
+        var r = c[1] / c[0];
+        if (c[0] < 0) t0 = Math.max(t0, r); else t1 = Math.min(t1, r);
+      });
+      var start = t0 <= t1 ? Math.min(edge, t0 * L) : 0;
+      st.leadGeo.push({ px: p.x, py: p.y, cx: b.x, cy: b.y, L: L, edge: edge, start: start });
+      if (st.leadLen[k] === undefined) st.leadLen[k] = 0;
+      setLead(st, k, st.leadLen[k]);
     });
     if (st.state === 'map') { renderFrame(st, lon0, lat0, st.Zf, true); applyPan(st, st.panQ); }
     else if (st.state === 'idle') renderFrame(st, startLon(st), 12, 1, false);
     /* la scène était déjà à l'écran avant d'être prête (rafraîchissement directement sur Photos) : on lance le vol maintenant */
     if (st.pending && st.state === 'idle') { st.pending = false; playStage(st); }
+  }
+  /* apparition, une fois le zoom fini : toutes les épingles ensemble, puis chaque pointillé se trace à vitesse constante
+     vers sa photo, qui apparaît dès que son trait l'atteint (les traits courts finissent donc les premiers) */
+  function startReveal(st) {
+    st.stage.classList.add('is-pins');
+    var n = st.located.length, PIN = REDUCE ? 0 : 520;
+    var showShot = function (k) { if (st.shotOn[k]) return; st.shotOn[k] = true; st.leadLen[k] = Infinity; setLead(st, k, Infinity); if (st.shotEls[k]) st.shotEls[k].classList.add('is-on'); };
+    if (REDUCE) { for (var i = 0; i < n; i++) showShot(i); st.revDone = true; return; }
+    var span = 0; st.leadGeo.forEach(function (g) { span = Math.max(span, g.edge - g.start); });
+    var v = Math.max(230, span / 1.5), t0 = null;
+    var step = function (ts) {
+      if (st.state !== 'map') return;
+      if (!t0) t0 = ts;
+      var e = (ts - t0 - PIN) / 1000, left = 0;
+      if (e > 0) {
+        for (var k = 0; k < n; k++) {
+          if (st.shotOn[k]) continue;
+          var g = st.leadGeo[k]; if (!g) continue;
+          var len = g.start + v * e;
+          if (len >= g.edge) showShot(k); else { st.leadLen[k] = len; setLead(st, k, len); left++; }
+        }
+      } else left = n;
+      if (left) st.revRaf = requestAnimationFrame(step); else { st.revRaf = 0; st.revDone = true; }
+    };
+    st.revRaf = requestAnimationFrame(step);
   }
   function startLon(st) { return st.center.lon - 95; }
   function renderFrame(st, lon0, lat0, Z, final) {
@@ -583,7 +631,7 @@
   function playStage(st) {
     if (st.state !== 'idle') return;
     if (!st.ready) { st.pending = true; return; }
-    if (REDUCE) { st.state = 'map'; renderFrame(st, st.center.lon, st.center.lat, st.Zf, true); return; }
+    if (REDUCE) { st.state = 'map'; renderFrame(st, st.center.lon, st.center.lat, st.Zf, true); startReveal(st); return; }
     st.state = 'flying';
     var lonA = startLon(st), latA = 12, lonB = st.center.lon, latB = st.center.lat;
     var dl = ((lonB - lonA + 540) % 360) - 180;
@@ -601,21 +649,25 @@
       if (done) { lon0 = lonB; lat0 = latB; Z = st.Zf; }
       renderFrame(st, lon0, lat0, Z, done);
       if (!done) st.raf = requestAnimationFrame(step);
-      else st.state = 'map';
+      else { st.state = 'map'; startReveal(st); }
     };
     st.raf = requestAnimationFrame(step);
   }
   function resetStage(st) {
     if (st.raf) cancelAnimationFrame(st.raf);
     if (st.panRaf) cancelAnimationFrame(st.panRaf);
+    if (st.revRaf) cancelAnimationFrame(st.revRaf);
+    st.revRaf = 0; st.revDone = false;
+    st.located.forEach(function (f, k) { st.leadLen[k] = 0; st.shotOn[k] = false; if (st.shotEls[k]) st.shotEls[k].classList.remove('is-on'); });
     st.panRaf = 0; st.panQ = 0; st.panK = -1; applyPan(st, 0);
     st.state = 'idle'; st.pending = false;
-    st.stage.classList.remove('is-map');
+    st.stage.classList.remove('is-map', 'is-pins');
     if (st.ready) renderFrame(st, startLon(st), 12, 1, false);
   }
   var stages = [];
   function initStages() {
-    if (stages.length || (narrowMQ && narrowMQ.matches)) return;
+    if (stages.length) { checkSoon(); return; }
+    if (narrowMQ && narrowMQ.matches) return;
     loadGlobe(function () {
       seriesEls.forEach(function (serie) { var st = setupStage(serie); if (st) stages.push(st); });
       if (!stages.length) return;
@@ -625,19 +677,30 @@
         stages.forEach(function (st) { if (!st.ready) fitStage(st); if (!st.ready) all = false; });
         if (all) clearInterval(tick);
       }, 150);
-      if ('IntersectionObserver' in window) {
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (en) {
-            var st = null; stages.forEach(function (x) { if (x.stage === en.target) st = x; });
-            if (!st) return;
-            if (en.isIntersecting && en.intersectionRatio >= 0.35) playStage(st);
-            else if (!en.isIntersecting && st.state !== 'idle') resetStage(st);
-          });
-        }, { threshold: [0, 0.35] });
-        stages.forEach(function (st) { io.observe(st.stage); });
-      } else { stages.forEach(function (st) { playStage(st); }); }
+      window.addEventListener('scroll', checkSoon, { passive: true });
+      window.addEventListener('resize', checkSoon);
+      checkStages();
     });
   }
+  /* une série joue quand sa carte est assez visible ; dès qu'une autre série occupe plus de 55 % de la hauteur de l'écran
+     (et plus que celle-ci), elle revient à zéro, pour rejouer quand on y revient */
+  function checkStages() {
+    var vh = window.innerHeight || 1;
+    var vis = stages.map(function (st) {
+      var r = st.serie.getBoundingClientRect(), s = st.stage.getBoundingClientRect();
+      var vs = Math.max(0, Math.min(vh, r.bottom) - Math.max(0, r.top));
+      var ss = s.height ? Math.max(0, Math.min(vh, s.bottom) - Math.max(0, s.top)) / s.height : 0;
+      return { serie: vs / vh, stage: ss, inView: s.height > 0 && s.bottom > 0 && s.top < vh };
+    });
+    stages.forEach(function (st, i) {
+      var v = vis[i], beaten = false;
+      vis.forEach(function (w, j) { if (j !== i && w.serie >= 0.55 && w.serie > v.serie) beaten = true; });
+      if (!v.inView || beaten) { if (st.state !== 'idle' || st.pending) resetStage(st); }
+      else if (v.stage >= 0.35) playStage(st);
+    });
+  }
+  var checkRaf = 0;
+  function checkSoon() { if (!checkRaf) checkRaf = requestAnimationFrame(function () { checkRaf = 0; checkStages(); }); }
   var globeData = null, globeWaiters = [];
   function loadGlobe(cb) {
     if (globeData) { cb(globeData); return; }
@@ -659,7 +722,7 @@
     stage.style.setProperty('--sh', film.offsetHeight + 'px');
     stages.forEach(function (st) { if (st.serie === serie) fitStage(st); });
   }
-  function layoutSeries() { seriesEls.forEach(layoutOne); }
+  function layoutSeries() { seriesEls.forEach(layoutOne); if (stages.length) checkSoon(); }
   var layoutTimers = [];
   function layoutSoon() {
     layoutTimers.forEach(clearTimeout); layoutTimers = [];
@@ -717,4 +780,12 @@
     forceLoad(Array.prototype.slice.call(document.querySelectorAll('.serie img')));
     if (seriesEls.length) { layoutSeries(); layoutSoon(); initStages(); }
   });
+  /* en quittant la page Photos, les cartes reviennent à zéro (elles rejoueront au retour) */
+  (function () {
+    var pv = document.querySelector('[data-view="photos"]');
+    if (!pv || !window.MutationObserver) return;
+    new MutationObserver(function () {
+      if (pv.hasAttribute('hidden')) stages.forEach(function (st) { if (st.state !== 'idle' || st.pending) resetStage(st); });
+    }).observe(pv, { attributes: true, attributeFilter: ['hidden'] });
+  })();
 })();
