@@ -361,8 +361,8 @@
     return rings;
   })();
   function fadeIn(z, a, b) { var t = (Math.log(z) - Math.log(a)) / (Math.log(b) - Math.log(a)); return Math.max(0, Math.min(1, t)); }
-  function stageFigs(serie) {
-    return serieFigs(serie).filter(function (f) { return !isNaN(f.lat) && !isNaN(f.lon); }).map(function (f) {
+  function stageFigs(figs) {
+    return figs.filter(function (f) { return !isNaN(f.lat) && !isNaN(f.lon); }).map(function (f) {
       var el = f.el;
       f.sx = parseFloat(el.getAttribute('data-sx')); f.sy = parseFloat(el.getAttribute('data-sy'));
       f.sr = parseFloat(el.getAttribute('data-sr')) || 0; f.ss = parseFloat(el.getAttribute('data-ss')) || 1;
@@ -374,7 +374,7 @@
     var film = serie.querySelector('.serie__film');
     var layersUrl = serie.getAttribute('data-layers');
     if (!stage || !film || !layersUrl) return null;
-    var figs = serieFigs(serie), located = stageFigs(serie);
+    var figs = serieFigs(serie), located = stageFigs(figs);
     if (!located.length) return null;
     var c = (serie.getAttribute('data-center') || '').split(',').map(Number);
     var center = (c.length === 2 && !isNaN(c[0]) && !isNaN(c[1])) ? { lat: c[0], lon: c[1] } : (function () {
