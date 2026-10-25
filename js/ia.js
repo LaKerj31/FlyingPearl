@@ -390,12 +390,18 @@
     var gR = svgEl('g', { 'class': 'zr' }); var rPath = svgEl('path', { 'class': 'zr__coast', d: '' }); gR.appendChild(rPath);
     var gC = svgEl('g', { 'class': 'zc' }); var cOut = svgEl('path', { 'class': 'zc__outline', d: '' }); var cLines = svgEl('path', { 'class': 'zc__lines', d: '' }); gC.appendChild(cOut); gC.appendChild(cLines);
     var gP = svgEl('g', { 'class': 'zpins' });
+    /* tout ce qui est "carte" (globe, région, ville, épingles) est dans un groupe que l'on peut faire glisser au survol
+       d'une photo prise hors champ (Sitges) ; les lignes de rappel restent à part, car les vignettes ne bougent pas */
+    var gPan = svgEl('g', { 'class': 'zpan' });
+    gPan.appendChild(gG); gPan.appendChild(gR); gPan.appendChild(gC); gPan.appendChild(gP);
+    var gL = svgEl('g', { 'class': 'zpins zleads' });
     var halo = svgEl('circle', { 'class': 'globe__halo', r: 14 }); var pin = svgEl('circle', { 'class': 'globe__pin', r: 6 });
-    svg.appendChild(gG); svg.appendChild(gR); svg.appendChild(gC); svg.appendChild(gP); svg.appendChild(halo); svg.appendChild(pin);
+    svg.appendChild(gPan); svg.appendChild(gL); svg.appendChild(halo); svg.appendChild(pin);
     stage.appendChild(svg);
     var shots = document.createElement('div'); shots.className = 'stageshots'; stage.appendChild(shots);
-    var st = { serie: serie, stage: stage, svg: svg, gG: gG, sphere: sphere, grat: grat, land: land, gR: gR, rPath: rPath, gC: gC, cOut: cOut, cLines: cLines, gP: gP, halo: halo, pin: pin,
-               shots: shots, figs: figs, located: located, center: center, extent: extent, layers: null, state: 'idle', raf: 0, W: 0, H: 0, cx: 0, cy: 0, R0: 0, Zf: 1, Zr: 1, t0: null, ready: false };
+    var st = { serie: serie, stage: stage, svg: svg, gG: gG, sphere: sphere, grat: grat, land: land, gR: gR, rPath: rPath, gC: gC, cOut: cOut, cLines: cLines, gP: gP, gPan: gPan, gL: gL, halo: halo, pin: pin,
+               shots: shots, figs: figs, located: located, center: center, extent: extent, layers: null, state: 'idle', raf: 0, W: 0, H: 0, cx: 0, cy: 0, R0: 0, Zf: 1, Zr: 1, t0: null, ready: false,
+               pinPos: [], leads: [], pinEls: [], panQ: 0, panK: -1, panRaf: 0, oRf: 1 };
     loadJSON(layersUrl, function (d) {
       if (!d) return;
       st.layers = { region: decodeLines(d.region, d.q), city: d.city ? { outline: decodeLines(d.city.outline, d.q), lines: decodeLines(d.city.lines, d.q) } : null };
@@ -420,9 +426,45 @@
       cap.appendChild(num); cap.appendChild(document.createTextNode(f.place || ''));
       b.appendChild(cap);
       b.addEventListener('click', function () { lbOpenAt(figs, i); });
+      /* photo prise hors champ : au survol, la carte glisse jusqu'au lieu ; on revient dès qu'on quitte la vignette */
+      var over = function () { if (f.pan) panTo(st, k); else if (st.panK >= 0) panTo(st, -1); };
+      var out = function () { if (f.pan) panTo(st, -1); };
+      b.addEventListener('mouseenter', over); b.addEventListener('focus', over);
+      b.addEventListener('mouseleave', out); b.addEventListener('blur', out);
       shots.appendChild(b);
     });
     return st;
+  }
+  /* glissement de la carte : q = 0 (carte centrée) à 1 (lieu hors champ amené au centre) */
+  function applyPan(st, q) {
+    var k = st.panK, v = (k >= 0 && st.located[k].pan) || { dx: 0, dy: 0 };
+    var dx = v.dx * q, dy = v.dy * q;
+    st.gPan.setAttribute('transform', 'translate(' + dx.toFixed(1) + ' ' + dy.toFixed(1) + ')');
+    st.located.forEach(function (f, i) {
+      var p = st.pinPos[i], ld = st.leads[i]; if (!p || !ld) return;
+      ld.setAttribute('x1', (p.x + dx).toFixed(1)); ld.setAttribute('y1', (p.y + dy).toFixed(1));
+      var o = (k < 0 || i === k) ? 1 : 1 - q;   /* les autres repères s'effacent pendant le glissement */
+      ld.style.opacity = o.toFixed(3);
+      st.pinEls[i].forEach(function (el) { el.style.opacity = o.toFixed(3); });
+    });
+    if (st.layers && st.layers.city) st.gR.style.opacity = (st.oRf + (1 - st.oRf) * q).toFixed(3);   /* les côtes reprennent de la présence hors de la ville */
+  }
+  function panTo(st, k) {
+    if (st.state !== 'map') return;
+    var target = k >= 0 ? 1 : 0;
+    if (k >= 0) st.panK = k;
+    if (st.panRaf) cancelAnimationFrame(st.panRaf);
+    if (REDUCE) { st.panQ = target; applyPan(st, target); if (!target) st.panK = -1; return; }
+    var q0 = st.panQ, t0 = null, D = Math.max(240, 1000 * Math.abs(target - q0));
+    var step = function (ts) {
+      if (!t0) t0 = ts;
+      var t = Math.min(1, (ts - t0) / D);
+      st.panQ = q0 + (target - q0) * easeInOut(t);
+      applyPan(st, st.panQ);
+      if (t < 1) st.panRaf = requestAnimationFrame(step);
+      else { st.panRaf = 0; if (!target) st.panK = -1; }
+    };
+    st.panRaf = requestAnimationFrame(step);
   }
   function fitStage(st) {
     var W = st.stage.clientWidth, H = st.stage.clientHeight;
@@ -441,18 +483,22 @@
       st.cOut.setAttribute('d', orthoPath(st.layers.city.outline, st.cx, st.cy, st.R0, st.Zf, lon0, lat0, 20000));
       st.cLines.setAttribute('d', orthoPath(st.layers.city.lines, st.cx, st.cy, st.R0, st.Zf, lon0, lat0, 20000));
     }
-    /* épingles et lignes de rappel à l'état final */
-    st.gP.textContent = '';
+    /* épingles et lignes de rappel à l'état final ; un lieu hors champ (Sitges) reçoit le vecteur qui l'amène au centre */
+    st.gP.textContent = ''; st.gL.textContent = ''; st.pinPos = []; st.leads = []; st.pinEls = [];
+    var m = 0.03 * W;
     st.located.forEach(function (f, k) {
       var p = orthoPoint(f.lon, f.lat, st.cx, st.cy, st.R0, st.Zf, lon0, lat0);
       var tx = f.sx / 100 * W, ty = f.sy / 100 * H;
-      st.gP.appendChild(svgEl('line', { 'class': 'map__lead', x1: p.x.toFixed(1), y1: p.y.toFixed(1), x2: tx.toFixed(1), y2: ty.toFixed(1) }));
+      f.pan = (p.x < -m || p.x > W + m || p.y < -m || p.y > H + m) ? { dx: W * 0.5 - p.x, dy: H * 0.5 - p.y } : null;
+      var lead = svgEl('line', { 'class': 'map__lead', x1: p.x.toFixed(1), y1: p.y.toFixed(1), x2: tx.toFixed(1), y2: ty.toFixed(1) });
+      st.gL.appendChild(lead);
       var ring = svgEl('circle', { 'class': 'map__ring', cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 7 });
       ring.style.setProperty('--pd', (k * 0.35) + 's');
-      st.gP.appendChild(ring);
-      st.gP.appendChild(svgEl('circle', { 'class': 'map__pin', cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 4.5 }));
+      var dot = svgEl('circle', { 'class': 'map__pin', cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 4.5 });
+      st.gP.appendChild(ring); st.gP.appendChild(dot);
+      st.pinPos.push(p); st.leads.push(lead); st.pinEls.push([ring, dot]);
     });
-    if (st.state === 'map') renderFrame(st, lon0, lat0, st.Zf, true);
+    if (st.state === 'map') { renderFrame(st, lon0, lat0, st.Zf, true); applyPan(st, st.panQ); }
     else if (st.state === 'idle') renderFrame(st, startLon(st), 12, 1, false);
   }
   function startLon(st) { return st.center.lon - 95; }
@@ -474,6 +520,7 @@
     var oG = 1 - fadeIn(Z, 3, 11);
     var oR = fadeIn(Z, 2.2, 6) * (hasCity ? 1 - 0.62 * fadeIn(Z, Math.max(7, st.Zf / 6), Math.max(12, st.Zf / 2.2)) : 1);
     var oC = hasCity ? fadeIn(Z, Math.max(6, st.Zf / 7), Math.max(10, st.Zf / 2.5)) : 0;
+    if (final) st.oRf = oR;
     st.gG.style.opacity = oG.toFixed(3); st.gR.style.opacity = oR.toFixed(3); st.gC.style.opacity = oC.toFixed(3);
     st.gG.style.display = oG <= 0 ? 'none' : ''; st.gR.style.display = oR <= 0 ? 'none' : ''; st.gC.style.display = oC <= 0 ? 'none' : '';
     /* épingle de cible pendant le vol, puis épingles détaillées */
@@ -509,6 +556,8 @@
   }
   function resetStage(st) {
     if (st.raf) cancelAnimationFrame(st.raf);
+    if (st.panRaf) cancelAnimationFrame(st.panRaf);
+    st.panRaf = 0; st.panQ = 0; st.panK = -1; applyPan(st, 0);
     st.state = 'idle'; st.pending = false;
     st.stage.classList.remove('is-map');
     if (st.ready) renderFrame(st, startLon(st), 12, 1, false);
