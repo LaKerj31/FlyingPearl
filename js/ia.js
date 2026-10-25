@@ -143,7 +143,7 @@
   }
   function closeProject() {
     pjOpen = false; pj.classList.remove('is-open'); pj.setAttribute('aria-hidden', 'true');
-    var v = pjContent.querySelector('video'); if (v) { try { v.pause(); } catch (e) {} }
+    Array.prototype.slice.call(pjContent.querySelectorAll('video')).forEach(function (v) { try { v.pause(); } catch (e) {} });
     if (crs) { crs.destroy(); crs = null; }
     pj.classList.remove('pj--serie');
     pjContent.textContent = ''; lockScroll(); restoreFocus();
@@ -169,11 +169,23 @@
       v.appendChild(s);
       pjContent.appendChild(v);
       var p = v.play(); if (p && p.catch) p.catch(function () {});
-    } else {
+    } else if (card.getAttribute('data-proj') === 'tears') {
       var figs = tearsFigs();
       var grid = document.createElement('div'); grid.className = 'pj__grid';
       figs.forEach(function (f, i) { grid.appendChild(shotButton(f, figs, i, false)); });
       pjContent.appendChild(grid);
+    }
+    /* contenu complémentaire écrit dans la page (ressources, vidéos, personnages, décors) : <template class="pj-extra"> */
+    var art = card.closest ? card.closest('.card') : card.parentNode;
+    var tpl = art && art.querySelector('template.pj-extra');
+    if (tpl && tpl.content) {
+      pjContent.appendChild(tpl.content.cloneNode(true));
+      var items = Array.prototype.slice.call(pjContent.querySelectorAll('.pj__res-item'));
+      var list = items.map(function (b) { var im = b.querySelector('img'); return { full: b.getAttribute('data-full'), alt: im ? im.alt : '', cap: b.getAttribute('data-cap') || '' }; });
+      items.forEach(function (b, i) { b.addEventListener('click', function () { lbOpenAt(list, i); }); });
+      /* une seule vidéo joue à la fois */
+      var vids = Array.prototype.slice.call(pjContent.querySelectorAll('video'));
+      vids.forEach(function (v) { v.addEventListener('play', function () { vids.forEach(function (o) { if (o !== v) { try { o.pause(); } catch (e) {} } }); }); });
     }
     openOverlay();
   }
