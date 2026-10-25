@@ -726,7 +726,6 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       </div>
       <p class="phead__lede">On génère des images et des vidéos, avec la même exigence de cadre et de lumière qu'en tournage.</p>
     </header>
-    <!-- Démo du prompt conservée mais masquée : requise par le script d'animation du site -->
     <section class="prompt wrap" data-hud="Prompt" aria-label="Exemple de prompt" hidden aria-hidden="true">
       <div class="prompt__box" data-reveal>
         <div class="prompt__head mono"><span>Prompt</span><span class="prompt__status">Saisie</span></div>
@@ -734,9 +733,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
         <div class="prompt__bar" aria-hidden="true"><span></span></div>
       </div>
     </section>
-    <!-- Deux petits onglets entre l'intro et les projets : Images et Vidéos (la cellule Musique reste masquée, requise par le script) -->
-    <section class="lab wrap" data-hud="Laboratoire" aria-label="Ce qu'on génère">
-      <div class="lab__row">
+    <!-- Démos conservées mais masquées : requises par le script d'animation du site -->
+    <section class="lab wrap" data-hud="Laboratoire" aria-label="Ce qu'on génère" hidden aria-hidden="true">
       <article class="cell" data-reveal>
         <div class="cell__screen"><canvas class="px" data-fx="diffusion" aria-hidden="true"></canvas><div class="cell__hud mono"><b>Image</b><span data-count>Étape 30/30</span></div></div>
         <h2>Images</h2>
@@ -747,8 +745,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
         <h2>Vidéos</h2>
         <p>Des plans animés à partir d'images fixes, découpés comme un film.</p>
       </article>
-      </div>
-      <article class="cell" hidden aria-hidden="true">
+      <article class="cell" data-reveal style="--d:.2s">
         <div class="cell__screen"><canvas data-fx="wave" aria-hidden="true"></canvas><div class="cell__hud mono"><b>Musique</b><span data-count>00:00.0</span></div></div>
         <h2>Musique</h2>
         <p>Des chansons et des instrumentaux pour porter les images.</p>
@@ -758,18 +755,9 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 
     <style>
     /* IA : Derniers projets + visionneuses */
-    /* IA : intro resserrée, puis deux petits onglets Images et Vidéos, puis les projets */
-    [data-view="ia"] .phead{padding-bottom:clamp(26px,3vw,40px)}
-    .lab{display:block;padding-bottom:0}
-    .lab__row{--pg:clamp(16px,2.4vw,40px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--pg);max-width:calc(2 * (85vh - 64px) + var(--pg))}
-    .lab .cell{grid-template-columns:clamp(150px,34%,216px) minmax(0,1fr);grid-template-rows:auto auto;align-content:center;column-gap:clamp(16px,2vw,26px);row-gap:8px;padding:12px;border:1px solid var(--line);background:rgba(255,255,255,.012)}
-    .lab .cell__screen{grid-row:1 / span 2;aspect-ratio:4/3;align-self:center}
-    .lab .cell__screen canvas.px{object-fit:cover}
-    .lab .cell h2{align-self:end;font-size:clamp(1.15rem,1.7vw,1.5rem)}
-    .lab .cell p{align-self:start;font-size:.95rem;line-height:1.45}
-    @media(max-width:760px){.lab__row{grid-template-columns:1fr;gap:12px}}
-    @media(max-width:520px){.lab .cell{grid-template-columns:148px minmax(0,1fr);column-gap:14px;padding:10px}.lab .cell__screen{aspect-ratio:auto;height:166px}.lab .cell__hud [data-count]{display:none}.lab .cell p{font-size:.88rem}}
-    .proj{margin-top:clamp(36px,4.5vw,64px);margin-bottom:clamp(48px,8vw,110px)}
+    /* IA : « Derniers projets » remonte juste sous la phrase d'intro */
+    [data-view="ia"] .phead{padding-bottom:clamp(22px,2.6vw,36px)}
+    .proj{margin-top:0;margin-bottom:clamp(48px,8vw,110px)}
     .proj__meta{display:flex;gap:1.4em;color:var(--mute)}
     .proj__title{margin:.4em 0 0;font-family:var(--f-display);font-weight:800;line-height:.92;letter-spacing:-.05em;font-size:clamp(2rem,6vw,4.4rem)}
     .proj__title-b{color:var(--ember)}
