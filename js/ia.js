@@ -219,37 +219,42 @@
     crs = makeCarousel(pjContent, figs);
   }
 
-  /* ---------- fiche d'une série : carrousel ----------
-     Les photos défilent à l'horizontale (molette, glisser, flèches du clavier, boutons). La photo au centre est
-     mise en avant, ses voisines restent visibles en retrait pour donner envie d'aller voir la suite ; un léger
-     décalage de l'image dans son cadre (parallaxe) accompagne le mouvement. Clic sur la photo du centre : visionneuse. */
+  /* ---------- fiche d'une série : une seule bobine de pellicule que l'on fait défiler ----------
+     Toutes les photos sont des vues d'une même bande (perforations continues en haut et en bas, amorce avant la
+     première vue et après la dernière) ; sous chaque vue, dans la marge, son numéro et ses réglages, comme les
+     inscriptions d'un négatif. La vue au centre est éclairée, les autres restent dans l'ombre. Molette, glisser,
+     flèches du clavier ou boutons pour avancer ; clic sur la vue du centre : visionneuse. */
   var crs = null;
   function makeCarousel(host, figs) {
     var n = figs.length;
     var root = document.createElement('div'); root.className = 'crs';
     root.innerHTML =
-      '<div class="crs__vp" data-cursor="Glisser"><div class="crs__track"></div>' +
-        '<p class="crs__hint mono" aria-hidden="true">Faire défiler <span>→</span></p></div>' +
+      '<div class="crs__vp" data-cursor="Glisser"><div class="crs__track"></div></div>' +
       '<div class="crs__bar">' +
         '<p class="crs__count" aria-live="polite"><span class="crs__num">01</span><small>/ ' + (n < 10 ? '0' : '') + n + '</small></p>' +
-        '<div class="crs__info"><p class="crs__place"></p><p class="crs__exif mono"></p><div class="crs__prog"><i></i></div></div>' +
+        '<div class="crs__info"><p class="crs__place"></p><p class="crs__hint mono" aria-hidden="true">Faire défiler <span>→</span></p><div class="crs__prog"><i></i></div></div>' +
         '<div class="crs__nav"><button class="crs__btn crs__prev" type="button" aria-label="Photo précédente">‹</button>' +
         '<button class="crs__btn crs__next" type="button" aria-label="Photo suivante">›</button></div>' +
       '</div>';
     host.appendChild(root);
     var vp = root.querySelector('.crs__vp'), track = root.querySelector('.crs__track');
-    var numEl = root.querySelector('.crs__num'), placeEl = root.querySelector('.crs__place'), exifEl = root.querySelector('.crs__exif');
+    var numEl = root.querySelector('.crs__num'), placeEl = root.querySelector('.crs__place');
     var progEl = root.querySelector('.crs__prog i');
     var slides = figs.map(function (f, i) {
       var b = document.createElement('button');
       b.className = 'crs__slide'; b.type = 'button';
       b.style.setProperty('--i', i);
       b.setAttribute('aria-label', 'Photo ' + (i + 1) + ' sur ' + n + (f.place ? ', ' + f.place : ''));
-      var film = document.createElement('span'); film.className = 'serie__film crs__film';
       var pic = document.createElement('span'); pic.className = 'crs__pic';
       var im = document.createElement('img'); im.src = f.full; im.alt = f.alt || ''; im.decoding = 'async'; im.draggable = false;
       if (f.w && f.h) { im.width = f.w; im.height = f.h; }
-      pic.appendChild(im); film.appendChild(pic); b.appendChild(film); track.appendChild(b);
+      pic.appendChild(im); b.appendChild(pic);
+      /* inscriptions de la marge, sous la vue : numéro de vue et réglages de prise de vue */
+      var edge = document.createElement('span'); edge.className = 'crs__edge mono';
+      var no = document.createElement('b'); no.textContent = (i + 1 < 10 ? '0' : '') + (i + 1) + ' ▸';
+      var ex = document.createElement('span'); ex.textContent = (f.el && f.el.getAttribute('data-cap')) || '';
+      edge.appendChild(no); edge.appendChild(ex); b.appendChild(edge);
+      track.appendChild(b);
       b.addEventListener('click', function (e) {
         if (moved) { e.preventDefault(); return; }
         if (i === active) lbOpenAt(figs, i); else go(i);
@@ -258,21 +263,41 @@
     });
     var x = 0, target = 0, W = 0, active = -1, raf = 0, last = 0, snapT = 0, alive = true, touched = false;
     var dragging = false, moved = false, sx = 0, sxPos = 0, samples = [], pid = 0;
-    var PAD_V = 19, PAD_H = 11;
+    var first = true;
     function posFor(i) { return W / 2 - slides[i].c; }
+    /* géométrie de la bande, proportionnelle à sa hauteur : perforations, marges, écart entre les vues */
     function layout() {
-      W = vp.clientWidth; var H = vp.clientHeight; if (!W || !H) return;
-      var gap = parseFloat(getComputedStyle(track).columnGap) || 32, left = 0;
+      W = vp.clientWidth; var VH = vp.clientHeight; if (!W || !VH) return;
+      var H = VH - 6;
+      var hh = Math.max(7, Math.min(20, H * 0.024));            /* hauteur d'une perforation */
+      var ho = hh * 0.65, band = 2 * ho + hh;                    /* bande des perforations */
+      var tb = Math.max(18, Math.min(30, H * 0.036));            /* bande des inscriptions, sous la vue */
+      var mt = band + tb * 0.3, mb = band + tb;
+      var fg = Math.max(10, Math.min(26, H * 0.026));            /* écart entre deux vues */
+      /* même hauteur d'image pour toutes les vues (une bande a une hauteur unique) */
+      var ph = H - mt - mb;
       slides.forEach(function (s) {
         var ar = (s.f.w && s.f.h) ? s.f.w / s.f.h : 1.5;
-        var h = H - 2 * PAD_V - 8, w = h * ar;
-        var maxW = W * (ar > 1 ? 0.78 : 0.62) - 2 * PAD_H;
-        if (w > maxW) { w = maxW; h = w / ar; }
-        s.pic.style.width = Math.round(w) + 'px'; s.pic.style.height = Math.round(h) + 'px';
-        s.w = w + 2 * PAD_H; s.c = left + s.w / 2; left += s.w + gap;
+        ph = Math.min(ph, W * (ar > 1 ? 0.8 : 0.6) / ar);
       });
-      var i = active < 0 ? 0 : active;
-      x = target = posFor(i); render(); setActive(i, true);
+      H = ph + mt + mb;
+      var lead = W * 0.75, left = lead;
+      track.style.height = Math.round(H) + 'px'; track.style.top = Math.round((VH - H) / 2) + 'px';
+      track.style.paddingLeft = track.style.paddingRight = Math.round(lead) + 'px';
+      track.style.columnGap = Math.round(fg) + 'px';
+      var hp = hh * 2.5, hw = hh * 1.3;
+      [['--hh', hh], ['--ho', ho], ['--hp', hp], ['--hg', hp - hw], ['--mt', mt], ['--tb', tb]].forEach(function (v) { track.style.setProperty(v[0], v[1].toFixed(1) + 'px'); });
+      slides.forEach(function (s) {
+        var ar = (s.f.w && s.f.h) ? s.f.w / s.f.h : 1.5, w = Math.round(ph * ar);
+        s.el.style.width = s.pic.style.width = w + 'px'; s.pic.style.height = Math.round(ph) + 'px';
+        s.w = w; s.c = left + w / 2; left += w + Math.round(fg);
+      });
+      var i = active < 0 ? 0 : active, t = posFor(i);
+      /* à l'ouverture, la bande arrive de la droite, comme une pellicule qu'on tire */
+      if (first) { first = false; target = t; x = REDUCE ? t : t + W * 0.55; kick(); }
+      else if (raf) { x += t - target; target = t; }            /* mouvement en cours : on le poursuit */
+      else { x = target = t; }
+      render(); setActive(i, true);
     }
     function clampT(t) { return Math.max(posFor(n - 1), Math.min(posFor(0), t)); }
     function nearest(pos) {
@@ -290,7 +315,6 @@
       var f = figs[i];
       numEl.textContent = (i + 1 < 10 ? '0' : '') + (i + 1);
       placeEl.textContent = f.place || '';
-      exifEl.textContent = (f.el && f.el.getAttribute('data-cap')) || '';
       root.querySelector('.crs__prev').disabled = i === 0;
       root.querySelector('.crs__next').disabled = i === n - 1;
     }
@@ -298,10 +322,6 @@
       track.style.transform = 'translate3d(' + x.toFixed(2) + 'px,0,0)';
       var a = posFor(0), b = posFor(n - 1);
       progEl.style.width = (n > 1 ? Math.max(0, Math.min(1, (a - x) / (a - b))) * 100 : 100).toFixed(2) + '%';
-      if (!REDUCE) slides.forEach(function (s) {
-        var d = (s.c + x - W / 2) / (W || 1);                       /* -1..1 : distance au centre */
-        s.img.style.transform = 'translate3d(' + (-d * 7).toFixed(2) + '%,0,0) scale(1.14)';
-      });
       setActive(nearest(x));
     }
     function loop(ts) {
