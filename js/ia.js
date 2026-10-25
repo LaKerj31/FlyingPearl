@@ -401,7 +401,7 @@
     var shots = document.createElement('div'); shots.className = 'stageshots'; stage.appendChild(shots);
     var st = { serie: serie, stage: stage, svg: svg, gG: gG, sphere: sphere, grat: grat, land: land, gR: gR, rPath: rPath, gC: gC, cOut: cOut, cLines: cLines, gP: gP, gPan: gPan, gL: gL, halo: halo, pin: pin,
                shots: shots, figs: figs, located: located, center: center, extent: extent, layers: null, state: 'idle', raf: 0, W: 0, H: 0, cx: 0, cy: 0, R0: 0, Zf: 1, Zr: 1, t0: null, ready: false,
-               pinPos: [], leads: [], pinEls: [], panQ: 0, panK: -1, panRaf: 0, oRf: 1 };
+               pinPos: [], leads: [], pinEls: [], shotEls: [], panQ: 0, panK: -1, panRaf: 0, oRf: 1 };
     loadJSON(layersUrl, function (d) {
       if (!d) return;
       st.layers = { region: decodeLines(d.region, d.q), city: d.city ? { outline: decodeLines(d.city.outline, d.q), lines: decodeLines(d.city.lines, d.q) } : null };
@@ -431,7 +431,7 @@
       var out = function () { if (f.pan) panTo(st, -1); };
       b.addEventListener('mouseenter', over); b.addEventListener('focus', over);
       b.addEventListener('mouseleave', out); b.addEventListener('blur', out);
-      shots.appendChild(b);
+      shots.appendChild(b); st.shotEls.push(b);
     });
     return st;
   }
@@ -466,6 +466,50 @@
     };
     st.panRaf = requestAnimationFrame(step);
   }
+  /* placement des vignettes : on part des positions voulues (data-sx / data-sy) puis on les écarte jusqu'à ce que
+     chacune reste dans la carte (marge intérieure), garde un écart minimal avec ses voisines et ne cache aucune épingle */
+  function placeShots(st, pins) {
+    var W = st.W, H = st.H;
+    var M = Math.max(16, Math.min(W, H) * 0.045), G = Math.max(14, W * 0.024), RP = 14;
+    var B = st.located.map(function (f, k) {
+      var el = st.shotEls[k], w = el ? el.offsetWidth : 0, h = el ? el.offsetHeight : 0;
+      var a = Math.abs(f.sr) * DEG, s = f.ss * 1.04;   /* 1,04 : de quoi grandir au survol sans toucher la voisine */
+      return { x: f.sx / 100 * W, y: f.sy / 100 * H,
+               hw: (w * Math.cos(a) + h * Math.sin(a)) * s / 2, hh: (w * Math.sin(a) + h * Math.cos(a)) * s / 2 };
+    });
+    var clamp = function (b) {
+      var lo = M + b.hw, hi = W - M - b.hw; b.x = lo > hi ? W / 2 : Math.min(hi, Math.max(lo, b.x));
+      lo = M + b.hh; hi = H - M - b.hh; b.y = lo > hi ? H / 2 : Math.min(hi, Math.max(lo, b.y));
+    };
+    B.forEach(clamp);
+    for (var it = 0; it < 500; it++) {
+      var moved = 0, i, j;
+      for (i = 0; i < B.length; i++) for (j = i + 1; j < B.length; j++) {
+        var a = B[i], b = B[j], dx = b.x - a.x, dy = b.y - a.y;
+        var ox = a.hw + b.hw + G - Math.abs(dx), oy = a.hh + b.hh + G - Math.abs(dy);
+        if (ox <= 0.5 || oy <= 0.5) continue;
+        if (ox < oy) { var px = (dx > 0 || (dx === 0 && i < j) ? 1 : -1) * ox / 2; a.x -= px; b.x += px; }
+        else { var py = (dy > 0 || (dy === 0 && i < j) ? 1 : -1) * oy / 2; a.y -= py; b.y += py; }
+        moved++;
+      }
+      pins.forEach(function (p) {
+        if (!p.on) return;
+        B.forEach(function (b) {
+          var dx = b.x - p.x, dy = b.y - p.y, ox = b.hw + RP - Math.abs(dx), oy = b.hh + RP - Math.abs(dy);
+          if (ox <= 0.5 || oy <= 0.5) return;
+          if (ox < oy) b.x += (dx >= 0 ? 1 : -1) * ox; else b.y += (dy >= 0 ? 1 : -1) * oy;
+          moved++;
+        });
+      });
+      B.forEach(clamp);
+      if (!moved) break;
+    }
+    B.forEach(function (b, k) {
+      var el = st.shotEls[k]; if (!el) return;
+      el.style.left = (b.x / W * 100).toFixed(3) + '%'; el.style.top = (b.y / H * 100).toFixed(3) + '%';
+    });
+    return B;
+  }
   function fitStage(st) {
     var W = st.stage.clientWidth, H = st.stage.clientHeight;
     if (!W || !H) return;
@@ -486,10 +530,15 @@
     /* épingles et lignes de rappel à l'état final ; un lieu hors champ (Sitges) reçoit le vecteur qui l'amène au centre */
     st.gP.textContent = ''; st.gL.textContent = ''; st.pinPos = []; st.leads = []; st.pinEls = [];
     var m = 0.03 * W;
-    st.located.forEach(function (f, k) {
+    var pins = st.located.map(function (f) {
       var p = orthoPoint(f.lon, f.lat, st.cx, st.cy, st.R0, st.Zf, lon0, lat0);
-      var tx = f.sx / 100 * W, ty = f.sy / 100 * H;
+      p.on = p.v && p.x >= 0 && p.x <= W && p.y >= 0 && p.y <= H;
       f.pan = (p.x < -m || p.x > W + m || p.y < -m || p.y > H + m) ? { dx: W * 0.5 - p.x, dy: H * 0.5 - p.y } : null;
+      return p;
+    });
+    var spots = placeShots(st, pins);
+    st.located.forEach(function (f, k) {
+      var p = pins[k], tx = spots[k].x, ty = spots[k].y;
       var lead = svgEl('line', { 'class': 'map__lead', x1: p.x.toFixed(1), y1: p.y.toFixed(1), x2: tx.toFixed(1), y2: ty.toFixed(1) });
       st.gL.appendChild(lead);
       var ring = svgEl('circle', { 'class': 'map__ring', cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 7 });
@@ -500,6 +549,8 @@
     });
     if (st.state === 'map') { renderFrame(st, lon0, lat0, st.Zf, true); applyPan(st, st.panQ); }
     else if (st.state === 'idle') renderFrame(st, startLon(st), 12, 1, false);
+    /* la scène était déjà à l'écran avant d'être prête (rafraîchissement directement sur Photos) : on lance le vol maintenant */
+    if (st.pending && st.state === 'idle') { st.pending = false; playStage(st); }
   }
   function startLon(st) { return st.center.lon - 95; }
   function renderFrame(st, lon0, lat0, Z, final) {
@@ -571,7 +622,7 @@
       layoutSeries();
       var tick = setInterval(function () {
         var all = true;
-        stages.forEach(function (st) { if (!st.ready) { fitStage(st); if (st.ready && st.pending) { st.pending = false; playStage(st); } } if (!st.ready) all = false; });
+        stages.forEach(function (st) { if (!st.ready) fitStage(st); if (!st.ready) all = false; });
         if (all) clearInterval(tick);
       }, 150);
       if ('IntersectionObserver' in window) {
