@@ -298,38 +298,61 @@
     return box;
   }
 
-  /* ---------- PHOTOS : à droite de chaque couverture, un globe qui vole jusqu'au lieu puis se fond dans la carte ----------
-     Projection orthographique calculée ici (contours Natural Earth 110m, media/maps/globe.json). */
+  /* ---------- PHOTOS : à droite de chaque couverture, zoom continu depuis l'espace jusqu'au lieu ----------
+     Une seule projection orthographique (centre de la scène, rayon R0, facteur de zoom Z). Pendant la rotation le
+     globe (Natural Earth 110m) est recalculé à chaque image ; pendant le zoom, les couches région (côtes 10m) et
+     ville (contour + maillage urbain) sont précalculées à leur zoom de référence et simplement mises à l'échelle,
+     avec des fondus selon Z. Données auto-hébergées : media/maps/globe.json et media/maps/layers-*.json. */
   var seriesEls = Array.prototype.slice.call(document.querySelectorAll('.serie'));
   var narrowMQ = window.matchMedia ? window.matchMedia('(max-width:900px)') : null;
   var REDUCE = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
-  var globeData = null, globeWaiters = [];
-  function loadGlobe(cb) {
-    if (globeData) { cb(globeData); return; }
-    globeWaiters.push(cb);
-    if (globeWaiters.length > 1) return;
-    loadText('media/maps/globe.json', function (t) {
-      try { globeData = JSON.parse(t); } catch (e) { globeData = { rings: [] }; }
-      globeWaiters.forEach(function (w) { w(globeData); }); globeWaiters = [];
+  var jsonCache = {}, jsonWaiters = {};
+  function loadJSON(url, cb) {
+    if (jsonCache[url]) { cb(jsonCache[url]); return; }
+    if (jsonWaiters[url]) { jsonWaiters[url].push(cb); return; }
+    jsonWaiters[url] = [cb];
+    loadText(url, function (t) {
+      var d = null; try { d = JSON.parse(t); } catch (e) { d = null; }
+      if (d) jsonCache[url] = d;
+      var ws = jsonWaiters[url]; delete jsonWaiters[url];
+      ws.forEach(function (w) { w(d); });
     });
   }
-  var DEG = Math.PI / 180, GR = 440, GC = 500;
-  function orthoPath(rings, lon0, lat0) {
-    var sinP0 = Math.sin(lat0 * DEG), cosP0 = Math.cos(lat0 * DEG);
+  function decodeLines(arrs, q) {
     var out = [];
-    for (var r = 0; r < rings.length; r++) {
-      var ring = rings[r], was = false;
-      for (var i = 0; i < ring.length; i++) {
-        var lam = (ring[i][0] - lon0) * DEG, phi = ring[i][1] * DEG;
+    (arrs || []).forEach(function (a) {
+      var pts = [], x = 0, y = 0;
+      for (var i = 0; i < a.length; i += 2) { x += a[i]; y += a[i + 1]; pts.push([x / q, y / q]); }
+      out.push(pts);
+    });
+    return out;
+  }
+  var DEG = Math.PI / 180;
+  function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+  /* chemin SVG d'un ensemble de polylignes [lon,lat] en projection orthographique (cx,cy,R), zoom Z, rotation (lon0,lat0) */
+  function orthoPath(lines, cx, cy, R, Z, lon0, lat0, limit) {
+    var sinP0 = Math.sin(lat0 * DEG), cosP0 = Math.cos(lat0 * DEG), k = R * Z;
+    var out = [];
+    for (var r = 0; r < lines.length; r++) {
+      var ln = lines[r], was = false;
+      for (var i = 0; i < ln.length; i++) {
+        var lam = (ln[i][0] - lon0) * DEG, phi = ln[i][1] * DEG;
         var cosP = Math.cos(phi), sinP = Math.sin(phi), cosL = Math.cos(lam);
         var cosc = sinP0 * sinP + cosP0 * cosP * cosL;
         if (cosc < 0) { was = false; continue; }
-        var x = GC + GR * cosP * Math.sin(lam), y = GC - GR * (cosP0 * sinP - sinP0 * cosP * cosL);
-        out.push((was ? 'L' : 'M') + x.toFixed(1) + ',' + y.toFixed(1));
+        var x = cx + k * cosP * Math.sin(lam), y = cy - k * (cosP0 * sinP - sinP0 * cosP * cosL);
+        if (limit && (x < -limit || x > limit || y < -limit || y > limit)) { was = false; continue; }
+        out.push((was ? 'L' : 'M') + x.toFixed(2) + ',' + y.toFixed(2));
         was = true;
       }
     }
     return out.join('');
+  }
+  function orthoPoint(lon, lat, cx, cy, R, Z, lon0, lat0) {
+    var lam = (lon - lon0) * DEG, phi = lat * DEG, p0 = lat0 * DEG;
+    var cosc = Math.sin(p0) * Math.sin(phi) + Math.cos(p0) * Math.cos(phi) * Math.cos(lam);
+    return { x: cx + R * Z * Math.cos(phi) * Math.sin(lam), y: cy - R * Z * (Math.cos(p0) * Math.sin(phi) - Math.sin(p0) * Math.cos(phi) * Math.cos(lam)), v: cosc > 0.02 };
   }
   var graticule = (function () {
     var rings = [], i, j;
@@ -337,81 +360,158 @@
     for (i = -60; i <= 60; i += 30) { var pl = []; for (j = -180; j <= 180; j += 3) pl.push([j, i]); rings.push(pl); }
     return rings;
   })();
-  function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  function fadeIn(z, a, b) { var t = (Math.log(z) - Math.log(a)) / (Math.log(b) - Math.log(a)); return Math.max(0, Math.min(1, t)); }
+  function stageFigs(serie) {
+    return serieFigs(serie).filter(function (f) { return !isNaN(f.lat) && !isNaN(f.lon); }).map(function (f) {
+      var el = f.el;
+      f.sx = parseFloat(el.getAttribute('data-sx')); f.sy = parseFloat(el.getAttribute('data-sy'));
+      f.sr = parseFloat(el.getAttribute('data-sr')) || 0; f.ss = parseFloat(el.getAttribute('data-ss')) || 1;
+      return f;
+    }).filter(function (f) { return !isNaN(f.sx) && !isNaN(f.sy); });
+  }
   function setupStage(serie) {
     var stage = serie.querySelector('.serie__stage');
     var film = serie.querySelector('.serie__film');
-    if (!stage || !film || !serie.getAttribute('data-map')) return null;
-    var figs = serieFigs(serie);
-    var located = locatedFigs(figs);
+    var layersUrl = serie.getAttribute('data-layers');
+    if (!stage || !film || !layersUrl) return null;
+    var figs = serieFigs(serie), located = stageFigs(serie);
     if (!located.length) return null;
-    /* cible : barycentre des lieux */
-    var tl = 0, tla = 0; located.forEach(function (f) { tl += f.lon; tla += f.lat; });
-    var target = { lon: tl / located.length, lat: tla / located.length };
+    var c = (serie.getAttribute('data-center') || '').split(',').map(Number);
+    var center = (c.length === 2 && !isNaN(c[0]) && !isNaN(c[1])) ? { lat: c[0], lon: c[1] } : (function () {
+      var tl = 0, tla = 0; located.forEach(function (f) { tl += f.lon; tla += f.lat; }); return { lat: tla / located.length, lon: tl / located.length };
+    })();
+    var extent = parseFloat(serie.getAttribute('data-extent')) || 0.2;
     stage.innerHTML = '';
-    var globe = document.createElement('div'); globe.className = 'globe';
-    var svg = svgEl('svg', { viewBox: '0 0 1000 1000', 'aria-hidden': 'true' });
-    svg.appendChild(svgEl('circle', { 'class': 'globe__sphere', cx: GC, cy: GC, r: GR }));
-    var grat = svgEl('path', { 'class': 'globe__grat', d: '' }); svg.appendChild(grat);
-    var land = svgEl('path', { 'class': 'globe__land', d: '' }); svg.appendChild(land);
-    var halo = svgEl('circle', { 'class': 'globe__halo', cx: GC, cy: GC, r: 14 });
-    var pin = svgEl('circle', { 'class': 'globe__pin', cx: GC, cy: GC, r: 6 });
-    svg.appendChild(halo); svg.appendChild(pin);
-    globe.appendChild(svg);
-    var map = document.createElement('div');
-    map.className = 'pj__map stagemap' + (serie.classList.contains('serie--land') ? ' pj__map--land' : '');
-    map.setAttribute('aria-label', 'Carte des lieux de prise de vue');
-    stage.appendChild(globe); stage.appendChild(map);
-    var st = { serie: serie, stage: stage, globe: globe, map: map, grat: grat, land: land, pin: pin, halo: halo, target: target,
-               state: 'idle', raf: 0, mapReady: false, figs: figs };
-    renderMapInto(map, serie, figs, function (ok) { st.mapReady = ok; if (!ok) map.style.display = 'none'; fitStage(st); });
-    drawGlobe(st, startLon(target), 12);
+    var svg = svgEl('svg', { 'class': 'zoomer', 'aria-hidden': 'true' });
+    var gG = svgEl('g', { 'class': 'zg' });
+    var sphere = svgEl('circle', { 'class': 'globe__sphere' }); gG.appendChild(sphere);
+    var grat = svgEl('path', { 'class': 'globe__grat', d: '' }); gG.appendChild(grat);
+    var land = svgEl('path', { 'class': 'globe__land', d: '' }); gG.appendChild(land);
+    var gR = svgEl('g', { 'class': 'zr' }); var rPath = svgEl('path', { 'class': 'zr__coast', d: '' }); gR.appendChild(rPath);
+    var gC = svgEl('g', { 'class': 'zc' }); var cOut = svgEl('path', { 'class': 'zc__outline', d: '' }); var cLines = svgEl('path', { 'class': 'zc__lines', d: '' }); gC.appendChild(cOut); gC.appendChild(cLines);
+    var gP = svgEl('g', { 'class': 'zpins' });
+    var halo = svgEl('circle', { 'class': 'globe__halo', r: 14 }); var pin = svgEl('circle', { 'class': 'globe__pin', r: 6 });
+    svg.appendChild(gG); svg.appendChild(gR); svg.appendChild(gC); svg.appendChild(gP); svg.appendChild(halo); svg.appendChild(pin);
+    stage.appendChild(svg);
+    var shots = document.createElement('div'); shots.className = 'stageshots'; stage.appendChild(shots);
+    var st = { serie: serie, stage: stage, svg: svg, gG: gG, sphere: sphere, grat: grat, land: land, gR: gR, rPath: rPath, gC: gC, cOut: cOut, cLines: cLines, gP: gP, halo: halo, pin: pin,
+               shots: shots, figs: figs, located: located, center: center, extent: extent, layers: null, state: 'idle', raf: 0, W: 0, H: 0, cx: 0, cy: 0, R0: 0, Zf: 1, Zr: 1, t0: null, ready: false };
+    loadJSON(layersUrl, function (d) {
+      if (!d) return;
+      st.layers = { region: decodeLines(d.region, d.q), city: d.city ? { outline: decodeLines(d.city.outline, d.q), lines: decodeLines(d.city.lines, d.q) } : null };
+      fitStage(st);
+    });
+    /* vignettes (créées une fois ; affichées à la fin du zoom) */
+    located.forEach(function (f, k) {
+      var i = figs.indexOf(f);
+      var b = document.createElement('button');
+      b.className = 'mapshot'; b.type = 'button';
+      b.style.left = f.sx + '%'; b.style.top = f.sy + '%';
+      b.style.setProperty('--rot', f.sr + 'deg'); b.style.setProperty('--sc', f.ss);
+      b.style.setProperty('--td', (0.1 + k * 0.1) + 's');
+      b.setAttribute('data-cursor', 'Agrandir');
+      b.setAttribute('aria-label', (f.place ? f.place + ', ' : '') + 'photo ' + (i + 1) + ', agrandir');
+      var film0 = document.createElement('span'); film0.className = 'mapshot__film';
+      var im = document.createElement('img'); im.src = f.full; im.alt = ''; im.decoding = 'async';
+      if (f.w && f.h) { im.width = f.w; im.height = f.h; }
+      film0.appendChild(im); b.appendChild(film0);
+      var cap = document.createElement('span'); cap.className = 'mapshot__cap mono';
+      var num = document.createElement('b'); num.textContent = (i + 1 < 10 ? '0' : '') + (i + 1);
+      cap.appendChild(num); cap.appendChild(document.createTextNode(f.place || ''));
+      b.appendChild(cap);
+      b.addEventListener('click', function () { lbOpenAt(figs, i); });
+      shots.appendChild(b);
+    });
     return st;
   }
-  function startLon(target) { return target.lon - 95; }
-  function drawGlobe(st, lon0, lat0) {
-    if (!globeData) return;
-    st.grat.setAttribute('d', orthoPath(graticule, lon0, lat0));
-    st.land.setAttribute('d', orthoPath(globeData.rings, lon0, lat0));
-    /* épingle de la cible */
-    var lam = (st.target.lon - lon0) * DEG, phi = st.target.lat * DEG, p0 = lat0 * DEG;
-    var cosc = Math.sin(p0) * Math.sin(phi) + Math.cos(p0) * Math.cos(phi) * Math.cos(lam);
-    var vis = cosc > 0.08;
-    var x = GC + GR * Math.cos(phi) * Math.sin(lam), y = GC - GR * (Math.cos(p0) * Math.sin(phi) - Math.sin(p0) * Math.cos(phi) * Math.cos(lam));
-    [st.pin, st.halo].forEach(function (c) { c.setAttribute('cx', x.toFixed(1)); c.setAttribute('cy', y.toFixed(1)); c.style.opacity = vis ? '' : '0'; });
-  }
   function fitStage(st) {
-    var sw = st.stage.clientWidth, sh = st.stage.clientHeight;
-    if (!sw || !sh) return;
-    var g = Math.min(sw, sh) * 0.94;
-    st.globe.style.setProperty('--gs', g + 'px');
-    var W = parseFloat(st.map.getAttribute('data-w')) || 1000, H = parseFloat(st.map.getAttribute('data-h')) || 700;
-    var k = Math.min(sw / W, sh / H);
-    st.map.style.setProperty('--mw', (W * k) + 'px'); st.map.style.setProperty('--mh', (H * k) + 'px');
+    var W = st.stage.clientWidth, H = st.stage.clientHeight;
+    if (!W || !H) return;
+    st.W = W; st.H = H; st.cx = W / 2; st.cy = H / 2; st.R0 = Math.min(W, H) * 0.47;
+    st.svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    st.sphere.setAttribute('cx', st.cx); st.sphere.setAttribute('cy', st.cy); st.sphere.setAttribute('r', st.R0);
+    /* zoom final : l'étendue (degrés de latitude) occupe ~62 % de la hauteur */
+    st.Zf = (0.62 * H) / (st.R0 * st.extent * DEG);
+    st.Zr = st.layers && st.layers.city ? Math.min(8, st.Zf) : st.Zf;
+    st.ready = !!(globeData && st.layers);
+    if (!st.ready) return;
+    var lon0 = st.center.lon, lat0 = st.center.lat;
+    st.rPath.setAttribute('d', orthoPath(st.layers.region, st.cx, st.cy, st.R0, st.Zr, lon0, lat0, 20000));
+    if (st.layers.city) {
+      st.cOut.setAttribute('d', orthoPath(st.layers.city.outline, st.cx, st.cy, st.R0, st.Zf, lon0, lat0, 20000));
+      st.cLines.setAttribute('d', orthoPath(st.layers.city.lines, st.cx, st.cy, st.R0, st.Zf, lon0, lat0, 20000));
+    }
+    /* épingles et lignes de rappel à l'état final */
+    st.gP.textContent = '';
+    st.located.forEach(function (f, k) {
+      var p = orthoPoint(f.lon, f.lat, st.cx, st.cy, st.R0, st.Zf, lon0, lat0);
+      var tx = f.sx / 100 * W, ty = f.sy / 100 * H;
+      st.gP.appendChild(svgEl('line', { 'class': 'map__lead', x1: p.x.toFixed(1), y1: p.y.toFixed(1), x2: tx.toFixed(1), y2: ty.toFixed(1) }));
+      var ring = svgEl('circle', { 'class': 'map__ring', cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 7 });
+      ring.style.setProperty('--pd', (k * 0.35) + 's');
+      st.gP.appendChild(ring);
+      st.gP.appendChild(svgEl('circle', { 'class': 'map__pin', cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: 4.5 }));
+    });
+    if (st.state === 'map') renderFrame(st, lon0, lat0, st.Zf, true);
+    else if (st.state === 'idle') renderFrame(st, startLon(st), 12, 1, false);
+  }
+  function startLon(st) { return st.center.lon - 95; }
+  function renderFrame(st, lon0, lat0, Z, final) {
+    if (!st.ready) return;
+    var cx = st.cx, cy = st.cy, R0 = st.R0;
+    /* globe : recalculé (la rotation peut changer), à Z = 1, puis groupe mis à l'échelle */
+    var rotating = Math.abs(lon0 - st.center.lon) > 1e-6 || Math.abs(lat0 - st.center.lat) > 1e-6;
+    if (rotating || !st.globeDrawnAtCenter) {
+      st.grat.setAttribute('d', orthoPath(graticule, cx, cy, R0, 1, lon0, lat0, 0));
+      st.land.setAttribute('d', orthoPath(globeData.rings, cx, cy, R0, 1, lon0, lat0, 0));
+      st.globeDrawnAtCenter = !rotating;
+    }
+    var tr = function (k) { return 'translate(' + cx + ' ' + cy + ') scale(' + k + ') translate(' + (-cx) + ' ' + (-cy) + ')'; };
+    st.gG.setAttribute('transform', tr(Z));
+    st.gR.setAttribute('transform', tr(Z / st.Zr));
+    st.gC.setAttribute('transform', tr(Z / st.Zf));
+    var hasCity = !!(st.layers && st.layers.city);
+    var oG = 1 - fadeIn(Z, 3, 11);
+    var oR = fadeIn(Z, 2.2, 6) * (hasCity ? 1 - 0.62 * fadeIn(Z, Math.max(7, st.Zf / 6), Math.max(12, st.Zf / 2.2)) : 1);
+    var oC = hasCity ? fadeIn(Z, Math.max(6, st.Zf / 7), Math.max(10, st.Zf / 2.5)) : 0;
+    st.gG.style.opacity = oG.toFixed(3); st.gR.style.opacity = oR.toFixed(3); st.gC.style.opacity = oC.toFixed(3);
+    st.gG.style.display = oG <= 0 ? 'none' : ''; st.gR.style.display = oR <= 0 ? 'none' : ''; st.gC.style.display = oC <= 0 ? 'none' : '';
+    /* épingle de cible pendant le vol, puis épingles détaillées */
+    var p = orthoPoint(st.center.lon, st.center.lat, cx, cy, R0, Z, lon0, lat0);
+    var showTarget = !final && Z < st.Zf * 0.5;
+    [st.pin, st.halo].forEach(function (c) { c.setAttribute('cx', p.x.toFixed(1)); c.setAttribute('cy', p.y.toFixed(1)); c.style.display = (showTarget && p.v) ? '' : 'none'; });
+    st.stage.classList.toggle('is-map', !!final);
   }
   function playStage(st) {
     if (st.state !== 'idle') return;
-    if (!globeData) { loadGlobe(function () { if (st.state === 'idle') playStage(st); }); return; }
-    if (REDUCE) { st.state = 'map'; st.stage.classList.add('is-map'); return; }
+    if (!st.ready) { st.pending = true; return; }
+    if (REDUCE) { st.state = 'map'; renderFrame(st, st.center.lon, st.center.lat, st.Zf, true); return; }
     st.state = 'flying';
-    var lonA = startLon(st.target), latA = 12, lonB = st.target.lon, latB = st.target.lat;
+    var lonA = startLon(st), latA = 12, lonB = st.center.lon, latB = st.center.lat;
     var dl = ((lonB - lonA + 540) % 360) - 180;
-    var t0 = null, D = 1900;
+    var ROT = 1800, ZSTART = 1200, ZDUR = st.layers.city ? 3600 : 2600;
+    var t0 = null;
     var step = function (ts) {
       if (st.state !== 'flying') return;
       if (!t0) t0 = ts;
-      var t = Math.min(1, (ts - t0) / D), e = easeInOut(t);
-      drawGlobe(st, lonA + dl * e, latA + (latB - latA) * e);
-      if (t < 1) { st.raf = requestAnimationFrame(step); }
-      else { st.state = 'map'; setTimeout(function () { if (st.state === 'map') st.stage.classList.add('is-map'); }, 260); }
+      var t = ts - t0;
+      var r = easeInOut(Math.min(1, t / ROT));
+      var lon0 = lonA + dl * r, lat0 = latA + (latB - latA) * r;
+      var zt = Math.max(0, Math.min(1, (t - ZSTART) / ZDUR));
+      var Z = Math.exp(Math.log(st.Zf) * easeInOut(zt));
+      var done = t >= ZSTART + ZDUR;
+      if (done) { lon0 = lonB; lat0 = latB; Z = st.Zf; }
+      renderFrame(st, lon0, lat0, Z, done);
+      if (!done) st.raf = requestAnimationFrame(step);
+      else st.state = 'map';
     };
     st.raf = requestAnimationFrame(step);
   }
   function resetStage(st) {
     if (st.raf) cancelAnimationFrame(st.raf);
-    st.state = 'idle';
+    st.state = 'idle'; st.pending = false;
     st.stage.classList.remove('is-map');
-    drawGlobe(st, startLon(st.target), 12);
+    if (st.ready) renderFrame(st, startLon(st), 12, 1, false);
   }
   var stages = [];
   function initStages() {
@@ -419,6 +519,12 @@
     loadGlobe(function () {
       seriesEls.forEach(function (serie) { var st = setupStage(serie); if (st) stages.push(st); });
       if (!stages.length) return;
+      layoutSeries();
+      var tick = setInterval(function () {
+        var all = true;
+        stages.forEach(function (st) { if (!st.ready) { fitStage(st); if (st.ready && st.pending) { st.pending = false; playStage(st); } } if (!st.ready) all = false; });
+        if (all) clearInterval(tick);
+      }, 150);
       if ('IntersectionObserver' in window) {
         var io = new IntersectionObserver(function (entries) {
           entries.forEach(function (en) {
@@ -430,7 +536,16 @@
         }, { threshold: [0, 0.35] });
         stages.forEach(function (st) { io.observe(st.stage); });
       } else { stages.forEach(function (st) { playStage(st); }); }
-      layoutSeries();
+    });
+  }
+  var globeData = null, globeWaiters = [];
+  function loadGlobe(cb) {
+    if (globeData) { cb(globeData); return; }
+    globeWaiters.push(cb);
+    if (globeWaiters.length > 1) return;
+    loadJSON('media/maps/globe.json', function (d) {
+      globeData = d || { rings: [] };
+      globeWaiters.forEach(function (w) { w(globeData); }); globeWaiters = [];
     });
   }
 
