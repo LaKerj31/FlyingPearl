@@ -726,7 +726,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       </div>
       <p class="phead__lede">On génère des images et des vidéos, avec la même exigence de cadre et de lumière qu'en tournage.</p>
     </header>
-    <!-- Demos conservees mais masquees : requises par le script d'animation du site -->
+    <!-- Démo du prompt conservée mais masquée : requise par le script d'animation du site -->
     <section class="prompt wrap" data-hud="Prompt" aria-label="Exemple de prompt" hidden aria-hidden="true">
       <div class="prompt__box" data-reveal>
         <div class="prompt__head mono"><span>Prompt</span><span class="prompt__status">Saisie</span></div>
@@ -734,7 +734,9 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
         <div class="prompt__bar" aria-hidden="true"><span></span></div>
       </div>
     </section>
-    <section class="lab wrap" data-hud="Laboratoire" aria-label="Ce qu'on génère" hidden aria-hidden="true">
+    <!-- Deux petits onglets entre l'intro et les projets : Images et Vidéos (la cellule Musique reste masquée, requise par le script) -->
+    <section class="lab wrap" data-hud="Laboratoire" aria-label="Ce qu'on génère">
+      <div class="lab__row">
       <article class="cell" data-reveal>
         <div class="cell__screen"><canvas class="px" data-fx="diffusion" aria-hidden="true"></canvas><div class="cell__hud mono"><b>Image</b><span data-count>Étape 30/30</span></div></div>
         <h2>Images</h2>
@@ -745,7 +747,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
         <h2>Vidéos</h2>
         <p>Des plans animés à partir d'images fixes, découpés comme un film.</p>
       </article>
-      <article class="cell" data-reveal style="--d:.2s">
+      </div>
+      <article class="cell" hidden aria-hidden="true">
         <div class="cell__screen"><canvas data-fx="wave" aria-hidden="true"></canvas><div class="cell__hud mono"><b>Musique</b><span data-count>00:00.0</span></div></div>
         <h2>Musique</h2>
         <p>Des chansons et des instrumentaux pour porter les images.</p>
@@ -755,7 +758,18 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 
     <style>
     /* IA : Derniers projets + visionneuses */
-    .proj{margin-top:clamp(40px,6vw,96px);margin-bottom:clamp(48px,8vw,110px)}
+    /* IA : intro resserrée, puis deux petits onglets Images et Vidéos, puis les projets */
+    [data-view="ia"] .phead{padding-bottom:clamp(26px,3vw,40px)}
+    .lab{display:block;padding-bottom:0}
+    .lab__row{--pg:clamp(16px,2.4vw,40px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--pg);max-width:calc(2 * (85vh - 64px) + var(--pg))}
+    .lab .cell{grid-template-columns:clamp(150px,34%,216px) minmax(0,1fr);grid-template-rows:auto auto;align-content:center;column-gap:clamp(16px,2vw,26px);row-gap:8px;padding:12px;border:1px solid var(--line);background:rgba(255,255,255,.012)}
+    .lab .cell__screen{grid-row:1 / span 2;aspect-ratio:4/3;align-self:center}
+    .lab .cell__screen canvas.px{object-fit:cover}
+    .lab .cell h2{align-self:end;font-size:clamp(1.15rem,1.7vw,1.5rem)}
+    .lab .cell p{align-self:start;font-size:.95rem;line-height:1.45}
+    @media(max-width:760px){.lab__row{grid-template-columns:1fr;gap:12px}}
+    @media(max-width:520px){.lab .cell{grid-template-columns:148px minmax(0,1fr);column-gap:14px;padding:10px}.lab .cell__screen{aspect-ratio:auto;height:166px}.lab .cell__hud [data-count]{display:none}.lab .cell p{font-size:.88rem}}
+    .proj{margin-top:clamp(36px,4.5vw,64px);margin-bottom:clamp(48px,8vw,110px)}
     .proj__meta{display:flex;gap:1.4em;color:var(--mute)}
     .proj__title{margin:.4em 0 0;font-family:var(--f-display);font-weight:800;line-height:.92;letter-spacing:-.05em;font-size:clamp(2rem,6vw,4.4rem)}
     .proj__title-b{color:var(--ember)}
@@ -775,10 +789,10 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     .card__cover:hover .card__play,.card__cover:focus-visible .card__play{background:rgba(0,0,0,.7);transform:scale(1.08)}
     /* TEARS : le mot en gros sur la couverture, dans la police du titre de la carte (Unbounded), une couleur par lettre */
     .tears-word{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;pointer-events:none;margin:0;font-family:var(--f-display);font-weight:800;font-size:15.5cqi;letter-spacing:-.03em;line-height:1;white-space:nowrap;filter:drop-shadow(0 10px 28px rgba(0,0,0,.7))}
-    .tw{display:inline-block;paint-order:stroke fill}
-    .tw--t{color:#0a0a0a;-webkit-text-stroke:.05em #fff}
+    .tw{display:inline-block}
+    .tw--t{color:#0a0a0a;text-shadow:0 0 .35em rgba(255,255,255,.45),0 0 .12em rgba(255,255,255,.18)}
     .tw--e,.tw--r{color:#d0132f}
-    .tw--a{color:#f6f6f4;-webkit-text-stroke:.05em #1c1c1c}
+    .tw--a{color:#f6f6f4}
     .tw--s{color:#e4b44a}
     .card__name{margin:.9em 0 0;font-family:var(--f-display);font-weight:800;font-size:clamp(1.3rem,2.4vw,1.9rem);letter-spacing:-.03em;line-height:1.02}
     .card__name-b{color:var(--ember)}
@@ -1035,7 +1049,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
         </article>
         <article class="card" data-reveal>
           <button class="card__cover" type="button" data-proj="shinsena" data-title="SHINSENA YAMA" data-accent="YAMA" data-desc="Maquette test d&#x27;un projet en cours." data-cursor="Entrer" aria-label="Ouvrir le projet SHINSENA YAMA">
-            <img src="media/shinsena-yama/entrainement-poster.jpg" alt="Un père et son fils s&#x27;entraînent au sabre au bord d&#x27;une source chaude, au coucher du soleil" width="1600" height="900" decoding="async">
+            <img src="media/shinsena-yama/mystere-poster.jpg" alt="Le père pose la main sur une paroi de roche gravée d&#x27;inscriptions" width="1600" height="900" decoding="async">
             <span class="card__badge mono">Maquette · En cours</span>
             <span class="card__go mono" aria-hidden="true">Entrer</span>
           </button>
@@ -1045,20 +1059,20 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
               <h3 class="pj__sec-title mono">Vidéos</h3>
               <div class="pj__vids">
                 <figure class="pj__vid"><video class="pj__video" controls playsinline preload="metadata" poster="media/shinsena-yama/entrainement-poster.jpg"><source src="media/shinsena-yama/entrainement.mp4" type="video/mp4"></video><figcaption class="pj__vid-cap mono"><b>01</b> Entraînement</figcaption></figure>
-                <figure class="pj__vid"><video class="pj__video" controls playsinline preload="metadata" poster="media/shinsena-yama/execution-poster.jpg"><source src="media/shinsena-yama/execution.mp4" type="video/mp4"></video><figcaption class="pj__vid-cap mono"><b>02</b> Exécution</figcaption></figure>
-                <figure class="pj__vid"><video class="pj__video" controls playsinline preload="metadata" poster="media/shinsena-yama/mystere-poster.jpg"><source src="media/shinsena-yama/mystere.mp4" type="video/mp4"></video><figcaption class="pj__vid-cap mono"><b>03</b> Mystère</figcaption></figure>
+                <figure class="pj__vid"><video class="pj__video" controls playsinline preload="metadata" poster="media/shinsena-yama/mystere-poster.jpg"><source src="media/shinsena-yama/mystere.mp4" type="video/mp4"></video><figcaption class="pj__vid-cap mono"><b>02</b> Mystère</figcaption></figure>
+                <figure class="pj__vid"><video class="pj__video" controls playsinline preload="metadata" poster="media/shinsena-yama/execution-poster.jpg"><source src="media/shinsena-yama/execution.mp4" type="video/mp4"></video><figcaption class="pj__vid-cap mono"><b>03</b> Exécution</figcaption></figure>
               </div>
             </section>
             <section class="pj__sec">
               <h3 class="pj__sec-title mono">Personnages</h3>
               <div class="pj__res">
-                <button class="pj__res-item" type="button" data-full="media/shinsena-yama/pere.jpg" data-cap="Character sheet · Le père · SHINSENA YAMA" data-cursor="Agrandir">
-                  <img src="media/shinsena-yama/pere.jpg" alt="Character sheet du père : visage, face et dos, kimono sombre et hakama" width="2400" height="1350" loading="lazy" decoding="async">
-                  <span class="pj__res-cap mono">Le père</span>
-                </button>
                 <button class="pj__res-item" type="button" data-full="media/shinsena-yama/fils.jpg" data-cap="Character sheet · Le fils · SHINSENA YAMA" data-cursor="Agrandir">
                   <img src="media/shinsena-yama/fils.jpg" alt="Character sheet du fils : visage marqué d&#x27;une cicatrice, face et dos, tenue de toile" width="2400" height="1350" loading="lazy" decoding="async">
                   <span class="pj__res-cap mono">Le fils</span>
+                </button>
+                <button class="pj__res-item" type="button" data-full="media/shinsena-yama/pere.jpg" data-cap="Character sheet · Le père · SHINSENA YAMA" data-cursor="Agrandir">
+                  <img src="media/shinsena-yama/pere.jpg" alt="Character sheet du père : visage, face et dos, kimono sombre et hakama" width="2400" height="1350" loading="lazy" decoding="async">
+                  <span class="pj__res-cap mono">Le père</span>
                 </button>
                 <button class="pj__res-item" type="button" data-full="media/shinsena-yama/guerrier.jpg" data-cap="Character sheet · Le guerrier · SHINSENA YAMA" data-cursor="Agrandir">
                   <img src="media/shinsena-yama/guerrier.jpg" alt="Character sheet du guerrier : visage balafré, face et dos, armure de samouraï" width="2400" height="1357" loading="lazy" decoding="async">
@@ -1069,13 +1083,13 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
             <section class="pj__sec">
               <h3 class="pj__sec-title mono">Décors</h3>
               <div class="pj__res">
-                <button class="pj__res-item" type="button" data-full="media/shinsena-yama/montagne.jpg" data-cap="Décor · La montagne · SHINSENA YAMA" data-cursor="Agrandir">
-                  <img src="media/shinsena-yama/montagne.jpg" alt="Paroi de roche volcanique percée d&#x27;une porte de pierre ronde gravée" width="2400" height="1029" loading="lazy" decoding="async">
-                  <span class="pj__res-cap mono">La montagne</span>
-                </button>
                 <button class="pj__res-item" type="button" data-full="media/shinsena-yama/source-eau.jpg" data-cap="Décor · La source d&#x27;eau · SHINSENA YAMA" data-cursor="Agrandir">
                   <img src="media/shinsena-yama/source-eau.jpg" alt="Source chaude fumante au lever du soleil, un volcan au loin" width="2400" height="1029" loading="lazy" decoding="async">
                   <span class="pj__res-cap mono">La source d&#x27;eau</span>
+                </button>
+                <button class="pj__res-item" type="button" data-full="media/shinsena-yama/montagne.jpg" data-cap="Décor · La montagne · SHINSENA YAMA" data-cursor="Agrandir">
+                  <img src="media/shinsena-yama/montagne.jpg" alt="Paroi de roche volcanique percée d&#x27;une porte de pierre ronde gravée" width="2400" height="1029" loading="lazy" decoding="async">
+                  <span class="pj__res-cap mono">La montagne</span>
                 </button>
                 <button class="pj__res-item" type="button" data-full="media/shinsena-yama/bataille.jpg" data-cap="Décor · La bataille · SHINSENA YAMA" data-cursor="Agrandir">
                   <img src="media/shinsena-yama/bataille.jpg" alt="Champ de bataille après le combat, armures à terre et étendards brisés" width="2400" height="1029" loading="lazy" decoding="async">
