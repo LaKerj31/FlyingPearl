@@ -910,18 +910,26 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     .pj--serie .pj__meta{margin-top:clamp(12px,1.4vw,18px);padding-top:clamp(10px,1.1vw,14px)}
     .pj--serie .pj__content{flex:1;min-height:0;display:flex;margin:clamp(14px,2vw,26px) 0 0}
     .crs{flex:1;min-height:0;display:flex;flex-direction:column;width:100%}
-    .crs__vp{position:relative;flex:1;min-height:240px;overflow:hidden;touch-action:pan-y;cursor:grab;-webkit-user-select:none;user-select:none}
+    .crs__vp{position:relative;flex:1;min-height:240px;overflow:hidden;touch-action:pan-y;cursor:grab;-webkit-user-select:none;user-select:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
     .crs__vp.is-drag{cursor:grabbing}
-    .crs__track{position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;column-gap:clamp(20px,3vw,52px);will-change:transform}
-    .crs__slide{flex:0 0 auto;display:block;padding:0;border:0;margin:0;background:none;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;opacity:.34;transform:scale(.86);filter:saturate(.55) brightness(.75);transition:opacity .7s var(--ease),transform .9s var(--ease),filter .7s var(--ease)}
-    .crs__slide.is-active{opacity:1;transform:none;filter:none}
-    .crs__slide:not(.is-active):hover{opacity:.62}
-    .crs__film{animation:crsIn 1s var(--ease) both;animation-delay:calc(var(--i,0) * 80ms + 120ms)}
-    @keyframes crsIn{from{opacity:0;transform:translateX(90px)}to{opacity:1;transform:none}}
-    .crs__slide:focus-visible .crs__film{box-shadow:0 0 0 2px var(--ember)}
-    .crs__pic{position:relative;display:block;overflow:hidden;background:var(--ink-3)}
-    .crs__pic img{display:block;width:100%;height:100%;object-fit:cover;transform:scale(1.14);will-change:transform;pointer-events:none}
-    .crs__hint{position:absolute;right:var(--gx);bottom:8px;margin:0;color:var(--mute);font-size:11px;letter-spacing:.12em;text-transform:uppercase;transition:opacity .6s var(--ease);pointer-events:none}
+    /* la bande : support sombre, perforations continues en haut et en bas (dimensions posées par le script) */
+    .crs__track{position:absolute;left:0;top:0;display:flex;align-items:flex-start;box-sizing:content-box;will-change:transform;border-radius:3px;box-shadow:0 30px 90px rgba(0,0,0,.7);
+      background:repeating-linear-gradient(90deg,transparent 0 var(--hg,14px),rgba(255,255,255,.14) var(--hg,14px) var(--hp,24px)) 0 var(--ho,6px)/100% var(--hh,9px) no-repeat,
+                 repeating-linear-gradient(90deg,transparent 0 var(--hg,14px),rgba(255,255,255,.14) var(--hg,14px) var(--hp,24px)) 0 calc(100% - var(--ho,6px))/100% var(--hh,9px) no-repeat,
+                 linear-gradient(180deg,#121212,#191919 50%,#121212)}
+    .crs__slide{flex:0 0 auto;display:flex;flex-direction:column;align-items:stretch;padding:var(--mt,26px) 0 0;border:0;margin:0;background:none;cursor:pointer;outline:none;text-align:left;-webkit-tap-highlight-color:transparent}
+    .crs__pic{position:relative;display:block;overflow:hidden;background:#0b0b0b;box-shadow:0 0 0 1px rgba(0,0,0,.6)}
+    .crs__pic img{display:block;width:100%;height:100%;object-fit:cover;pointer-events:none;filter:brightness(.42) saturate(.45);transition:filter .8s var(--ease)}
+    .crs__slide.is-active .crs__pic img{filter:none}
+    .crs__slide:not(.is-active):hover .crs__pic img{filter:brightness(.62) saturate(.7)}
+    .crs__slide:focus-visible .crs__pic{box-shadow:0 0 0 2px var(--ember)}
+    /* inscriptions de marge sous chaque vue : numéro et réglages, comme sur un négatif */
+    .crs__edge{display:flex;align-items:center;gap:1.1em;height:var(--tb,24px);padding:0 2px;color:rgba(255,90,31,.5);font-size:clamp(10px,.72vw,12px);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;transition:color .6s var(--ease)}
+    .crs__edge span{overflow:hidden;text-overflow:ellipsis}
+    .crs__edge b{font-weight:500}
+    .crs__slide.is-active .crs__edge{color:var(--ember)}
+    .crs__info{position:relative;min-width:0}
+    .crs__hint{position:absolute;right:0;top:.2em;margin:0;color:var(--mute);font-size:11px;letter-spacing:.12em;text-transform:uppercase;transition:opacity .6s var(--ease);pointer-events:none}
     .crs__hint span{display:inline-block;margin-left:.4em;color:var(--ember);animation:crsNudge 1.6s ease-in-out infinite}
     @keyframes crsNudge{0%,100%{transform:translateX(0)}50%{transform:translateX(7px)}}
     .crs.is-touched .crs__hint{opacity:0}
@@ -936,8 +944,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     .crs__btn{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.4);color:var(--paper);font-size:22px;line-height:1;cursor:pointer;transition:border-color .3s var(--ease),opacity .3s var(--ease)}
     .crs__btn:hover{border-color:var(--ember)}
     .crs__btn:disabled{opacity:.25;cursor:default;border-color:rgba(255,255,255,.2)}
-    @media(max-width:640px){.crs__nav{display:none}.crs__bar{grid-template-columns:auto minmax(0,1fr)}.pj--serie .pj__title{font-size:1.9rem}.pj--serie .pj__desc{font-size:.92rem;line-height:1.45}.pj--serie .pj__meta{gap:22px}.pj--serie .pj__meta dd{font-size:.9rem}.crs__vp{min-height:330px}.crs__hint{bottom:2px}}
-    @media(prefers-reduced-motion:reduce){.crs__film{animation:none}.crs__slide{transition:none}.crs__hint span{animation:none}}
+    @media(max-width:640px){.crs__nav{display:none}.crs__hint{display:none}.crs__edge{font-size:9px;letter-spacing:.05em;gap:.6em}.crs__bar{grid-template-columns:auto minmax(0,1fr)}.pj--serie .pj__title{font-size:1.9rem}.pj--serie .pj__desc{font-size:.92rem;line-height:1.45}.pj--serie .pj__meta{gap:22px}.pj--serie .pj__meta dd{font-size:.9rem}.crs__vp{min-height:330px}.crs__hint{bottom:2px}}
+    @media(prefers-reduced-motion:reduce){.crs__pic img,.crs__edge{transition:none}.crs__hint span{animation:none}}
     /* fiche série : carte stylisée avec les photos placées là où elles ont été prises */
     .pj__map{position:relative;width:100%;aspect-ratio:var(--mar,1000/700);margin:clamp(24px,3vw,40px) 0 clamp(32px,4.5vw,64px);background:radial-gradient(70% 90% at 50% 50%,#101010,#0a0a0a);border:1px solid var(--line);border-radius:3px;overflow:hidden}
     .pj__map svg{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -1060,7 +1068,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 </footer>
 
 <script src="js/lenis.min.js"></script>
-<script src="js/ia.js?v=19" defer></script>
+<script src="js/ia.js?v=20" defer></script>
 <script>
 (function () {
   'use strict';
