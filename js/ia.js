@@ -717,7 +717,16 @@
     var film = serie.querySelector('.serie__film');
     var stage = serie.querySelector('.serie__stage');
     if (!film || !stage) return;
-    if (narrowMQ && narrowMQ.matches) { stage.style.removeProperty('--sh'); return; }
+    if (narrowMQ && narrowMQ.matches) { stage.style.removeProperty('--sh'); serie.style.removeProperty('--cmax'); return; }
+    /* la rangée entière (titre, description, couverture, légende) doit tenir dans 85 % de la hauteur de l'écran :
+       on mesure tout ce qui n'est pas la photo, et la photo prend le reste */
+    var head = serie.querySelector('.serie__head'), cover = serie.querySelector('.serie__cover'), img = serie.querySelector('.serie__cimg img');
+    if (head && cover && img) {
+      var headH = head.offsetHeight + (parseFloat(getComputedStyle(head).marginBottom) || 0);
+      var chrome = headH + cover.offsetHeight - img.offsetHeight;
+      var mh = Math.max(280, Math.min(1000, window.innerHeight * 0.85 - chrome));
+      serie.style.setProperty('--cmax', Math.floor(mh) + 'px');
+    }
     void serie.offsetHeight;
     stage.style.setProperty('--sh', film.offsetHeight + 'px');
     stages.forEach(function (st) { if (st.serie === serie) fitStage(st); });
