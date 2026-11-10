@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-ByOvpY4dL/wxyvlZ67F8q5KSbqX/YaD1rT+pDAWAVg8='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-E960cU2s7kJUyH4+OkRz4fmk6VPdRDFEizMeinBjjQw='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -1160,7 +1160,7 @@ html[data-page="home"] .foot__top{display:none}
   function pearlWord(w) { return w.replace(/O/g, '<span class="cw-o"></span>').replace(/I/g, '<span class="cw-i">I</span>'); }
   $$('.phead__title').forEach(function (h) {
     var w = h.textContent.trim().toUpperCase();
-    h.setAttribute('aria-label', w.charAt(0) + w.slice(1).toLowerCase());
+    h.setAttribute('aria-label', w.length <= 2 ? w : w.charAt(0) + w.slice(1).toLowerCase());
     h.innerHTML = pearlWord(w);
   });
 
