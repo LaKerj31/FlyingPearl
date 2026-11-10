@@ -12,8 +12,8 @@
   if (!tail) return;
 
   var BASE = 120;     /* longueur de l'élément en CSS, en px (mise à l'échelle ensuite) */
-  var MAXLEN = 150;   /* longueur maximale de la queue, en px */
-  var GAIN = 0.075;   /* px de queue par px/s de vitesse */
+  var MAXLEN = 300;   /* longueur maximale de la queue, en px */
+  var GAIN = 0.14;    /* px de queue par px/s de vitesse */
   var SMOOTH = 0.3;   /* lissage de la vitesse (direction et longueur), par image à 60 i/s */
 
   var raf = 0, x = 0, y = 0, lx = 0, ly = 0, vx = 0, vy = 0, has = false, lastT = 0;

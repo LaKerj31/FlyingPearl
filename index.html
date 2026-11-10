@@ -672,7 +672,7 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
             <span class="pframe__film"><span class="pframe__img"><img src="media/photos/japon/A7406577.jpg" alt="Japon, photo 2" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
             <span class="pframe__exif mono"><span>A7406577</span><span>1/500 · f/5.6 · ISO 800</span></span>
           </button>
-          <button class="pframe" type="button" data-reveal data-full="media/photos/japon/A7400623.jpg" data-lat="34.6916" data-lon="135.8546" data-place="Nara · Wakakusayama" data-sx="46" data-sy="82" data-sr="-2" data-ss="1" data-mx="34" data-my="81" data-cap="1/1000 · f/11 · ISO 800" data-cursor="Agrandir" aria-label="Japon, photo 3, agrandir">
+          <button class="pframe" type="button" data-reveal data-full="media/photos/japon/A7400623.jpg" data-lat="34.6916" data-lon="135.8546" data-place="Nara · Wakakusayama" data-ancre="sous" data-sx="46" data-sy="82" data-sr="-2" data-ss="1" data-mx="34" data-my="81" data-cap="1/1000 · f/11 · ISO 800" data-cursor="Agrandir" aria-label="Japon, photo 3, agrandir">
             <span class="pframe__film"><span class="pframe__img"><img src="media/photos/japon/A7400623.jpg" alt="Japon, photo 3" width="1333" height="2000" loading="lazy" decoding="async"></span></span>
             <span class="pframe__exif mono"><span>A7400623</span><span>1/1000 · f/11 · ISO 800</span></span>
           </button>
@@ -879,6 +879,27 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     .pj__meta dt{margin:0;color:var(--mute);font-family:var(--f-mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase}
     .pj__meta dd{margin:.4em 0 0;color:var(--soft);font-size:clamp(.95rem,1.2vw,1.05rem)}
     .pj__content{margin:clamp(34px,5vw,64px) 0 0}
+    /* fiches projet (IA) : en-tête compact et remonté, identique sur toutes les fiches, pour que la première vidéo tienne
+       entière à l'écran : une petite ligne (« Projet » à gauche, outils et date à droite), le titre sur une ligne, le
+       texte dessous. Les fiches des séries photo ont leur propre mise en page (.pj--serie) et ne sont pas concernées. */
+    .pj:not(.pj--serie) .pj__panel{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:clamp(20px,3vw,48px);align-items:baseline;padding-top:clamp(18px,2.4vw,30px)}
+    .pj:not(.pj--serie) .pj__eyebrow{grid-column:1;grid-row:1}
+    .pj:not(.pj--serie) .pj__meta{grid-column:2;grid-row:1;justify-self:end;margin:0;padding:0;border:0;flex-wrap:nowrap;gap:clamp(14px,2.2vw,32px)}
+    .pj:not(.pj--serie) .pj__meta div{display:flex;align-items:baseline;gap:.7em}
+    .pj:not(.pj--serie) .pj__meta dd{margin:0;font-size:clamp(.82rem,.95vw,.92rem);white-space:nowrap}
+    .pj:not(.pj--serie) .pj__title{grid-column:1/-1;grid-row:2;margin-top:.3em;font-size:clamp(1.45rem,2.9vw,2.4rem);line-height:1;letter-spacing:-.045em}
+    .pj:not(.pj--serie) .pj__desc{grid-column:1/-1;grid-row:3;margin-top:clamp(8px,1vw,14px);max-width:84ch;font-size:clamp(.95rem,1.08vw,1.05rem);line-height:1.45}
+    .pj:not(.pj--serie) .pj__content{grid-column:1/-1;grid-row:4;min-width:0;margin-top:clamp(14px,1.8vw,24px)}
+    .pj:not(.pj--serie) .pj__sec-title{margin-bottom:clamp(10px,1.2vw,16px)}
+    /* écran moyen : la croix de fermeture est au-dessus de la fiche, on lui laisse la place à droite des outils */
+    @media(max-width:1320px){.pj:not(.pj--serie) .pj__meta,.pj:not(.pj--serie) .pj__title{margin-right:62px}}
+    @media(max-width:760px){
+      .pj:not(.pj--serie) .pj__panel{grid-template-columns:minmax(0,1fr)}
+      .pj:not(.pj--serie) .pj__eyebrow,.pj:not(.pj--serie) .pj__title{margin-right:58px}
+      .pj:not(.pj--serie) .pj__meta{grid-column:1;grid-row:4;justify-self:start;margin:10px 0 0;flex-wrap:wrap;gap:6px 22px}
+      .pj:not(.pj--serie) .pj__meta dd{white-space:normal}
+      .pj:not(.pj--serie) .pj__content{grid-row:5}
+    }
     .pj__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,1vw,14px)}
     @media(max-width:860px){.pj__grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:520px){.pj__grid{grid-template-columns:1fr}}
@@ -960,7 +981,9 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     .mapshot:focus-visible .mapshot__film{box-shadow:0 0 0 2px var(--ember)}
     @media(max-width:640px){.pj__map{display:none}}
     @media(prefers-reduced-motion:reduce){.pj__map .map__ring{animation:none}}
-    .pj__video{width:100%;height:auto;max-height:80vh;display:block;background:#000;border:1px solid var(--line);border-radius:3px}
+    /* une vidéo ne dépasse jamais la hauteur disponible sous l'en-tête de la fiche (--pjfit, calculée à l'ouverture) :
+       elle garde ses proportions, rétrécit en largeur s'il le faut et se centre, avec sa légende */
+    .pj__video{width:100%;height:auto;aspect-ratio:16/9;display:block;background:#000;border:1px solid var(--line);border-radius:3px}
     /* sections complémentaires d'une fiche projet (ressources, vidéos, personnages, décors) */
     .pj__sec{margin-top:clamp(36px,5vw,64px)}
     .pj__content > .pj__sec:first-child{margin-top:0}
@@ -975,7 +998,7 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     .pj__res-item:focus-visible img{box-shadow:0 0 0 2px var(--ember)}
     .pj__res-cap{display:block;margin-top:.7em;color:var(--soft);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
     .pj__vids{display:flex;flex-direction:column;gap:clamp(26px,3.6vw,44px)}
-    .pj__vid{margin:0}
+    .pj__vid{margin:0 auto;width:100%;max-width:calc(var(--pjfit,80vh) * 16 / 9)}
     .pj__vid-cap{margin-top:.8em;color:var(--soft);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
     .pj__vid-cap b{margin-right:.7em;color:var(--ember);font-weight:500}
     .lb{z-index:1001}
@@ -1021,7 +1044,7 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
           </template>
         </article>
         <article class="card" data-reveal>
-          <button class="card__cover" type="button" data-proj="shinsena" data-title="SHINSENA YAMA" data-accent="YAMA" data-desc="Maquette test d&#x27;un projet en cours." data-cursor="Entrer" aria-label="Ouvrir le projet SHINSENA YAMA">
+          <button class="card__cover" type="button" data-proj="shinsena" data-title="SHINSENA YAMA" data-accent="YAMA" data-tools="GPT Image 2.5 Sunburst, Seedance 2.5" data-desc="Maquette test d&#x27;un projet en cours." data-cursor="Entrer" aria-label="Ouvrir le projet SHINSENA YAMA">
             <img src="media/shinsena-yama/mystere-poster.jpg" alt="Le père pose la main sur une paroi de roche gravée d&#x27;inscriptions" width="1600" height="900" decoding="async">
             <span class="card__title" aria-hidden="true" style="--ts:10.5cqi"><span>SHINSENA</span><span class="card__title-b">YAMA</span></span>
             <span class="card__badge mono">Maquette · En cours</span>
@@ -1131,8 +1154,8 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
 </footer>
 
 <script src="js/lenis.min.js"></script>
-<script src="js/ia.js?v=24" defer></script>
-<script src="js/curseur.js?v=4" defer></script>
+<script src="js/ia.js?v=25" defer></script>
+<script src="js/curseur.js?v=5" defer></script>
 <script>
 (function () {
   'use strict';

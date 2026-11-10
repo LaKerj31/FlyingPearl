@@ -169,8 +169,16 @@
       var im = card.querySelector('img'); if (im) v.poster = im.src;
       var s = document.createElement('source'); s.src = card.getAttribute('data-video'); s.type = 'video/mp4';
       v.appendChild(s);
-      pjContent.appendChild(v);
-      var p = v.play(); if (p && p.catch) p.catch(function () {});
+      /* même présentation que les vidéos des autres fiches (rubrique, vidéo, légende) ; la lecture ne démarre pas seule */
+      var sec = document.createElement('section'); sec.className = 'pj__sec';
+      var st = document.createElement('h3'); st.className = 'pj__sec-title mono'; st.textContent = 'Vidéo';
+      var vids0 = document.createElement('div'); vids0.className = 'pj__vids';
+      var fig = document.createElement('figure'); fig.className = 'pj__vid';
+      var fc = document.createElement('figcaption'); fc.className = 'pj__vid-cap mono';
+      var nb = document.createElement('b'); nb.textContent = '01';
+      fc.appendChild(nb); fc.appendChild(document.createTextNode('Pilote'));
+      fig.appendChild(v); fig.appendChild(fc); vids0.appendChild(fig);
+      sec.appendChild(st); sec.appendChild(vids0); pjContent.appendChild(sec);
     } else if (card.getAttribute('data-proj') === 'tears') {
       var figs = tearsFigs();
       var grid = document.createElement('div'); grid.className = 'pj__grid';
@@ -190,7 +198,20 @@
       vids.forEach(function (v) { v.addEventListener('play', function () { vids.forEach(function (o) { if (o !== v) { try { o.pause(); } catch (e) {} } }); }); });
     }
     openOverlay();
+    fitFiche();
   }
+  /* fiche projet : la première vidéo et sa légende tiennent entières à l'écran, sans défilement, quelle que soit la
+     taille de l'écran ; toutes les vidéos de la fiche prennent cette taille (variable CSS --pjfit) */
+  function fitFiche() {
+    if (!pjOpen || pj.classList.contains('pj--serie')) return;
+    var v = pjContent.querySelector('.pj__video');
+    if (!v) { pj.style.removeProperty('--pjfit'); return; }
+    var fig = v.closest ? v.closest('.pj__vid') : null, cap = fig ? fig.querySelector('.pj__vid-cap') : null;
+    var capH = cap ? cap.offsetHeight + (parseFloat(getComputedStyle(cap).marginTop) || 0) : 0;
+    var top = v.getBoundingClientRect().top + pj.scrollTop;
+    pj.style.setProperty('--pjfit', Math.max(150, Math.floor(window.innerHeight - top - capH - 18)) + 'px');
+  }
+  window.addEventListener('resize', fitFiche);
   Array.prototype.slice.call(document.querySelectorAll('.card__cover')).forEach(function (c) {
     c.addEventListener('click', function () { openProject(c); });
   });
@@ -531,6 +552,8 @@
       var el = f.el;
       f.sx = parseFloat(el.getAttribute('data-sx')); f.sy = parseFloat(el.getAttribute('data-sy'));
       f.sr = parseFloat(el.getAttribute('data-sr')) || 0; f.ss = parseFloat(el.getAttribute('data-ss')) || 1;
+      /* data-ancre="sous" : la vignette se place juste sous son épingle et y reste ; ce sont les autres qui s'écartent */
+      f.ancre = el.getAttribute('data-ancre') || '';
       return f;
     }).filter(function (f) { return !isNaN(f.sx) && !isNaN(f.sy); });
   }
@@ -712,13 +735,20 @@
       if (hmax > H * 0.34) k = Math.max(0.5, H * 0.34 / hmax);
       /* on essaie à cette taille ; si une règle reste enfreinte, ou si une vignette doit partir trop loin de sa place,
          on essaie un peu plus petit, et on garde le meilleur compromis (taille des vignettes / respect des places) */
-      for (var attempt = 0; attempt < 4; attempt++) {
-        setK(k);
-        var B = layoutShots(st, pins, W, H);
-        var score = (B.hard >= 0.5 ? 1e6 + B.hard : 0) + B.maxd * 100 + attempt * 9;
-        if (!best || score < best.score) best = { k: k, B: B, score: score };
-        if (B.hard < 0.5 && B.maxd <= 0.07) break;
-        k *= 0.86;
+      var k0 = k, anchored = st.located.some(function (f) { return !!f.ancre; });
+      /* d'abord en respectant les vignettes ancrées ; si aucune taille ne permet de tenir les règles, on recommence
+         sans l'ancrage (la règle « aucune ligne coupée » passe avant) */
+      for (var honor = 1; honor >= 0; honor--) {
+        k = k0;
+        for (var attempt = 0; attempt < 4; attempt++) {
+          setK(k);
+          var B = layoutShots(st, pins, W, H, !!honor);
+          var score = (B.hard >= 0.5 ? 1e6 + B.hard : 0) + B.maxd * 100 + attempt * 9 + (honor ? 0 : 1e3);
+          if (!best || score < best.score) best = { k: k, B: B, score: score };
+          if (B.hard < 0.5 && B.maxd <= 0.07) break;
+          k *= 0.86;
+        }
+        if (best.B.hard < 0.5 || !anchored) break;
       }
       st.placeKey = key; st.placeRes = best;
       /* trace pour le contrôle : taille retenue, plus grand écart à la place voulue (% de la diagonale), durée du calcul */
@@ -733,15 +763,18 @@
   }
   /* une mise en place complète à la taille actuelle des vignettes. Deux départs sont essayés (écartement avec ou sans
      les lignes) ; on garde celui qui respecte les règles en dérangeant le moins les places voulues. */
-  function layoutShots(st, pins, W, H) {
+  function layoutShots(st, pins, W, H, honor) {
     var M = Math.max(16, Math.min(W, H) * 0.045), G = Math.max(14, W * 0.024), RP = 14, PL = Math.max(6, W * 0.008);
     /* grille de recherche assez large (le calcul reste court) : les places sont ensuite affinées sans grille */
     var D = Math.hypot(W, H) || 1, step = Math.max(8, Math.min(W, H) / 26);
     var sizes = st.located.map(function (f, k) {
       var el = st.shotEls[k], w = el ? el.offsetWidth : 0, h = el ? el.offsetHeight : 0;
       var a = Math.abs(f.sr) * DEG, s = f.ss * 1.04;   /* 1,04 : de quoi grandir au survol sans toucher la voisine */
-      return { tx: f.sx / 100 * W, ty: f.sy / 100 * H,
-               hw: (w * Math.cos(a) + h * Math.sin(a)) * s / 2, hh: (w * Math.sin(a) + h * Math.cos(a)) * s / 2 };
+      var hw = (w * Math.cos(a) + h * Math.sin(a)) * s / 2, hh = (w * Math.sin(a) + h * Math.cos(a)) * s / 2;
+      var tx = f.sx / 100 * W, ty = f.sy / 100 * H, p = pins[k];
+      /* vignette ancrée sous son épingle : à la verticale du point, juste en dessous (au moins à la hauteur voulue) */
+      if (f.ancre === 'sous' && p) { tx = p.x; ty = Math.max(ty, p.y + RP + 8 + hh); }
+      return { tx: tx, ty: ty, hw: hw, hh: hh, keep: !!f.ancre };
     });
     var n = sizes.length;
     var clamp = function (b) {
@@ -750,8 +783,9 @@
     };
     var sum = function (arr) { var t = 0; arr.forEach(function (v) { t += v; }); return t; };
 
+    /* « keep » : vignette ancrée, qui garde sa place (les autres s'écartent autour d'elle) tant que « honor » est vrai */
     var run = function (withLines) {
-      var B = sizes.map(function (s) { return { x: s.tx, y: s.ty, tx: s.tx, ty: s.ty, hw: s.hw, hh: s.hh }; });
+      var B = sizes.map(function (s) { return { x: s.tx, y: s.ty, tx: s.tx, ty: s.ty, hw: s.hw, hh: s.hh, keep: honor && s.keep }; });
       B.forEach(clamp);
       /* lignes de rappel : de l'épingle à la photo (limitées à la carte) ; pour une photo prise hors champ, aussi la
          ligne affichée quand la carte a glissé jusqu'à son lieu (l'épingle est alors au centre de la carte) */
@@ -766,8 +800,10 @@
           var a = B[i], b = B[j], dx = b.x - a.x, dy = b.y - a.y;
           var ox = a.hw + b.hw + G - Math.abs(dx), oy = a.hh + b.hh + G - Math.abs(dy);
           if (ox <= 0.5 || oy <= 0.5) continue;
-          if (ox < oy) { var px = (dx >= 0 ? 1 : -1) * ox / 2; a.x -= px; b.x += px; }
-          else { var py = (dy >= 0 ? 1 : -1) * oy / 2; a.y -= py; b.y += py; }
+          /* part de chacune dans l'écartement : moitié-moitié, ou tout pour celle qui n'est pas ancrée */
+          var wa = a.keep === b.keep ? 0.5 : (a.keep ? 0 : 1), wb = 1 - wa;
+          if (ox < oy) { var px = (dx >= 0 ? 1 : -1) * ox; a.x -= px * wa; b.x += px * wb; }
+          else { var py = (dy >= 0 ? 1 : -1) * oy; a.y -= py * wa; b.y += py * wb; }
           moved++;
         }
         for (j = 0; j < pins.length; j++) {
@@ -791,8 +827,15 @@
               var m = segPush(sg, B[i], PL);
               if (m.p <= 0.5) continue;
               var t = Math.max(0, Math.min(1, ((B[i].x - sg[0]) * sx + (B[i].y - sg[1]) * sy) / sl));
-              B[i].x += m.x * 0.7; B[i].y += m.y * 0.7;
-              B[j].x -= m.x * 0.3 * t; B[j].y -= m.y * 0.3 * t;
+              if (B[i].keep && !B[j].keep) {
+                /* la gêneuse est ancrée : c'est la photo au bout de la ligne qui s'écarte, assez pour que sa ligne pivote */
+                var kp = Math.min(2.5, 0.8 / Math.max(t, 0.2));
+                B[j].x -= m.x * kp; B[j].y -= m.y * kp;
+              } else {
+                var wi = B[j].keep ? 0.95 : 0.7;
+                B[i].x += m.x * wi; B[i].y += m.y * wi;
+                if (!B[j].keep) { B[j].x -= m.x * 0.3 * t; B[j].y -= m.y * 0.3 * t; }
+              }
               moved++;
             }
           }
@@ -848,7 +891,7 @@
           var hv = hards(); if (sum(hv) <= 0.5) return true;
           var cur = total(), pick = -1, px0 = 0, py0 = 0, gain = 1e-6;
           for (var q = 0; q < n; q++) {
-            if (q === fixe || hv[q] <= 0.5) continue;
+            if (q === fixe || hv[q] <= 0.5 || B[q].keep) continue;
             var ox0 = B[q].x, oy0 = B[q].y, spot = bestSpot(q);
             place(q, spot.x, spot.y);
             var g = cur - total();
@@ -905,7 +948,7 @@
         for (var sweep = 0; sweep < 6 && !ok; sweep++) {
           var hv = hards(), order = B.map(function (b, i) { return i; }).sort(function (u, w) { return hv[w] - hv[u]; });
           order.forEach(function (i) {
-            if (sweep < 2 && costOf(i, B[i].x, B[i].y).hard <= 0) return;
+            if (B[i].keep || (sweep < 2 && costOf(i, B[i].x, B[i].y).hard <= 0)) return;
             var spot = bestSpot(i); place(i, spot.x, spot.y);
           });
           ok = sum(hards()) <= 0.5;
