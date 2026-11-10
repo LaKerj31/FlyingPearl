@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-q9QYNURKfpjjJfS5KnHlQUKxpJhC1BNdR91yi6kL4AQ='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-IAMYpw6Ent/7ko6ZeXxMJVEFiWRy4tjXIKkUa/EeUdo='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -192,7 +192,6 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 
 .marquee{position:relative;z-index:1;overflow:hidden;border-block:1px solid var(--line);background:var(--ink);padding-block:clamp(12px,1.5vw,20px)}
 .marquee__track{display:flex;width:max-content;will-change:transform}
-.duo__word,.duo__pearl{backface-visibility:hidden}
 .mq{display:flex;align-items:center;gap:clamp(18px,2.4vw,36px);padding-right:clamp(18px,2.4vw,36px);font-family:var(--f-display);font-weight:800;font-size:clamp(1.35rem,3.4vw,3rem);letter-spacing:-.035em;line-height:1.1;white-space:nowrap}
 .mq .o{font-family:var(--f-outline);color:transparent;-webkit-text-stroke:1.2px var(--paper)}
 .mq .pearl{font-size:.5em}
@@ -203,18 +202,6 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .w{color:var(--dim);transition:color .5s ease}
 .w.lit{color:var(--paper)}
 .w.em.lit{color:var(--ember)}
-
-.duo{display:grid;gap:clamp(40px,6vw,80px);overflow:hidden}
-.duo__head{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.duo__stage{display:flex;align-items:center;justify-content:center;gap:clamp(12px,2vw,30px);font-family:var(--f-display);font-weight:800;font-size:clamp(2.2rem,7.4vw,8rem);letter-spacing:-.05em;line-height:1;white-space:nowrap}
-.duo__word{margin:0;will-change:transform}
-.duo__word--l{font-family:var(--f-outline);color:transparent;-webkit-text-stroke:1.5px var(--paper)}
-.duo__pearl{width:.62em;height:.62em;font-size:1em;box-shadow:0 0 70px rgba(255,90,31,.45);will-change:transform}
-.duo__sub{text-align:center;margin:0;color:var(--mute)}
-.duo__cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,4vw,64px);max-width:980px;width:100%;margin-inline:auto}
-.duo__col{border-top:1px solid var(--line);padding-top:18px;display:grid;gap:12px;align-content:start}
-.duo__col h3{margin:0;color:var(--ember)}
-.duo__col ul{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:clamp(1.05rem,1.6vw,1.35rem)}
 
 .index__head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap;padding-bottom:clamp(24px,3vw,40px)}
 .index__note{margin:0;color:var(--mute)}
@@ -390,8 +377,6 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   .row__fmt,.row__desc{grid-column:1/-1}
   .row__title{grid-row:2}
   .row__arrow{grid-row:2}
-  .duo__stage{flex-direction:column;font-size:clamp(2.6rem,15vw,5rem);gap:14px}
-  .duo__cols{grid-template-columns:1fr}
   .strip__row{grid-template-columns:repeat(2,minmax(0,1fr))}
   .shot:nth-child(even){width:100%}
   .hud__pos{display:none}
@@ -521,19 +506,6 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     <section class="sec manifesto wrap" data-hud="Le studio" aria-label="Le studio">
       <p class="label mono" data-reveal>(Le studio)</p>
       <p class="manifesto__text"><em>Flying Pearl</em> est un studio de création indépendant. On tourne des <em>courts-métrages</em>, on fait des <em>photos</em>, et on génère des images et des vidéos avec l'<em>IA</em>. Caméra ou prompt, on cherche toujours un cadre juste, une lumière qui raconte et une image qui reste.</p>
-    </section>
-
-    <section class="sec duo" data-hud="Caméra & prompt" aria-label="Deux outils">
-      <div class="duo__head wrap"><p class="label mono" data-reveal>(Deux outils)</p><p class="label mono" data-reveal>Films et IA, à parts égales</p></div>
-      <div class="duo__stage" aria-hidden="true">
-        <p class="duo__word duo__word--l">CAMÉRA</p>
-        <span class="pearl duo__pearl"></span>
-        <p class="duo__word duo__word--r">PROMPT</p>
-      </div>
-      <div class="duo__cols wrap">
-        <div class="duo__col" data-reveal><h3 class="mono">Caméra</h3><ul><li>Courts-métrages</li><li>Photographie</li></ul></div>
-        <div class="duo__col" data-reveal style="--d:.12s"><h3 class="mono">Prompt</h3><ul><li>Images générées</li><li>Vidéos générées</li></ul></div>
-      </div>
     </section>
 
     <section class="sec index" data-hud="Univers" aria-labelledby="t-univers">
@@ -1173,7 +1145,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     return { x: x, y: y, w: el.offsetWidth, h: el.offsetHeight };
   }
   /* mesures mises en cache : aucune lecture de mise en page pendant l'animation */
-  var M = { max: 1, vh: window.innerHeight, manTop: 0, manH: 0, duoTop: 0 };
+  var M = { max: 1, vh: window.innerHeight, manTop: 0, manH: 0 };
 
   /* ---------- grain de pellicule ---------- */
   (function () {
@@ -1443,13 +1415,10 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       R = Math.min(2, window.devicePixelRatio || 1); VW = window.innerWidth; VH = window.innerHeight;
       cv.width = Math.round(VW * R); cv.height = Math.round(VH * R);
       var W = home.clientWidth;
-      var hH = $('.hero').offsetHeight, m = offIn(manText, home), dp = offIn($('.duo__pearl'), home), ix = offIn($('.index'), home), ct = offIn($('.cta'), home), bp = offIn($('.cta__btn .pearl'), home);
-      var dx = dp.x + dp.w / 2, dy = dp.y + dp.h / 2, r = clamp(W * 0.15, 78, 180);
+      var hH = $('.hero').offsetHeight, m = offIn(manText, home), ix = offIn($('.index'), home), ct = offIn($('.cta'), home), bp = offIn($('.cta__btn .pearl'), home);
       var ex = bp.x + bp.w / 2, ey = bp.y + bp.h / 2;
       var P = [
         [W * 0.93, hH + 6], [W * 0.7, m.y + m.h * 0.3], [W * 0.07, m.y + m.h * 0.98],
-        [dx - r * 1.7, dy - r * 1.15], [dx - r, dy], [dx, dy + r], [dx + r, dy], [dx, dy - r],
-        [dx - r * 0.92, dy - r * 0.12], [dx - r * 0.15, dy + r * 1.75],
         [W * 0.05, ix.y + ix.h * 0.12], [W * 0.95, ix.y + ix.h * 0.88], [W * 0.965, ct.y + ct.h * 0.5],
         [ex + Math.min(W * 0.3, 380), ey + 70], [ex + 36, ey + 8], [ex, ey]
       ];
@@ -1507,7 +1476,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     return { build: build, update: update };
   })();
 
-  /* ---------- manifeste, duo, bandeau ---------- */
+  /* ---------- manifeste, bandeau ---------- */
   var lit = -1;
   function updWords(vh, y) {
     var p = REDUCE ? 1 : clamp((vh * 0.82 - (M.manTop - y)) / (M.manH + vh * 0.2), 0, 1);
@@ -1515,17 +1484,6 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     if (n === lit) return;
     lit = n;
     for (var i = 0; i < words.length; i++) words[i].classList.toggle('lit', i < n);
-  }
-  var duoStage = $('.duo__stage'), duoL = $('.duo__word--l'), duoR = $('.duo__word--r'), duoP = $('.duo__pearl');
-  var duoLast = -1;
-  function updDuo(vh, y) {
-    var p = REDUCE ? 1 : clamp((vh - (M.duoTop - y)) / (vh * 0.7), 0, 1);
-    if (p === duoLast) return;
-    duoLast = p;
-    var e = 1 - Math.pow(1 - p, 3), off = (1 - e) * 24;
-    duoL.style.transform = 'translate3d(' + (-off).toFixed(2) + 'vw,0,0)';
-    duoR.style.transform = 'translate3d(' + off.toFixed(2) + 'vw,0,0)';
-    duoP.style.transform = 'scale(' + (0.35 + e * 0.65).toFixed(3) + ')';
   }
   var mqTrack = $('.marquee__track'), mqX = 0, mqW = 0, mqDir = 1;
   function mqSize() { mqW = mqTrack.scrollWidth / 2; }
@@ -1718,8 +1676,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   function measure() {
     M.vh = window.innerHeight; M.max = Math.max(1, root.scrollHeight - M.vh);
     if (!views.home.hidden) {
-      var m = offIn(manText, views.home), s = offIn(duoStage, views.home);
-      M.manTop = m.y; M.manH = m.h; M.duoTop = s.y; duoLast = -1;
+      var m = offIn(manText, views.home);
+      M.manTop = m.y; M.manH = m.h;
     }
   }
 
@@ -1753,7 +1711,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     }
     lastY = y;
     hud.tick(t, clamp(y / M.max, 0, 1));
-    if (current === 'home') { orbit.step(dt, vel); trail.update(dt, y, vh); updWords(vh, y); updDuo(vh, y); updMq(dt, vel); }
+    if (current === 'home') { orbit.step(dt, vel); trail.update(dt, y, vh); updWords(vh, y); updMq(dt, vel); }
     else if (current === 'ia') lab.step(dt);
     requestAnimationFrame(frame);
   }
