@@ -620,12 +620,28 @@
     var o = panOffset(st);
     st.gPan.setAttribute('transform', 'translate(' + o.dx.toFixed(1) + ' ' + o.dy.toFixed(1) + ')');
     st.located.forEach(function (f, i) { setLead(st, i, st.leadLen[i] || 0); });
+    /* pendant le glissement, une ligne qui passerait sur une autre photo s'efface dès le départ et revient à la fin */
+    var cut = st.panK >= 0 && st.panCut ? st.panCut : [];
+    st.leads.forEach(function (ld, i) { ld.style.opacity = cut[i] ? Math.max(0, 1 - q * 3).toFixed(3) : ''; });
     if (st.layers && st.layers.city) st.gR.style.opacity = (st.oRf + (1 - st.oRf) * q).toFixed(3);   /* les côtes reprennent de la présence hors de la ville */
+  }
+  /* lignes des autres photos qui, pendant le glissement vers le lieu k, passeraient sur une photo */
+  function panCuts(st, k) {
+    var v = st.located[k] && st.located[k].pan, B = st.boxes || [];
+    if (!v) return null;
+    return st.leadGeo.map(function (g, i) {
+      if (i === k || !g) return false;
+      for (var s = 1; s <= 4; s++) {
+        var seg = clipSeg(g.px + v.dx * s / 4, g.py + v.dy * s / 4, g.cx, g.cy, st.W, st.H);
+        for (var j = 0; j < B.length; j++) if (j !== i && segPen(seg, B[j], 0) > 0) return true;
+      }
+      return false;
+    });
   }
   function panTo(st, k) {
     if (st.state !== 'map') return;
     var target = k >= 0 ? 1 : 0;
-    if (k >= 0) st.panK = k;
+    if (k >= 0) { st.panK = k; st.panCut = panCuts(st, k); }
     if (st.panRaf) cancelAnimationFrame(st.panRaf);
     if (REDUCE) { st.panQ = target; applyPan(st, target); if (!target) st.panK = -1; return; }
     var q0 = st.panQ, t0 = null, D = Math.max(240, 1000 * Math.abs(target - q0));
@@ -639,49 +655,282 @@
     };
     st.panRaf = requestAnimationFrame(step);
   }
-  /* placement des vignettes : on part des positions voulues (data-sx / data-sy) puis on les écarte jusqu'à ce que
-     chacune reste dans la carte (marge intérieure), garde un écart minimal avec ses voisines et ne cache aucune épingle */
+  /* ---- géométrie : une ligne de rappel (segment [ax, ay, bx, by]) contre une photo (rectangle x, y, hw, hh) ---- */
+  /* segment limité à la carte (l'épingle peut être hors champ) ; null si rien n'en est visible */
+  function clipSeg(ax, ay, bx, by, W, H) {
+    var t0 = 0, t1 = 1, dx = bx - ax, dy = by - ay, c = [[-dx, ax], [dx, W - ax], [-dy, ay], [dy, H - ay]];
+    for (var i = 0; i < 4; i++) {
+      if (c[i][0] === 0) { if (c[i][1] < 0) return null; continue; }
+      var r = c[i][1] / c[i][0];
+      if (c[i][0] < 0) t0 = Math.max(t0, r); else t1 = Math.min(t1, r);
+    }
+    return t0 > t1 ? null : [ax + dx * t0, ay + dy * t0, ax + dx * t1, ay + dy * t1];
+  }
+  /* plus petit déplacement (x, y) à donner au rectangle b, élargi de pad, pour qu'il ne touche plus le segment s ;
+     p = sa longueur (0 : le segment ne le touche pas) */
+  var NOPUSH = { p: 0, x: 0, y: 0 };
+  function segPush(s, b, pad) {
+    if (!s) return NOPUSH;
+    var hw = b.hw + pad, hh = b.hh + pad;
+    var r = Math.max(s[0], s[2]) - (b.x - hw), l = b.x + hw - Math.min(s[0], s[2]); if (r <= 0 || l <= 0) return NOPUSH;
+    var dn = Math.max(s[1], s[3]) - (b.y - hh), up = b.y + hh - Math.min(s[1], s[3]); if (dn <= 0 || up <= 0) return NOPUSH;
+    var best = r < l ? { p: r, x: r, y: 0 } : { p: l, x: -l, y: 0 };
+    if (Math.min(dn, up) < best.p) best = dn < up ? { p: dn, x: 0, y: dn } : { p: up, x: 0, y: -up };
+    var dx = s[2] - s[0], dy = s[3] - s[1], L = Math.hypot(dx, dy);
+    if (L > 1e-6) {
+      var nx = -dy / L, ny = dx / L, d = (b.x - s[0]) * nx + (b.y - s[1]) * ny;
+      var pn = hw * Math.abs(nx) + hh * Math.abs(ny) - Math.abs(d); if (pn <= 0) return NOPUSH;
+      if (pn < best.p) { var sg = d >= 0 ? 1 : -1; best = { p: pn, x: nx * pn * sg, y: ny * pn * sg }; }
+    }
+    return best;
+  }
+  /* de combien le segment s entre dans le rectangle b élargi de pad (0 : il ne le touche pas) */
+  function segPen(s, b, pad) { return segPush(s, b, pad).p; }
+  /* deux segments qui se croisent franchement */
+  function segCross(a, b) {
+    if (!a || !b) return false;
+    var d = function (px, py, qx, qy, rx, ry) { return (qx - px) * (ry - py) - (qy - py) * (rx - px); };
+    var d1 = d(b[0], b[1], b[2], b[3], a[0], a[1]), d2 = d(b[0], b[1], b[2], b[3], a[2], a[3]);
+    var d3 = d(a[0], a[1], a[2], a[3], b[0], b[1]), d4 = d(a[0], a[1], a[2], a[3], b[2], b[3]);
+    return ((d1 > 0) !== (d2 > 0)) && ((d3 > 0) !== (d4 > 0));
+  }
+  /* placement des vignettes, quelle que soit la taille de la carte. Règles strictes : chaque vignette reste dans la carte
+     (marge intérieure), garde un écart minimal avec ses voisines, ne cache aucune épingle et ne coupe jamais la ligne de
+     rappel d'une autre photo. On part des positions voulues (data-sx / data-sy) ; si une règle est enfreinte, les vignettes
+     en cause sont replacées au plus près ; s'il n'y a vraiment pas la place, les vignettes rapetissent un peu. */
   function placeShots(st, pins) {
-    var W = st.W, H = st.H;
-    var M = Math.max(16, Math.min(W, H) * 0.045), G = Math.max(14, W * 0.024), RP = 14;
-    var B = st.located.map(function (f, k) {
+    var W = st.W, H = st.H, base = W * (st.serie.classList.contains('serie--land') ? 0.145 : 0.11);
+    var setK = function (k) { st.shots.style.setProperty('--mw', Math.max(44, base * k).toFixed(1) + 'px'); };
+    var k = 1; setK(k);
+    /* même carte, mêmes épingles, mêmes vignettes : on reprend le placement déjà calculé (le calcul n'est fait qu'une fois par taille) */
+    var hmax = 0, key = W + 'x' + H + '|' + pins.map(function (p) { return Math.round(p.x) + ',' + Math.round(p.y); }).join(';') + '|' +
+      st.shotEls.map(function (el) { hmax = Math.max(hmax, el.offsetHeight); return el.offsetWidth + 'x' + el.offsetHeight; }).join(';');
+    var best = st.placeKey === key ? st.placeRes : null;
+    if (!best) {
+      var t0 = window.performance ? performance.now() : 0;
+      /* carte large et basse : une vignette ne dépasse pas le tiers de la hauteur */
+      if (hmax > H * 0.34) k = Math.max(0.5, H * 0.34 / hmax);
+      /* on essaie à cette taille ; si une règle reste enfreinte, ou si une vignette doit partir trop loin de sa place,
+         on essaie un peu plus petit, et on garde le meilleur compromis (taille des vignettes / respect des places) */
+      for (var attempt = 0; attempt < 4; attempt++) {
+        setK(k);
+        var B = layoutShots(st, pins, W, H);
+        var score = (B.hard >= 0.5 ? 1e6 + B.hard : 0) + B.maxd * 100 + attempt * 9;
+        if (!best || score < best.score) best = { k: k, B: B, score: score };
+        if (B.hard < 0.5 && B.maxd <= 0.07) break;
+        k *= 0.86;
+      }
+      st.placeKey = key; st.placeRes = best;
+      /* trace pour le contrôle : taille retenue, plus grand écart à la place voulue (% de la diagonale), durée du calcul */
+      st.stage.setAttribute('data-place', 'k' + best.k.toFixed(2) + ' d' + (best.B.maxd * 100).toFixed(1) + ' h' + best.B.hard.toFixed(1) + ' ' + ((window.performance ? performance.now() : 0) - t0).toFixed(0) + 'ms');
+    }
+    setK(best.k);
+    best.B.forEach(function (b, i) {
+      var el = st.shotEls[i]; if (!el) return;
+      el.style.left = (b.x / W * 100).toFixed(3) + '%'; el.style.top = (b.y / H * 100).toFixed(3) + '%';
+    });
+    return best.B;
+  }
+  /* une mise en place complète à la taille actuelle des vignettes. Deux départs sont essayés (écartement avec ou sans
+     les lignes) ; on garde celui qui respecte les règles en dérangeant le moins les places voulues. */
+  function layoutShots(st, pins, W, H) {
+    var M = Math.max(16, Math.min(W, H) * 0.045), G = Math.max(14, W * 0.024), RP = 14, PL = Math.max(6, W * 0.008);
+    /* grille de recherche assez large (le calcul reste court) : les places sont ensuite affinées sans grille */
+    var D = Math.hypot(W, H) || 1, step = Math.max(8, Math.min(W, H) / 26);
+    var sizes = st.located.map(function (f, k) {
       var el = st.shotEls[k], w = el ? el.offsetWidth : 0, h = el ? el.offsetHeight : 0;
       var a = Math.abs(f.sr) * DEG, s = f.ss * 1.04;   /* 1,04 : de quoi grandir au survol sans toucher la voisine */
-      return { x: f.sx / 100 * W, y: f.sy / 100 * H,
+      return { tx: f.sx / 100 * W, ty: f.sy / 100 * H,
                hw: (w * Math.cos(a) + h * Math.sin(a)) * s / 2, hh: (w * Math.sin(a) + h * Math.cos(a)) * s / 2 };
     });
+    var n = sizes.length;
     var clamp = function (b) {
       var lo = M + b.hw, hi = W - M - b.hw; b.x = lo > hi ? W / 2 : Math.min(hi, Math.max(lo, b.x));
       lo = M + b.hh; hi = H - M - b.hh; b.y = lo > hi ? H / 2 : Math.min(hi, Math.max(lo, b.y));
     };
-    B.forEach(clamp);
-    for (var it = 0; it < 500; it++) {
-      var moved = 0, i, j;
-      for (i = 0; i < B.length; i++) for (j = i + 1; j < B.length; j++) {
-        var a = B[i], b = B[j], dx = b.x - a.x, dy = b.y - a.y;
-        var ox = a.hw + b.hw + G - Math.abs(dx), oy = a.hh + b.hh + G - Math.abs(dy);
-        if (ox <= 0.5 || oy <= 0.5) continue;
-        if (ox < oy) { var px = (dx > 0 || (dx === 0 && i < j) ? 1 : -1) * ox / 2; a.x -= px; b.x += px; }
-        else { var py = (dy > 0 || (dy === 0 && i < j) ? 1 : -1) * oy / 2; a.y -= py; b.y += py; }
-        moved++;
-      }
-      pins.forEach(function (p) {
-        if (!p.on) return;
-        B.forEach(function (b) {
-          var dx = b.x - p.x, dy = b.y - p.y, ox = b.hw + RP - Math.abs(dx), oy = b.hh + RP - Math.abs(dy);
-          if (ox <= 0.5 || oy <= 0.5) return;
-          if (ox < oy) b.x += (dx >= 0 ? 1 : -1) * ox; else b.y += (dy >= 0 ? 1 : -1) * oy;
-          moved++;
-        });
-      });
+    var sum = function (arr) { var t = 0; arr.forEach(function (v) { t += v; }); return t; };
+
+    var run = function (withLines) {
+      var B = sizes.map(function (s) { return { x: s.tx, y: s.ty, tx: s.tx, ty: s.ty, hw: s.hw, hh: s.hh }; });
       B.forEach(clamp);
-      if (!moved) break;
-    }
-    B.forEach(function (b, k) {
-      var el = st.shotEls[k]; if (!el) return;
-      el.style.left = (b.x / W * 100).toFixed(3) + '%'; el.style.top = (b.y / H * 100).toFixed(3) + '%';
-    });
-    return B;
+      /* lignes de rappel : de l'épingle à la photo (limitées à la carte) ; pour une photo prise hors champ, aussi la
+         ligne affichée quand la carte a glissé jusqu'à son lieu (l'épingle est alors au centre de la carte) */
+      var lead = function (i) { return pins[i] ? clipSeg(pins[i].x, pins[i].y, B[i].x, B[i].y, W, H) : null; };
+      var panLead = function (i) { return st.located[i].pan ? [W / 2, H / 2, B[i].x, B[i].y] : null; };
+      var i, j, q;
+
+      /* 1. écartement en douceur : tout ce qui se gêne se repousse un peu, à plusieurs, jusqu'à ce que plus rien ne bouge */
+      for (var it = 0; it < 600; it++) {
+        var moved = 0;
+        for (i = 0; i < n; i++) for (j = i + 1; j < n; j++) {
+          var a = B[i], b = B[j], dx = b.x - a.x, dy = b.y - a.y;
+          var ox = a.hw + b.hw + G - Math.abs(dx), oy = a.hh + b.hh + G - Math.abs(dy);
+          if (ox <= 0.5 || oy <= 0.5) continue;
+          if (ox < oy) { var px = (dx >= 0 ? 1 : -1) * ox / 2; a.x -= px; b.x += px; }
+          else { var py = (dy >= 0 ? 1 : -1) * oy / 2; a.y -= py; b.y += py; }
+          moved++;
+        }
+        for (j = 0; j < pins.length; j++) {
+          if (!pins[j].on) continue;
+          for (i = 0; i < n; i++) {
+            var c = B[i], ex = c.x - pins[j].x, ey = c.y - pins[j].y, qx = c.hw + RP - Math.abs(ex), qy = c.hh + RP - Math.abs(ey);
+            if (qx <= 0.5 || qy <= 0.5) continue;
+            if (qx < qy) c.x += (ex >= 0 ? 1 : -1) * qx; else c.y += (ey >= 0 ? 1 : -1) * qy;
+            moved++;
+          }
+        }
+        /* une photo posée sur la ligne d'une autre s'en écarte ; la photo au bout de cette ligne s'écarte un peu dans
+           l'autre sens (sa ligne pivote), d'autant plus que la gêneuse est près d'elle */
+        if (withLines) for (j = 0; j < n; j++) {
+          var segs = [lead(j), panLead(j)];
+          for (var sk = 0; sk < 2; sk++) {
+            var sg = segs[sk]; if (!sg) continue;
+            var sx = sg[2] - sg[0], sy = sg[3] - sg[1], sl = sx * sx + sy * sy || 1;
+            for (i = 0; i < n; i++) {
+              if (i === j) continue;
+              var m = segPush(sg, B[i], PL);
+              if (m.p <= 0.5) continue;
+              var t = Math.max(0, Math.min(1, ((B[i].x - sg[0]) * sx + (B[i].y - sg[1]) * sy) / sl));
+              B[i].x += m.x * 0.7; B[i].y += m.y * 0.7;
+              B[j].x -= m.x * 0.3 * t; B[j].y -= m.y * 0.3 * t;
+              moved++;
+            }
+          }
+        }
+        B.forEach(clamp);
+        if (!moved) break;
+      }
+
+      var S = [], SP = [];
+      for (q = 0; q < n; q++) { S[q] = lead(q); SP[q] = panLead(q); }
+      var place = function (i, x, y) { B[i].x = x; B[i].y = y; S[i] = lead(i); SP[i] = panLead(i); };
+      var snap = function () { return B.map(function (b) { return [b.x, b.y]; }); };
+      var restore = function (cfg) { cfg.forEach(function (p, i) { B[i].x = p[0]; B[i].y = p[1]; }); for (var i = 0; i < n; i++) { S[i] = lead(i); SP[i] = panLead(i); } };
+      /* coût de la vignette i placée en (x, y), les autres ne bougeant pas : hard = règles enfreintes (en px) ;
+         v = total, où s'ajoutent l'éloignement de la place voulue et les lignes qui se croisent (à éviter si possible) */
+      var costOf = function (i, x, y) {
+        var b = B[i], ox = b.x, oy = b.y, hard = 0, soft = 0, j;
+        b.x = x; b.y = y;
+        var si = lead(i), sp = panLead(i);
+        for (j = 0; j < n; j++) {
+          if (j === i) continue;
+          var o = B[j], qx = b.hw + o.hw + G - Math.abs(o.x - x), qy = b.hh + o.hh + G - Math.abs(o.y - y);
+          if (qx > 0 && qy > 0) hard += Math.min(qx, qy);
+          hard += segPen(S[j], b, PL) + segPen(si, o, PL) + segPen(SP[j], b, PL) + segPen(sp, o, PL);
+          if (segCross(si, S[j])) soft += 60;
+        }
+        for (j = 0; j < pins.length; j++) {
+          if (!pins[j].on) continue;
+          var px = b.hw + RP - Math.abs(x - pins[j].x), py = b.hh + RP - Math.abs(y - pins[j].y);
+          if (px > 0 && py > 0) hard += Math.min(px, py);
+        }
+        soft += Math.hypot(x - b.tx, y - b.ty) / D * 100;
+        b.x = ox; b.y = oy;
+        return { hard: hard, v: hard * 1000 + soft };
+      };
+      var hards = function () { return B.map(function (b, i) { return costOf(i, b.x, b.y).hard; }); };
+      var total = function () { var t = 0; for (var i = 0; i < n; i++) t += costOf(i, B[i].x, B[i].y).v; return t; };
+      var dist = function (i) { return Math.hypot(B[i].x - B[i].tx, B[i].y - B[i].ty); };
+      var disp = function () { var t = 0; for (var i = 0; i < n; i++) { var d = dist(i) / D; t += d * d; } return t; };
+      /* meilleure place de la vignette i sur une grille, les autres ne bougeant pas (au plus près de sa place voulue) */
+      var bestSpot = function (i) {
+        var b = B[i], best = costOf(i, b.x, b.y), bx = b.x, by = b.y, x, y, c;
+        for (y = M + b.hh; y <= H - M - b.hh; y += step) for (x = M + b.hw; x <= W - M - b.hw; x += step) {
+          c = costOf(i, x, y);
+          if (c.v < best.v - 1e-6) { best = c; bx = x; by = y; }
+        }
+        return { x: bx, y: by };
+      };
+      /* réparation : parmi les vignettes en cause (sauf « fixe »), on déplace celle dont le déplacement arrange le mieux
+         l'ensemble, et on recommence */
+      var repair = function (fixe, passes) {
+        for (var pass = 0; pass < passes; pass++) {
+          var hv = hards(); if (sum(hv) <= 0.5) return true;
+          var cur = total(), pick = -1, px0 = 0, py0 = 0, gain = 1e-6;
+          for (var q = 0; q < n; q++) {
+            if (q === fixe || hv[q] <= 0.5) continue;
+            var ox0 = B[q].x, oy0 = B[q].y, spot = bestSpot(q);
+            place(q, spot.x, spot.y);
+            var g = cur - total();
+            place(q, ox0, oy0);
+            if (g > gain) { gain = g; pick = q; px0 = spot.x; py0 = spot.y; }
+          }
+          if (pick < 0) break;
+          place(pick, px0, py0);
+        }
+        return sum(hards()) <= 0.5;
+      };
+      /* point situé à la fraction f du chemin entre la vignette i et sa place voulue (ramené dans la carte) */
+      var toward = function (i, f) {
+        var b = B[i], kx = b.x, ky = b.y;
+        b.x = kx + (b.tx - kx) * f; b.y = ky + (b.ty - ky) * f; clamp(b);
+        var p = { x: b.x, y: b.y };
+        b.x = kx; b.y = ky;
+        return p;
+      };
+      /* chaque vignette revient vers sa place voulue autant que les règles le permettent */
+      var pullBack = function () {
+        var any = false;
+        for (var q = 0; q < n; q++) {
+          if (dist(q) < 2) continue;
+          for (var f = 1; f > 0.2; f -= 0.25) {
+            var p = toward(q, f);
+            if (Math.hypot(p.x - B[q].x, p.y - B[q].y) < 1) continue;
+            if (costOf(q, p.x, p.y).hard <= 0.5) { place(q, p.x, p.y); any = true; break; }
+          }
+        }
+        return any;
+      };
+      /* la vignette i, trop loin de sa place, y retourne (ou s'en approche) ; ce sont alors celles qui la gênent qui se
+         décalent. On ne garde l'échange que s'il dérange moins l'ensemble. */
+      var exchange = function (i) {
+        var keep = snap(), bestCfg = null, bestD = disp() - 1e-9;
+        [1, 0.6].forEach(function (f) {
+          restore(keep);
+          var p = toward(i, f);
+          place(i, p.x, p.y);
+          if (!repair(i, 4)) return;
+          pullBack();
+          var d = disp();
+          if (d < bestD) { bestD = d; bestCfg = snap(); }
+        });
+        restore(bestCfg || keep);
+        return !!bestCfg;
+      };
+
+      /* 2. s'il reste une règle enfreinte : réparation, vignette par vignette */
+      var ok = repair(-1, 10);
+      if (!ok) {
+        /* dernier recours : chaque vignette prend tour à tour sa meilleure place, d'abord celles en cause, puis toutes */
+        for (var sweep = 0; sweep < 6 && !ok; sweep++) {
+          var hv = hards(), order = B.map(function (b, i) { return i; }).sort(function (u, w) { return hv[w] - hv[u]; });
+          order.forEach(function (i) {
+            if (sweep < 2 && costOf(i, B[i].x, B[i].y).hard <= 0) return;
+            var spot = bestSpot(i); place(i, spot.x, spot.y);
+          });
+          ok = sum(hards()) <= 0.5;
+        }
+      }
+      /* 3. tout est en règle : on rapproche chaque vignette de sa place voulue, et la plus éloignée tente un échange */
+      if (ok) {
+        var tried = {};
+        for (var round = 0; round < 3; round++) {
+          var changed = pullBack(), worst = -1, wd = D * 0.06;
+          for (q = 0; q < n; q++) { var dq = dist(q); if (!tried[q] && dq > wd) { wd = dq; worst = q; } }
+          if (worst >= 0) { if (exchange(worst)) changed = true; else tried[worst] = true; }
+          if (!changed) break;
+        }
+      }
+      B.hard = sum(hards()); B.disp = disp(); B.maxd = 0;
+      for (q = 0; q < n; q++) B.maxd = Math.max(B.maxd, dist(q) / D);
+      return B;
+    };
+
+    var A = run(true);
+    if (A.hard < 0.5 && A.maxd <= 0.07) return A;
+    var C = run(false);
+    var better = function (u, w) { return (u.hard < 0.5) !== (w.hard < 0.5) ? u.hard < 0.5 : (u.hard < 0.5 ? u.disp < w.disp : u.hard < w.hard); };
+    return better(C, A) ? C : A;
   }
   function fitStage(st) {
     var W = st.stage.clientWidth, H = st.stage.clientHeight;
@@ -710,6 +959,7 @@
       return p;
     });
     var spots = placeShots(st, pins);
+    st.boxes = spots; st.panCut = null;
     st.leadGeo = [];
     st.located.forEach(function (f, k) {
       var p = pins[k], b = spots[k];

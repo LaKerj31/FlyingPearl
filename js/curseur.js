@@ -1,35 +1,22 @@
-/* Flying Pearl : traînée du curseur, comme la queue d'une comète.
-   Elle part toujours de la perle du curseur et s'étire exactement à l'opposé du mouvement (dans son axe),
-   d'autant plus longue qu'on va vite ; quand le curseur s'arrête, elle se rétracte dans la perle et disparaît.
+/* Flying Pearl : queue de comète du curseur.
+   La queue (.cursor__tail) est un enfant du curseur perle, ancrée au centre de la perle (le point orange) : elle le suit
+   donc exactement, sans aucun décalage possible. Ce script ne fait que deux choses : l'orienter à l'opposé du mouvement
+   et l'allonger selon la vitesse ; à l'arrêt, elle se rétracte dans la perle.
    Souris uniquement (rien sur écran tactile), rien si l'utilisateur a demandé moins d'animations.
-   La boucle d'affichage s'arrête d'elle-même dès que la traînée a disparu. */
+   Aucun dessin plein écran : une seule transformation par image, et la boucle s'arrête dès que la queue a disparu. */
 (function () {
   'use strict';
   var mq = window.matchMedia;
   if (!mq || !mq('(hover: hover) and (pointer: fine)').matches || mq('(prefers-reduced-motion: reduce)').matches) return;
+  var tail = document.querySelector('.cursor__tail');
+  if (!tail) return;
 
-  var cv = document.createElement('canvas');
-  cv.className = 'ctrail';
-  cv.setAttribute('aria-hidden', 'true');
-  document.body.appendChild(cv);
-  var ctx = cv.getContext('2d');
-  if (!ctx) return;
+  var BASE = 120;     /* longueur de l'élément en CSS, en px (mise à l'échelle ensuite) */
+  var MAXLEN = 150;   /* longueur maximale de la queue, en px */
+  var GAIN = 0.075;   /* px de queue par px/s de vitesse */
+  var SMOOTH = 0.3;   /* lissage de la vitesse (direction et longueur), par image à 60 i/s */
 
-  var MAXLEN = 170;   /* longueur maximale de la queue, en px */
-  var GAIN = 0.085;   /* px de queue par px/s de vitesse */
-  var SMOOTH = 0.28;  /* lissage de la vitesse (direction et longueur), par image à 60 i/s */
-  var STEPS = 14;     /* découpage de la queue pour le dégradé */
-
-  var R = 1, W = 0, H = 0, raf = 0;
-  var x = 0, y = 0, lx = 0, ly = 0, vx = 0, vy = 0, has = false, lastT = 0, len = 0;
-
-  function size() {
-    R = Math.min(2, window.devicePixelRatio || 1);
-    W = window.innerWidth; H = window.innerHeight;
-    cv.width = Math.round(W * R); cv.height = Math.round(H * R);
-  }
-  size();
-  window.addEventListener('resize', size);
+  var raf = 0, x = 0, y = 0, lx = 0, ly = 0, vx = 0, vy = 0, has = false, lastT = 0;
 
   window.addEventListener('pointermove', function (e) {
     if (e.pointerType && e.pointerType !== 'mouse') return;
@@ -37,40 +24,24 @@
     if (!has) { has = true; lx = x; ly = y; lastT = performance.now(); }
     if (!raf) raf = requestAnimationFrame(frame);
   }, { passive: true });
-  document.addEventListener('mouseleave', function () { has = false; vx = vy = 0; len = 0; clear(); });
+  document.addEventListener('mouseleave', function () { has = false; vx = vy = 0; hide(); });
 
-  function clear() { ctx.setTransform(R, 0, 0, R, 0, 0); ctx.clearRect(0, 0, W, H); }
+  function hide() { tail.style.transform = 'scaleX(0)'; }
 
   function frame(now) {
     raf = 0;
-    if (!has) { clear(); return; }
+    if (!has) { hide(); return; }
     var dt = Math.min(0.05, Math.max(0.001, (now - lastT) / 1000)); lastT = now;
     /* vitesse instantanée depuis l'image précédente, lissée pour que la queue tourne en douceur */
     var ivx = (x - lx) / dt, ivy = (y - ly) / dt; lx = x; ly = y;
     var a = 1 - Math.pow(1 - SMOOTH, dt * 60);
     vx += (ivx - vx) * a; vy += (ivy - vy) * a;
-    var sp = Math.sqrt(vx * vx + vy * vy);
-    len = Math.min(MAXLEN, sp * GAIN);
-
-    clear();
-    if (len > 1.5) {
-      var ux = -vx / sp, uy = -vy / sp;    /* direction opposée au mouvement : la queue reste pile dans l'axe, derrière */
-      ctx.lineCap = 'round';
-      for (var pass = 0; pass < 2; pass++) {
-        for (var i = 0; i < STEPS; i++) {
-          var t0 = i / STEPS, t1 = (i + 1) / STEPS;
-          var p0x = x + ux * len * t0, p0y = y + uy * len * t0;
-          var p1x = x + ux * len * t1, p1y = y + uy * len * t1;
-          var f = 1 - t0;                   /* 1 contre la perle, 0 au bout de la queue */
-          ctx.beginPath(); ctx.moveTo(p0x, p0y); ctx.lineTo(p1x, p1y);
-          if (pass === 0) { ctx.strokeStyle = 'rgba(255,90,31,' + (0.18 * f).toFixed(3) + ')'; ctx.lineWidth = 3 + 9 * f; }
-          else { ctx.strokeStyle = 'rgba(255,90,31,' + f.toFixed(3) + ')'; ctx.lineWidth = 0.6 + 2.2 * f; }
-          ctx.stroke();
-        }
-      }
-    }
-    /* on continue tant que la queue n'est pas rétractée */
-    if (len > 0.5 || sp > 5) raf = requestAnimationFrame(frame);
-    else { vx = vy = 0; clear(); }
+    var sp = Math.sqrt(vx * vx + vy * vy), len = Math.min(MAXLEN, sp * GAIN);
+    if (len > 1) {
+      /* direction opposée au mouvement : la queue reste pile dans l'axe, derrière la perle */
+      tail.style.transform = 'rotate(' + Math.atan2(-vy, -vx).toFixed(4) + 'rad) scaleX(' + (len / BASE).toFixed(4) + ')';
+      raf = requestAnimationFrame(frame);
+    } else if (sp > 5) { hide(); raf = requestAnimationFrame(frame); }
+    else { vx = vy = 0; hide(); }
   }
 })();

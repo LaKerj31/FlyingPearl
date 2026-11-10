@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-G1HLIlc14x5CyvYZrNt7s22nJHOOxTO2Pup1TaTGAGc='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-v1Jo5Wd97FBzB7xS/xurxwaeeHfhWPIzG1J9H/Wf7rs='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -156,6 +156,13 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .cursor{position:fixed;left:0;top:0;z-index:250;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .3s;will-change:transform}
 .cursor.is-on{opacity:1}
 .cursor__dot,.cursor__ring{position:absolute;border-radius:50%}
+/* queue de comète : un enfant du curseur, ancré pile au centre de la perle (le point orange). Elle se déplace donc
+   exactement avec lui ; js/curseur.js ne fait que l'orienter à l'opposé du mouvement et l'allonger selon la vitesse */
+.cursor__tail{position:absolute;left:0;top:-7px;width:120px;height:14px;transform-origin:0 50%;transform:scaleX(0);pointer-events:none;will-change:transform;transition:opacity .25s}
+.cursor__tail::before,.cursor__tail::after{content:"";position:absolute;left:0;right:0;top:50%;clip-path:polygon(0 0,100% 50%,0 100%)}
+.cursor__tail::before{height:14px;margin-top:-7px;background:linear-gradient(90deg,rgba(255,90,31,.34),rgba(255,90,31,.12) 55%,rgba(255,90,31,0))}
+.cursor__tail::after{height:6px;margin-top:-3px;background:linear-gradient(90deg,var(--ember),rgba(255,90,31,.7) 40%,rgba(255,90,31,0))}
+.cursor.is-label .cursor__tail{opacity:0}
 .cursor__dot{left:-7px;top:-7px;width:14px;height:14px;background:radial-gradient(circle,var(--ember) 0 34%,var(--paper) 37%);transition:transform .35s var(--ease)}
 .cursor__ring{left:-42px;top:-42px;width:84px;height:84px;display:grid;place-items:center;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 3px var(--paper);transform:scale(0);transition:transform .45s var(--ease),background .3s,box-shadow .3s}
 .cursor.is-hover .cursor__ring{transform:scale(.48)}
@@ -176,7 +183,6 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .view{position:relative}
 .sec{position:relative;z-index:1;padding-block:clamp(96px,14vw,200px)}
 .trail{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
-.ctrail{position:fixed;inset:0;width:100%;height:100%;z-index:240;pointer-events:none}
 .series,.proj{position:relative;z-index:1}
 
 .hero{position:relative;z-index:1;min-height:calc(min(100svh,1000px) - 52px);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;isolation:isolate}
@@ -239,7 +245,7 @@ html[data-page="home"] .foot__top{display:none}
 /* ---------- pages univers ---------- */
 /* plus d'en-tête visible : le titre vit dans l'onglet en haut à droite, les projets commencent juste sous la barre.
    Le titre h1 reste lisible par les lecteurs d'écran ; l'en-tête ne sert plus que d'espace sous la barre fixe. */
-.phead{position:relative;z-index:1;padding-top:calc(var(--sat) + clamp(88px,11.5vh,112px));padding-bottom:0}
+.phead{position:relative;z-index:1;padding-top:calc(var(--sat) + clamp(70px,9.6vh,80px));padding-bottom:0}
 .phead > *{position:absolute!important;width:1px;height:1px;margin:0;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .phead__meta{order:3;align-self:stretch;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:12px;margin:clamp(16px,2.2vw,28px) 0 0;text-align:left}
 .af{--arm:clamp(14px,1.4vw,20px);--l:-0.17;--r:-0.17;--t:0.04;--b:0.04;position:relative;display:inline-block;font-size:clamp(2.1rem,4.4vw,4.2rem);line-height:1}
@@ -485,7 +491,7 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
 </div>
 
 <div class="curtain" aria-hidden="true"><span class="curtain__word">F<span class="cw-i">I</span>LMS</span></div>
-<div class="cursor" aria-hidden="true"><span class="cursor__ring"><span class="cursor__label"></span></span><span class="cursor__dot"></span></div>
+<div class="cursor" aria-hidden="true"><span class="cursor__tail"></span><span class="cursor__ring"><span class="cursor__label"></span></span><span class="cursor__dot"></span></div>
 
 <main id="contenu" tabindex="-1">
 
@@ -734,13 +740,18 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     <style>
     /* IA : Derniers projets + visionneuses */
     .proj{margin-top:0;margin-bottom:clamp(48px,8vw,110px)}
-    .proj__head{text-align:center}
-    .proj__meta{display:flex;justify-content:center;gap:1.4em;color:var(--mute)}
-    .proj__title{margin:.3em 0 0;font-family:var(--f-display);font-weight:800;line-height:.92;letter-spacing:-.05em;font-size:clamp(1.4rem,2.8vw,2.4rem)}
-    .proj__title-b{color:var(--ember)}
-    .proj__grid{--pg:clamp(16px,2.4vw,40px);margin:clamp(18px,2.4vw,32px) auto 0;display:grid;grid-template-columns:repeat(2,1fr);gap:var(--pg);max-width:calc(2 * (var(--fit,85vh) - 64px) + var(--pg))}
-    /* une carte (couverture carrée + titre) tient entière dans la hauteur disponible sous l'en-tête (--fit) : la grille se resserre et se centre */
-    @media(max-width:720px){.proj__grid{grid-template-columns:1fr;max-width:calc(var(--fit,85vh) - 64px)}}
+    /* mosaïque : la première carte (couverture carrée) occupe la colonne de gauche sur deux rangées ; les deux suivantes
+       (16:9) s'empilent à droite. Les largeurs sont calculées pour que les deux colonnes aient exactement la même hauteur,
+       et l'ensemble tient dans la hauteur disponible (--fit) : la grille se resserre et se centre. */
+    .proj__grid{--pg:clamp(16px,2.4vw,40px);margin:0 auto;display:grid;grid-template-columns:calc((900% - var(--pg)) / 17) minmax(0,1fr);grid-auto-rows:1fr;gap:var(--pg);max-width:calc((var(--fit,85vh) * 17 + var(--pg)) / 9)}
+    .proj__grid > .card:first-child{grid-row:span 2}
+    .proj__grid > .card:not(:first-child) .card__cover{flex:1;min-height:0}
+    .proj__grid > .card:not(:first-child) .card__cover img:not(.tears-word){position:absolute;inset:0;height:100%}
+    @media(max-width:720px){
+      .proj__grid{grid-template-columns:1fr;grid-auto-rows:auto;max-width:var(--fit,85vh)}
+      .proj__grid > .card:first-child{grid-row:auto}
+      .proj__grid > .card:not(:first-child) .card__cover img:not(.tears-word){position:static;height:auto}
+    }
     .card{display:flex;flex-direction:column}
     .card__cover{position:relative;display:block;padding:0;border:0;margin:0;background:var(--ink-2);cursor:pointer;overflow:hidden;border-radius:3px;outline:none;-webkit-tap-highlight-color:transparent;container-type:inline-size}
     .card__cover img:not(.tears-word){width:100%;height:auto;object-fit:cover;display:block;transition:transform 1.2s var(--ease),filter .6s var(--ease);filter:saturate(.97) contrast(1.02)}
@@ -750,7 +761,11 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     .card__badge{position:absolute;top:12px;left:12px;color:var(--paper);opacity:.92;z-index:1;text-shadow:0 1px 8px rgba(0,0,0,.85)}
     .card__go{position:absolute;bottom:12px;left:12px;z-index:1;color:var(--paper);opacity:0;transform:translateY(6px);transition:opacity .4s var(--ease),transform .4s var(--ease);text-shadow:0 1px 8px rgba(0,0,0,.85)}
     .card__cover:hover .card__go,.card__cover:focus-visible .card__go{opacity:1;transform:none}
-    .card__play{position:absolute;inset:0;margin:auto;width:66px;height:66px;z-index:1;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.55);color:#fff;font-size:22px;padding-left:4px;transition:background .25s var(--ease),transform .25s var(--ease)}
+    /* le titre occupe le centre : le bouton de lecture passe dans le coin, en bas à droite */
+    .card__play{position:absolute;right:14px;bottom:14px;width:46px;height:46px;z-index:1;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.55);color:#fff;font-size:15px;padding-left:3px;transition:background .25s var(--ease),transform .25s var(--ease)}
+    /* titre du projet posé au milieu de la couverture, comme TEARS : Unbounded, une ligne par bloc, la partie accentuée en orange */
+    .card__title{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:.06em;margin:0;font-family:var(--f-display);font-weight:800;font-size:var(--ts,8cqi);letter-spacing:-.03em;line-height:1;white-space:nowrap;color:var(--paper);text-shadow:0 .06em .5em rgba(0,0,0,.75),0 0 .08em rgba(0,0,0,.5)}
+    .card__title-b{color:var(--ember)}
     .card__cover:hover .card__play,.card__cover:focus-visible .card__play{background:rgba(0,0,0,.7);transform:scale(1.08)}
     /* TEARS : le mot en gros sur la couverture, dans la police du titre de la carte (Unbounded), une couleur par lettre */
     .tears-word{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;pointer-events:none;margin:0;font-family:var(--f-display);font-weight:800;font-size:15.5cqi;letter-spacing:-.03em;line-height:1;white-space:nowrap;filter:drop-shadow(0 10px 28px rgba(0,0,0,.7))}
@@ -759,14 +774,12 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     .tw--e,.tw--r{color:#d0132f}
     .tw--a{color:#f6f6f4}
     .tw--s{color:#e4b44a}
-    .card__name{margin:.9em 0 0;font-family:var(--f-display);font-weight:800;font-size:clamp(1.3rem,2.4vw,1.9rem);letter-spacing:-.03em;line-height:1.02}
-    .card__name-b{color:var(--ember)}
     .card__text{margin:.7em 0 0;color:var(--soft);font-size:clamp(.98rem,1.2vw,1.1rem);max-width:48ch;text-wrap:pretty}
     .lb,.vb{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center}
     .lb.is-open,.vb.is-open{display:flex}
     /* pas de flou d'arrière-plan (backdrop-filter) : recalculé à chaque image sous les vidéos, il faisait tout saccader ; le fond opaque suffit */
     .lb__bg,.vb__bg{position:absolute;inset:0;background:rgba(6,6,6,.97)}
-    html.is-overlay .grain,html.is-overlay .ctrail,html.is-overlay .hud{visibility:hidden}
+    html.is-overlay .grain,html.is-overlay .hud{visibility:hidden}
     .lb__fig{position:relative;margin:0;z-index:1;display:flex;flex-direction:column;align-items:center;gap:.8em}
     .lb__img{max-width:92vw;max-height:82vh;object-fit:contain;border-radius:2px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
     .lb__cap{color:var(--mute)}
@@ -781,7 +794,7 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     @media(prefers-reduced-motion:reduce){.card__cover img,.card__go,.card__play{transition:none}}
 
     /* PHOTOS : séries, une rangée par série (couverture à gauche, pellicules dispersées à droite) */
-    .series{margin-top:clamp(8px,1.5vw,24px);display:flex;flex-direction:column;gap:clamp(64px,8vw,120px);padding-bottom:clamp(56px,8vw,120px)}
+    .series{margin-top:0;display:flex;flex-direction:column;gap:clamp(64px,8vw,120px);padding-bottom:clamp(56px,8vw,120px)}
     .serie{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);column-gap:var(--cg,clamp(24px,3.5vw,64px));row-gap:0;align-items:start}
     .serie__head{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:.35em 1.2em;margin:0 0 clamp(14px,1.8vw,24px)}
     .serie__name{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(1.5rem,3.4vw,2.6rem);letter-spacing:-.04em;line-height:1}
@@ -821,10 +834,10 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     .zpins .map__pin{fill:var(--ember);stroke:#0a0a0a;stroke-width:1.5;vector-effect:non-scaling-stroke}
     .zpins .map__ring{fill:none;stroke:var(--ember);stroke-width:1;transform-box:fill-box;transform-origin:center;animation:mapPulse 2.8s ease-out infinite;animation-delay:var(--pd,0s)}
     .stageshots{position:absolute;inset:0;pointer-events:none}
-    .stageshots .mapshot{pointer-events:none;width:11%;opacity:0;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(calc(var(--sc,1) * .86)) translateY(10px);transition:opacity .55s var(--ease),transform .8s var(--ease)}
+    .stageshots .mapshot{pointer-events:none;width:var(--mw,11%);opacity:0;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(calc(var(--sc,1) * .86)) translateY(10px);transition:opacity .55s var(--ease),transform .8s var(--ease)}
     .stageshots .mapshot.is-on{pointer-events:auto;opacity:1;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(var(--sc,1))}
     .stageshots .mapshot.is-on:hover,.stageshots .mapshot.is-on:focus-visible{transform:translate(-50%,-50%) rotate(0deg) scale(calc(var(--sc,1) * 1.08));z-index:2}
-    .pj__map--land .stageshots .mapshot,.serie--land .stageshots .mapshot{width:14.5%}
+    .pj__map--land .stageshots .mapshot,.serie--land .stageshots .mapshot{width:var(--mw,14.5%)}
     .stageshots .mapshot__cap{font-size:clamp(8px,.62vw,11px)}
     .pframe{position:relative;display:block;min-width:0;padding:0;border:0;margin:0;background:none;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;text-align:left}
     .pframe__film{display:block;padding:12px 7px;border-radius:2px;box-shadow:0 14px 40px rgba(0,0,0,.55);background:repeating-linear-gradient(90deg,transparent 0 9px,rgba(255,255,255,.15) 9px 15px) 0 3px/100% 6px no-repeat,repeating-linear-gradient(90deg,transparent 0 9px,rgba(255,255,255,.15) 9px 15px) 0 calc(100% - 3px)/100% 6px no-repeat,#161616;transition:transform .8s var(--ease),box-shadow .8s var(--ease)}
@@ -970,11 +983,7 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     @media(prefers-reduced-motion:reduce){.serie__film,.serie__cimg img,.pframe__film,.pframe__img img,.pframe__exif,.pj__shot img{transition:none}}
     </style>
 
-    <section class="proj wrap" data-hud="Projets" aria-label="Derniers projets">
-      <header class="proj__head" data-reveal>
-        <p class="proj__meta mono"><span>Derniers projets</span><span>2025</span></p>
-        <h2 class="proj__title">DERNIERS <span class="proj__title-b">PROJETS</span></h2>
-      </header>
+    <section class="proj wrap" data-hud="Projets" aria-label="Projets IA">
       <div class="proj__grid">
         <article class="card" data-reveal>
           <button class="card__cover" type="button" data-proj="tears" data-title="TEARS" data-accent="" data-tools="Seedream 5.0 Pro" data-date="24 octobre 2026" data-desc="TEARS s&#x27;attarde sur la singularité de ces larmes qui coulent pour des raisons qui n&#x27;appartiennent qu&#x27;à elles. Derrière chaque masque, une vérité qui refuse de disparaître." data-cursor="Entrer" aria-label="Ouvrir le projet TEARS">
@@ -983,7 +992,6 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
             <span class="card__badge mono">Collection · 06</span>
             <span class="card__go mono" aria-hidden="true">Entrer</span>
           </button>
-          <h3 class="card__name">TEARS</h3>
           <div class="tears-src" hidden aria-hidden="true">
           <img data-full="media/tears/tears-01.jpg" data-tag="01" alt="Femme en robe blanche, quatre masques en suspension au-dessus de sa tête, larmes peintes">
           <img data-full="media/tears/tears-02.jpg" data-tag="02" alt="Masque blanc versant une larme rouge devant un rideau de velours rouge">
@@ -996,10 +1004,10 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
         <article class="card" data-reveal>
           <button class="card__cover" type="button" data-proj="show" data-video="media/daniel-roberto-show.mp4" data-title="THE DANIEL &amp; ROBERTO SHOW" data-accent="DANIEL &amp; ROBERTO" data-tools="Seedream 5.0 Pro, Seedance 2.5" data-date="24 octobre 2026" data-desc="Découvrez l&#x27;épisode pilote de THE DANIEL &amp; ROBERTO SHOW et plongez dans le quotidien de ces deux pirates qui vous racontent leur vie. Pilote encore au niveau de la maquette." data-cursor="Lecture" aria-label="Ouvrir le projet THE DANIEL AND ROBERTO SHOW">
             <img src="media/daniel-roberto-poster.jpg" alt="Daniel et Roberto, selfie dans la jungle, caméra tenue à bout de bras" decoding="async">
+            <span class="card__title" aria-hidden="true" style="--ts:6.4cqi"><span>THE</span><span class="card__title-b">DANIEL &amp; ROBERTO</span><span>SHOW</span></span>
             <span class="card__badge mono">Vidéo · Pilote</span>
             <span class="card__play" aria-hidden="true">&#9654;</span>
           </button>
-          <h3 class="card__name">THE <span class="card__name-b">DANIEL &amp; ROBERTO</span> SHOW</h3>
           <template class="pj-extra">
             <section class="pj__sec">
               <h3 class="pj__sec-title mono">Ressources</h3>
@@ -1015,10 +1023,10 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
         <article class="card" data-reveal>
           <button class="card__cover" type="button" data-proj="shinsena" data-title="SHINSENA YAMA" data-accent="YAMA" data-desc="Maquette test d&#x27;un projet en cours." data-cursor="Entrer" aria-label="Ouvrir le projet SHINSENA YAMA">
             <img src="media/shinsena-yama/mystere-poster.jpg" alt="Le père pose la main sur une paroi de roche gravée d&#x27;inscriptions" width="1600" height="900" decoding="async">
+            <span class="card__title" aria-hidden="true" style="--ts:10.5cqi"><span>SHINSENA</span><span class="card__title-b">YAMA</span></span>
             <span class="card__badge mono">Maquette · En cours</span>
             <span class="card__go mono" aria-hidden="true">Entrer</span>
           </button>
-          <h3 class="card__name">SHINSENA <span class="card__name-b">YAMA</span></h3>
           <template class="pj-extra">
             <section class="pj__sec">
               <h3 class="pj__sec-title mono">Vidéos</h3>
@@ -1123,8 +1131,8 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
 </footer>
 
 <script src="js/lenis.min.js"></script>
-<script src="js/ia.js?v=23" defer></script>
-<script src="js/curseur.js?v=3" defer></script>
+<script src="js/ia.js?v=24" defer></script>
+<script src="js/curseur.js?v=4" defer></script>
 <script>
 (function () {
   'use strict';
@@ -1477,7 +1485,8 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     }
     function build() {
       if (view.hidden || !ctx) return;
-      R = Math.min(2, window.devicePixelRatio || 1); VW = window.innerWidth; VH = window.innerHeight;
+      /* taille réelle de la toile à l'écran (sans la barre de défilement), sinon le tracé est tassé vers la gauche */
+      R = Math.min(2, window.devicePixelRatio || 1); VW = cv.clientWidth || window.innerWidth; VH = cv.clientHeight || window.innerHeight;
       cv.width = Math.round(VW * R); cv.height = Math.round(VH * R);
       var P = points(view.clientWidth, VH);
       xs = []; ys = []; ls = []; env = []; total = 0;
@@ -1765,7 +1774,9 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
   function fitPage() {
     var v = views[current], sel = FIRST[current], el = v && sel ? $(sel, v) : null;
     if (!el || v.hidden) return;
-    var gap = clamp(M.vh * 0.03, 14, 36);
+    /* en bas, on s'arrête au-dessus du bandeau fixe (REC / position), sinon il masque la légende du projet */
+    var band = $('.hud__rec'), bt = band ? band.getBoundingClientRect().top : 0;
+    var gap = bt > 0 && bt < M.vh ? M.vh - bt + 10 : clamp(M.vh * 0.03, 14, 36);
     var fit = Math.max(220, Math.floor(M.vh - offIn(el, v).y - gap));
     var k = current + '|' + fit + '|' + window.innerWidth;
     if (k === fitKey) return;
