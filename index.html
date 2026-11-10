@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-E960cU2s7kJUyH4+OkRz4fmk6VPdRDFEizMeinBjjQw='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-zicnXtLC9VSLERhQCCF0gJbfOVk2P8bc6+9Z3Jetx58='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -166,6 +166,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .view{position:relative}
 .sec{position:relative;z-index:1;padding-block:clamp(96px,14vw,200px)}
 .trail{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.ctrail{position:fixed;inset:0;width:100%;height:100%;z-index:240;pointer-events:none}
 .series,.proj{position:relative;z-index:1}
 
 .hero{position:relative;z-index:1;min-height:calc(min(100svh,1000px) - 52px);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;isolation:isolate}
@@ -227,9 +228,9 @@ html[data-page="home"] .foot__top{display:none}
 
 /* ---------- pages univers ---------- */
 /* en-tête compact : le mot du rideau vient se poser en haut au milieu, les projets suivent directement */
-.phead{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:clamp(96px,13vh,130px);padding-bottom:clamp(28px,4vw,56px)}
-.phead__meta{order:3;align-self:stretch;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:14px;margin:clamp(28px,4vw,52px) 0 0;text-align:left}
-.af{--arm:clamp(18px,1.8vw,24px);--l:-0.16;--r:-0.16;--t:0.04;--b:0.04;position:relative;display:inline-block;font-size:clamp(2.8rem,8.5vw,7.5rem);line-height:1}
+.phead{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:calc(var(--sat) + clamp(78px,10.5vh,104px));padding-bottom:clamp(16px,2.4vw,30px)}
+.phead__meta{order:3;align-self:stretch;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:12px;margin:clamp(16px,2.2vw,28px) 0 0;text-align:left}
+.af{--arm:clamp(14px,1.4vw,20px);--l:-0.17;--r:-0.17;--t:0.04;--b:0.04;position:relative;display:inline-block;font-size:clamp(2.1rem,4.4vw,4.2rem);line-height:1}
 .ls0{letter-spacing:0}
 .phead__title{margin:0;outline:none;font-family:var(--f-display);font-weight:800;font-size:1em;line-height:1;letter-spacing:-.05em;white-space:nowrap}
 .af__c{position:absolute;width:var(--arm);height:var(--arm);border:0 solid var(--paper);opacity:0}
@@ -246,7 +247,8 @@ html[data-page="home"] .foot__top{display:none}
 @keyframes focus{0%{filter:blur(22px);opacity:.15;transform:scale(1.04)}55%{filter:blur(3px);opacity:1}100%{filter:blur(0);opacity:1;transform:none}}
 @keyframes snap{0%{opacity:0;transform:translate(var(--dx),var(--dy))}35%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.phead__lede{margin:clamp(24px,3vw,40px) auto 0;max-width:46ch;font-size:clamp(1.05rem,1.5vw,1.3rem);color:var(--soft);text-wrap:pretty}
+@media (max-width:520px) and (max-height:720px){.phead__lede{display:none}}
+.phead__lede{margin:clamp(14px,1.8vw,24px) auto 0;max-width:58ch;font-size:clamp(.98rem,1.2vw,1.15rem);color:var(--soft);text-wrap:pretty}
 
 .pn{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding-block:clamp(36px,6vw,72px);border-top:1px solid var(--line)}
 .pn__link{display:flex;align-items:center;gap:clamp(10px,2vw,28px);min-width:0;text-decoration:none}
@@ -261,7 +263,9 @@ html[data-page="home"] .foot__top{display:none}
 /* films */
 .reel{position:relative;z-index:1;display:grid;gap:clamp(64px,9vw,128px);padding-bottom:clamp(80px,10vw,140px)}
 .vignette{display:grid;gap:16px;width:min(100%,1180px)}
-.shot:nth-child(even){justify-self:end;width:min(100%,980px)}
+/* une bobine entière (cadre 2.39:1 + légende) tient toujours dans la hauteur disponible --fit */
+.reel > .shot{width:min(100%,calc((var(--fit,100vh) - 42px) * 2.39))}
+.reel > .shot:nth-child(even){justify-self:end;width:min(100%,980px,calc((var(--fit,100vh) - 42px) * 2.39))}
 .shot__info{display:flex;justify-content:space-between;align-items:baseline;gap:8px 20px;flex-wrap:wrap}
 .shot__info h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:clamp(1.1rem,2vw,1.6rem);letter-spacing:-.03em}
 .shot__info p{margin:0;color:var(--mute)}
@@ -376,7 +380,7 @@ html[data-page="home"] .foot__top{display:none}
   .row__title{grid-row:2}
   .row__arrow{grid-row:2}
   .strip__row{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .shot:nth-child(even){width:100%}
+  .reel > .shot:nth-child(even){width:min(100%,calc((var(--fit,100vh) - 42px) * 2.39))}
   .hud__pos{display:none}
   .hero{min-height:calc(min(100svh,820px) - 40px)}
   .hero__inner{align-content:center}
@@ -720,12 +724,13 @@ html[data-page="home"] .foot__top{display:none}
     <style>
     /* IA : Derniers projets + visionneuses */
     .proj{margin-top:0;margin-bottom:clamp(48px,8vw,110px)}
-    .proj__meta{display:flex;gap:1.4em;color:var(--mute)}
-    .proj__title{margin:.4em 0 0;font-family:var(--f-display);font-weight:800;line-height:.92;letter-spacing:-.05em;font-size:clamp(2rem,6vw,4.4rem)}
+    .proj__head{text-align:center}
+    .proj__meta{display:flex;justify-content:center;gap:1.4em;color:var(--mute)}
+    .proj__title{margin:.3em 0 0;font-family:var(--f-display);font-weight:800;line-height:.92;letter-spacing:-.05em;font-size:clamp(1.4rem,2.8vw,2.4rem)}
     .proj__title-b{color:var(--ember)}
-    .proj__grid{--pg:clamp(16px,2.4vw,40px);margin-top:clamp(26px,3.5vw,48px);display:grid;grid-template-columns:repeat(2,1fr);gap:var(--pg);max-width:calc(2 * (85vh - 64px) + var(--pg))}
-    /* une carte (couverture carrée + titre) tient dans 85 % de la hauteur de l'écran : sur les écrans larges et bas, la grille se resserre */
-    @media(max-width:720px){.proj__grid{grid-template-columns:1fr}}
+    .proj__grid{--pg:clamp(16px,2.4vw,40px);margin:clamp(18px,2.4vw,32px) auto 0;display:grid;grid-template-columns:repeat(2,1fr);gap:var(--pg);max-width:calc(2 * (var(--fit,85vh) - 64px) + var(--pg))}
+    /* une carte (couverture carrée + titre) tient entière dans la hauteur disponible sous l'en-tête (--fit) : la grille se resserre et se centre */
+    @media(max-width:720px){.proj__grid{grid-template-columns:1fr;max-width:calc(var(--fit,85vh) - 64px)}}
     .card{display:flex;flex-direction:column}
     .card__cover{position:relative;display:block;padding:0;border:0;margin:0;background:var(--ink-2);cursor:pointer;overflow:hidden;border-radius:3px;outline:none;-webkit-tap-highlight-color:transparent;container-type:inline-size}
     .card__cover img:not(.tears-word){width:100%;height:auto;object-fit:cover;display:block;transition:transform 1.2s var(--ease),filter .6s var(--ease);filter:saturate(.97) contrast(1.02)}
@@ -785,7 +790,7 @@ html[data-page="home"] .foot__top{display:none}
        calculées par ia.js : haut et bas alignés sur la couverture, même espace entre couverture, photos et marge */
     .serie__frames{display:none}
     /* scène : zoom continu depuis l'espace jusqu'au lieu, puis les photos autour */
-    .serie__stage{grid-column:2;position:relative;height:var(--sh,520px);min-height:320px;overflow:hidden;border:1px solid var(--line);border-radius:3px;background:radial-gradient(70% 90% at 50% 50%,#101010,#0a0a0a)}
+    .serie__stage{grid-column:2;position:relative;height:var(--sh,520px);min-height:180px;overflow:hidden;border:1px solid var(--line);border-radius:3px;background:radial-gradient(70% 90% at 50% 50%,#101010,#0a0a0a)}
     .zoomer{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:hidden}
     .globe__sphere{fill:#0d0d0d;stroke:#3b3b3b;stroke-width:1.2;vector-effect:non-scaling-stroke}
     .globe__grat{fill:none;stroke:#222;stroke-width:1;vector-effect:non-scaling-stroke}
@@ -826,11 +831,12 @@ html[data-page="home"] .foot__top{display:none}
     .pframe:nth-child(6n+6){--d:.4s}
     @media(max-width:900px){
       .serie{grid-template-columns:1fr}
+      .serie__head{grid-template-columns:1fr;gap:.3em}
       .serie__cover{grid-column:1}
-      .serie__cimg img,.serie--land .serie__cimg img{max-height:70vh;max-width:100%}
+      .serie__cimg img,.serie--land .serie__cimg img{max-height:var(--cmax,70vh);max-width:100%}
       .serie__stage{display:none}
-      .serie__frames{display:grid;grid-column:1;grid-template-columns:repeat(3,1fr);column-gap:14px;row-gap:22px;margin-top:clamp(20px,3vw,32px)}
-      .serie--land .serie__frames{grid-template-columns:repeat(2,1fr)}
+      /* écran étroit : la série tient entière à l'écran (titre, texte, couverture) ; la planche s'ouvre en touchant la couverture */
+      .serie__frames,.serie--land .serie__frames{display:none}
     }
 
     /* IA : fiche projet (overlay) */
@@ -1106,7 +1112,8 @@ html[data-page="home"] .foot__top{display:none}
 </footer>
 
 <script src="js/lenis.min.js"></script>
-<script src="js/ia.js?v=21" defer></script>
+<script src="js/ia.js?v=22" defer></script>
+<script src="js/curseur.js?v=1" defer></script>
 <script>
 (function () {
   'use strict';
@@ -1730,8 +1737,22 @@ html[data-page="home"] .foot__top{display:none}
   }
 
   /* ---------- mesures ---------- */
+  /* hauteur disponible pour un projet entier : de la position du premier projet (sous l'en-tête) jusqu'en bas de l'écran.
+     Tous les projets d'une page s'y calent (CSS --fit, et ia.js pour les séries photo) : le premier se voit en entier
+     dès l'arrivée, et n'importe lequel tient à l'écran sans être coupé quand on le centre. */
+  var FIRST = { films: '.reel > .shot', photos: '.series > .serie', ia: '.proj__grid > .card' }, fitKey = '';
+  function fitPage() {
+    var v = views[current], sel = FIRST[current], el = v && sel ? $(sel, v) : null;
+    if (!el || v.hidden) return;
+    var gap = clamp(M.vh * 0.03, 14, 36);
+    var fit = Math.max(220, Math.floor(M.vh - offIn(el, v).y - gap));
+    var k = current + '|' + fit + '|' + window.innerWidth;
+    if (k === fitKey) return;
+    fitKey = k; v.style.setProperty('--fit', fit + 'px');
+    try { window.dispatchEvent(new Event('fp:fit')); } catch (e) {}
+  }
   function measure() {
-    M.vh = window.innerHeight; M.max = Math.max(1, root.scrollHeight - M.vh);
+    M.vh = window.innerHeight; fitPage(); M.max = Math.max(1, root.scrollHeight - M.vh);
     if (!views.home.hidden) {
       var m = offIn(manText, views.home);
       M.manTop = m.y; M.manH = m.h;
