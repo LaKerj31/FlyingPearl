@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-m2u6B4Q8TwKvwOc+LULF27ryFngj7dVqcJuuv0kYMKg='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-ByOvpY4dL/wxyvlZ67F8q5KSbqX/YaD1rT+pDAWAVg8='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -226,16 +226,12 @@ html[data-page="home"] .foot{border-top:0}
 html[data-page="home"] .foot__top{display:none}
 
 /* ---------- pages univers ---------- */
-.phead{position:relative;z-index:1;padding-top:clamp(96px,14vh,150px);padding-bottom:clamp(48px,7vw,96px)}
-.phead__meta{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:14px;margin:0 0 clamp(20px,3vw,40px)}
-/* Films, Photos, IA : le titre occupe tout le premier écran, les projets arrivent au premier défilement */
-.phead--full{min-height:100vh;min-height:100svh;padding-bottom:calc(clamp(24px,4vh,44px) + 110px)}
-.phead__cue{position:absolute;left:50%;bottom:clamp(24px,4vh,44px);transform:translateX(-50%);margin:0;display:flex;flex-direction:column;align-items:center;gap:14px;color:var(--mute)}
-.phead__cue i{position:relative;display:block;width:1px;height:56px;background:var(--line);overflow:hidden}
-.phead__cue i::after{content:"";position:absolute;left:0;top:-40%;width:1px;height:40%;background:var(--ember);animation:cue 1.8s var(--ease-io) infinite}
-.af{--arm:clamp(20px,2vw,26px);position:relative;display:inline-block;font-size:min(calc(84vw / (var(--n) * .86)),15rem);line-height:.9}
+/* en-tête compact : le mot du rideau vient se poser en haut au milieu, les projets suivent directement */
+.phead{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:clamp(96px,13vh,130px);padding-bottom:clamp(28px,4vw,56px)}
+.phead__meta{order:3;align-self:stretch;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:14px;margin:clamp(28px,4vw,52px) 0 0;text-align:left}
+.af{--arm:clamp(18px,1.8vw,24px);--l:-0.16;--r:-0.16;--t:0.04;--b:0.04;position:relative;display:inline-block;font-size:clamp(2.8rem,8.5vw,7.5rem);line-height:1}
 .ls0{letter-spacing:0}
-.phead__title{margin:0;outline:none;font-family:var(--f-display);font-weight:800;font-size:1em;line-height:.9;letter-spacing:-.055em}
+.phead__title{margin:0;outline:none;font-family:var(--f-display);font-weight:800;font-size:1em;line-height:1;letter-spacing:-.05em;white-space:nowrap}
 .af__c{position:absolute;width:var(--arm);height:var(--arm);border:0 solid var(--paper);opacity:0}
 .af__c--tl{top:calc(var(--t) * 1em);left:calc(var(--l) * 1em);border-top-width:2px;border-left-width:2px;--dx:-36px;--dy:-30px}
 .af__c--tr{top:calc(var(--t) * 1em);right:calc(var(--r) * 1em);border-top-width:2px;border-right-width:2px;--dx:36px;--dy:-30px}
@@ -244,12 +240,13 @@ html[data-page="home"] .foot__top{display:none}
 .af__tag{position:absolute;right:-2px;top:calc(100% + 10px);width:var(--arm);display:flex;align-items:center;justify-content:space-between;font-size:9px;line-height:1;letter-spacing:.04em;color:var(--mute);opacity:0}
 .af__tag i{flex:none;width:5px;height:5px;border-radius:50%;background:var(--ember)}
 .af--go .phead__title{animation:focus 1.25s var(--ease) both}
+.af--landed .phead__title{animation:none}
 .af--go .af__c{animation:snap .85s var(--ease) .15s both}
 .af--go .af__tag{animation:fade .4s ease .95s both}
 @keyframes focus{0%{filter:blur(22px);opacity:.15;transform:scale(1.04)}55%{filter:blur(3px);opacity:1}100%{filter:blur(0);opacity:1;transform:none}}
 @keyframes snap{0%{opacity:0;transform:translate(var(--dx),var(--dy))}35%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.phead__lede{margin:clamp(40px,5.5vw,72px) 0 0;max-width:44ch;font-size:clamp(1.05rem,1.5vw,1.3rem);color:var(--soft);text-wrap:pretty}
+.phead__lede{margin:clamp(24px,3vw,40px) auto 0;max-width:46ch;font-size:clamp(1.05rem,1.5vw,1.3rem);color:var(--soft);text-wrap:pretty}
 
 .pn{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding-block:clamp(36px,6vw,72px);border-top:1px solid var(--line)}
 .pn__link{display:flex;align-items:center;gap:clamp(10px,2vw,28px);min-width:0;text-decoration:none}
@@ -522,14 +519,13 @@ html[data-page="home"] .foot__top{display:none}
 
   <!-- =================== FILMS =================== -->
   <div class="view" data-view="films" id="v-films" hidden>
-    <header class="phead phead--full wrap" data-hud="Films">
+    <header class="phead wrap" data-hud="Films">
       <p class="phead__meta mono"><span>Films</span><span>2.39:1 · 25 FPS</span></p>
-      <div class="af" style="--n:5;--l:-0.055;--r:-0.087;--t:-0.062;--b:-0.062">
+      <div class="af">
         <h1 class="phead__title" data-title tabindex="-1">FILM<span class="ls0">S</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"><span class="af__tag mono" aria-hidden="true"><i></i>AF</span></span>
       </div>
       <p class="phead__lede">Les courts-métrages du studio. Les premières bobines arrivent ici très bientôt.</p>
-      <p class="phead__cue mono" aria-hidden="true">Défiler<i></i></p>
     </header>
     <section class="reel wrap" data-hud="Bobines" aria-label="Films">
       <article class="shot" data-reveal="scale">
@@ -562,14 +558,13 @@ html[data-page="home"] .foot__top{display:none}
 
   <!-- =================== PHOTOS =================== -->
   <div class="view" data-view="photos" id="v-photos" hidden>
-    <header class="phead phead--full wrap" data-hud="Photos">
+    <header class="phead wrap" data-hud="Photos">
       <p class="phead__meta mono"><span>Photos</span><span>3:2 · Planche-contact</span></p>
-      <div class="af" style="--n:6;--l:-0.055;--r:-0.087;--t:-0.062;--b:-0.062">
+      <div class="af">
         <h1 class="phead__title" data-title tabindex="-1">PHOTO<span class="ls0">S</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"><span class="af__tag mono" aria-hidden="true"><i></i>AF</span></span>
       </div>
       <p class="phead__lede">La photographie du studio. Quelques séries déjà réalisées, d’un univers à l’autre : les rues de San Francisco, les lumières du Japon, l’argentique en noir et blanc.</p>
-      <p class="phead__cue mono" aria-hidden="true">Défiler<i></i></p>
     </header>
     <section class="series wrap" data-hud="Séries" aria-label="Séries photo">
       <article class="serie" data-group="sf" data-layers="media/maps/layers-san-francisco.json" data-center="37.772,-122.445" data-extent="0.17" data-map="media/maps/san-francisco.svg" data-desc="Première série photographique, réalisée au Sony Alpha 7 IV dans les rues de San Francisco. Les premiers cadres, à la recherche d’une esthétique." data-title="SAN FRANCISCO" data-k1="Appareil" data-v1="Sony Alpha 7 IV" data-k2="Date" data-v2="Septembre 2024">
@@ -687,14 +682,13 @@ html[data-page="home"] .foot__top{display:none}
 
   <!-- =================== IA =================== -->
   <div class="view" data-view="ia" id="v-ia" hidden>
-    <header class="phead phead--full wrap" data-hud="IA">
+    <header class="phead wrap" data-hud="IA">
       <p class="phead__meta mono"><span>IA</span><span>Image · Vidéo</span></p>
-      <div class="af" style="--n:3.2;--l:-0.055;--r:-0.121;--t:-0.045;--b:-0.045">
+      <div class="af">
         <h1 class="phead__title" data-title tabindex="-1">I<span class="ls0">A</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"><span class="af__tag mono" aria-hidden="true"><i></i>AF</span></span>
       </div>
       <p class="phead__lede">On génère des images et des vidéos, avec la même exigence de cadre et de lumière qu'en tournage.</p>
-      <p class="phead__cue mono" aria-hidden="true">Défiler<i></i></p>
     </header>
     <section class="prompt wrap" data-hud="Prompt" aria-label="Exemple de prompt" hidden aria-hidden="true">
       <div class="prompt__box" data-reveal>
@@ -1065,7 +1059,7 @@ html[data-page="home"] .foot__top{display:none}
   <div class="view" data-view="contact" id="v-contact" hidden>
     <header class="phead wrap" data-hud="Contact">
       <p class="phead__meta mono"><span>Contact</span><span>E-mail</span></p>
-      <div class="af" style="--n:7;--l:-0.085;--r:-0.1;--t:-0.062;--b:-0.062">
+      <div class="af">
         <h1 class="phead__title" data-title tabindex="-1">CONTAC<span class="ls0">T</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"><span class="af__tag mono" aria-hidden="true"><i></i>AF</span></span>
       </div>
@@ -1162,6 +1156,14 @@ html[data-page="home"] .foot__top{display:none}
     }
   });
 
+  /* ---------- mot « perle » : O remplacés par des perles, I coiffé d'une perle (rideau et titres de pages) ---------- */
+  function pearlWord(w) { return w.replace(/O/g, '<span class="cw-o"></span>').replace(/I/g, '<span class="cw-i">I</span>'); }
+  $$('.phead__title').forEach(function (h) {
+    var w = h.textContent.trim().toUpperCase();
+    h.setAttribute('aria-label', w.charAt(0) + w.slice(1).toLowerCase());
+    h.innerHTML = pearlWord(w);
+  });
+
   /* ---------- découpe en mots du manifeste ---------- */
   var manText = $('.manifesto__text');
   var words = [];
@@ -1217,7 +1219,7 @@ html[data-page="home"] .foot__top{display:none}
   var NAMES = { home: 'Accueil', films: 'Films', photos: 'Photos', ia: 'IA', contact: 'Contact' };
   var views = {};
   $$('.view').forEach(function (v) { views[v.dataset.view] = v; });
-  var current = null, busy = false, pending = null;
+  var current = null, busy = false, pending = null, flying = false;
   var curtain = $('.curtain'), curtainWord = $('.curtain__word');
   var hooks = {};
 
@@ -1251,6 +1253,35 @@ html[data-page="home"] .foot__top{display:none}
     if (hooks[name] && hooks[name].enter) hooks[name].enter();
     requestAnimationFrame(function () { measure(); buildTrail(); });
   }
+  /* le mot du rideau se détache et vole jusqu'au titre de la page (en haut au milieu), du noir au blanc */
+  function flyTitle(name) {
+    var view = views[name], t = $('.phead__title', view);
+    if (!t) return false;
+    var s = curtainWord.getBoundingClientRect(), r = t.getBoundingClientRect();
+    if (!s.width || !r.width) return false;
+    var k = r.width / s.width;
+    var dx = r.left + r.width / 2 - (s.left + s.width * k / 2), dy = r.top + r.height / 2 - (s.top + s.height * k / 2);
+    var f = curtainWord.cloneNode(true);
+    f.className = 'curtain__word';
+    f.setAttribute('aria-hidden', 'true');
+    f.style.cssText = 'position:fixed;left:' + s.left + 'px;top:' + s.top + 'px;width:' + s.width + 'px;height:' + s.height + 'px;margin:0;' +
+      'font-size:' + getComputedStyle(curtainWord).fontSize + ';color:#0A0A0A;transform-origin:0 0;z-index:99;pointer-events:none;will-change:transform';
+    d.body.appendChild(f);
+    curtainWord.style.visibility = 'hidden';
+    t.style.opacity = '0';
+    var anim = f.animate([
+      { offset: 0, transform: 'translate(0,0) scale(1)', color: '#0A0A0A' },
+      { offset: 0.34, color: '#0A0A0A' },
+      { offset: 0.6, color: '#FFFFFF' },
+      { offset: 1, transform: 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) scale(' + k.toFixed(4) + ')', color: '#FFFFFF' }
+    ], { duration: 860, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' });
+    function land() {
+      t.style.opacity = ''; if (f.parentNode) f.parentNode.removeChild(f);
+      curtainWord.style.visibility = ''; flying = false; af(view, true);
+    }
+    anim.onfinish = land; anim.oncancel = land;
+    return true;
+  }
   function go(name) {
     if (!name) return;
     menu.close();
@@ -1259,15 +1290,17 @@ html[data-page="home"] .foot__top{display:none}
     if (REDUCE || !current) { swap(name); focusTitle(); return; }
     busy = true;
     var w = name === 'home' ? 'FLYING PEARL' : NAMES[name].toUpperCase();
-    curtainWord.innerHTML = w.replace(/O/g, '<span class="cw-o"></span>').replace(/I/g, '<span class="cw-i">I</span>'); curtain.style.setProperty('--n', Math.max(3, w.length));
+    curtainWord.innerHTML = pearlWord(w); curtain.style.setProperty('--n', Math.max(3, w.length));
     curtain.classList.remove('is-out'); void curtain.offsetWidth; curtain.classList.add('is-in');
     wait(700).then(function () {
+      flying = name !== 'home' && !!curtainWord.animate;
       swap(name);
       return wait(140);
     }).then(function () {
+      if (flying && !flyTitle(name)) { flying = false; af(views[name]); }
       curtain.classList.remove('is-in'); curtain.classList.add('is-out');
       focusTitle();
-      return wait(780);
+      return wait(flying ? 900 : 780);
     }).then(function () {
       curtain.classList.remove('is-out');
       busy = false;
@@ -1687,9 +1720,13 @@ html[data-page="home"] .foot__top{display:none}
   });
 
   /* ---------- crochets AF des pages ---------- */
-  function af(view) {
+  /* mise au point du titre ; après le vol du mot (landed), seuls les cadres se referment, sans flou */
+  function af(view, landed) {
+    if (flying && !landed) return;
     var a = $('.af', view); if (!a) return;
-    a.classList.remove('af--go'); void a.offsetWidth; a.classList.add('af--go');
+    a.classList.remove('af--go', 'af--landed'); void a.offsetWidth;
+    if (landed) a.classList.add('af--landed');
+    a.classList.add('af--go');
   }
 
   /* ---------- mesures ---------- */
