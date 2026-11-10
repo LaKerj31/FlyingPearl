@@ -54,15 +54,13 @@
 
     clear();
     if (len > 1.5) {
-      var ux = -vx / sp, uy = -vy / sp;    /* direction opposée au mouvement */
-      var bend = Math.min(0.18, len / MAXLEN * 0.18);
-      var nx = -uy * len * bend, ny = ux * len * bend; /* très légère courbure, comme la comète du logo */
+      var ux = -vx / sp, uy = -vy / sp;    /* direction opposée au mouvement : la queue reste pile dans l'axe, derrière */
       ctx.lineCap = 'round';
       for (var pass = 0; pass < 2; pass++) {
         for (var i = 0; i < STEPS; i++) {
           var t0 = i / STEPS, t1 = (i + 1) / STEPS;
-          var p0x = x + ux * len * t0 + nx * t0 * t0, p0y = y + uy * len * t0 + ny * t0 * t0;
-          var p1x = x + ux * len * t1 + nx * t1 * t1, p1y = y + uy * len * t1 + ny * t1 * t1;
+          var p0x = x + ux * len * t0, p0y = y + uy * len * t0;
+          var p1x = x + ux * len * t1, p1y = y + uy * len * t1;
           var f = 1 - t0;                   /* 1 contre la perle, 0 au bout de la queue */
           ctx.beginPath(); ctx.moveTo(p0x, p0y); ctx.lineTo(p1x, p1y);
           if (pass === 0) { ctx.strokeStyle = 'rgba(255,90,31,' + (0.18 * f).toFixed(3) + ')'; ctx.lineWidth = 3 + 9 * f; }

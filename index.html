@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-mr8j5DCLBOrTvrM1fikjFwnjmv0wiyT0VwSFaQ/X42c='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-G1HLIlc14x5CyvYZrNt7s22nJHOOxTO2Pup1TaTGAGc='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -281,7 +281,9 @@ html[data-page="home"] .foot__top{display:none}
 .shot__info h2{margin:0;font-family:var(--f-display);font-weight:700;font-size:clamp(1.1rem,2vw,1.6rem);letter-spacing:-.03em}
 .shot__info p{margin:0;color:var(--mute)}
 .frame{position:relative;aspect-ratio:2.39/1;max-width:100%;overflow:hidden;background:radial-gradient(130% 160% at 30% 70%,#1d1d1d,#0b0b0b 62%);text-decoration:none;display:block}
-.frame::before{content:"";position:absolute;inset:-25%;background:radial-gradient(34% 46% at var(--gx1,32%) var(--gy1,62%),rgba(255,90,31,.42),transparent 70%),radial-gradient(26% 36% at var(--gx2,74%) var(--gy2,34%),rgba(255,236,224,.10),transparent 70%);filter:blur(14px);animation:drift 13s ease-in-out infinite alternate;will-change:transform}
+/* halo lumineux : dégradés très doux sans filtre de flou (le flou animé sur trois grands calques faisait saccader le défilement) */
+.frame::before{content:"";position:absolute;inset:-14%;background:radial-gradient(38% 50% at var(--gx1,32%) var(--gy1,62%),rgba(255,90,31,.40),rgba(255,90,31,.16) 42%,rgba(255,90,31,.05) 62%,transparent 78%),radial-gradient(30% 40% at var(--gx2,74%) var(--gy2,34%),rgba(255,236,224,.10),rgba(255,236,224,.03) 50%,transparent 76%);animation:drift 13s ease-in-out infinite alternate;will-change:transform}
+html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js .frame:not(.is-live) .fhud__rec i{animation-play-state:paused}
 .frame::after{content:"";position:absolute;left:-10%;right:-10%;top:var(--fy,60%);height:2px;background:linear-gradient(90deg,transparent,rgba(255,120,60,.5) 38%,rgba(255,226,210,.95) 50%,rgba(255,120,60,.5) 62%,transparent);filter:blur(1.4px);opacity:.75;animation:flare 7s ease-in-out infinite alternate;will-change:transform,opacity}
 @keyframes drift{to{transform:translate(7%,-5%) scale(1.1)}}
 @keyframes flare{0%{opacity:.35;transform:scaleX(.7)}100%{opacity:.85;transform:scaleX(1.05)}}
@@ -762,7 +764,9 @@ html[data-page="home"] .foot__top{display:none}
     .card__text{margin:.7em 0 0;color:var(--soft);font-size:clamp(.98rem,1.2vw,1.1rem);max-width:48ch;text-wrap:pretty}
     .lb,.vb{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center}
     .lb.is-open,.vb.is-open{display:flex}
-    .lb__bg,.vb__bg{position:absolute;inset:0;background:rgba(6,6,6,.95);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+    /* pas de flou d'arrière-plan (backdrop-filter) : recalculé à chaque image sous les vidéos, il faisait tout saccader ; le fond opaque suffit */
+    .lb__bg,.vb__bg{position:absolute;inset:0;background:rgba(6,6,6,.97)}
+    html.is-overlay .grain,html.is-overlay .ctrail,html.is-overlay .hud{visibility:hidden}
     .lb__fig{position:relative;margin:0;z-index:1;display:flex;flex-direction:column;align-items:center;gap:.8em}
     .lb__img{max-width:92vw;max-height:82vh;object-fit:contain;border-radius:2px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
     .lb__cap{color:var(--mute)}
@@ -848,7 +852,7 @@ html[data-page="home"] .foot__top{display:none}
     }
 
     /* IA : fiche projet (overlay) */
-    .pj{position:fixed;inset:0;z-index:1000;display:none;overflow-y:auto;background:rgba(6,6,6,.975);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+    .pj{position:fixed;inset:0;z-index:1000;display:none;overflow-y:auto;background:rgba(6,6,6,.985)}
     .pj.is-open{display:block}
     .pj__panel{position:relative;max-width:1100px;margin:0 auto;padding:clamp(64px,9vw,120px) var(--gx) clamp(64px,10vw,120px)}
     .pj__close{position:fixed;top:max(14px,3vw);right:max(14px,3vw);z-index:2;background:rgba(0,0,0,.4);color:var(--paper);border:1px solid rgba(255,255,255,.2);width:46px;height:46px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;transition:background .2s var(--ease),border-color .2s var(--ease)}
@@ -1119,8 +1123,8 @@ html[data-page="home"] .foot__top{display:none}
 </footer>
 
 <script src="js/lenis.min.js"></script>
-<script src="js/ia.js?v=22" defer></script>
-<script src="js/curseur.js?v=2" defer></script>
+<script src="js/ia.js?v=23" defer></script>
+<script src="js/curseur.js?v=3" defer></script>
 <script>
 (function () {
   'use strict';
@@ -1542,27 +1546,16 @@ html[data-page="home"] .foot__top{display:none}
     })
   };
 
-  /* autres pages : zigzag d'un bord à l'autre (environ une traversée par écran), sous le titre,
-     jusqu'au filet au-dessus de « Univers suivant » ; toujours un nombre pair d'appuis pour arriver de la gauche */
-  function pagePoints(view) {
-    return function (W, VH) {
-      var h = offIn($('.phead', view), view), pn = offIn($('.pn', view), view);
-      var y0 = h.y + h.h + 6, y1 = pn.y, span = Math.max(1, y1 - y0);
-      var n = Math.max(2, 2 * Math.round(span / (VH * 1.8)));
-      var P = [[W * 0.93, y0]];
-      for (var k = 1; k < n; k++) P.push([k % 2 ? W * 0.05 : W * 0.95, y0 + span * k / n]);
-      P.push([W * 0.95, y1]);
-      return P;
-    };
-  }
-  ['films', 'photos', 'ia', 'contact'].forEach(function (k) {
-    var v = views[k];
-    if (!v || !$('.phead', v) || !$('.pn', v)) return;
-    var c = d.createElement('canvas'); c.className = 'trail'; c.setAttribute('aria-hidden', 'true');
-    v.insertBefore(c, v.firstChild);
-    trails[k] = makeTrail(v, pagePoints(v));
-  });
+  /* la traînée de défilement n'existe que sur l'accueil (retirée des onglets à la demande de Pierre-Yves) */
   function buildTrail() { if (trails[current]) trails[current].build(); }
+
+  /* films : les effets lumineux d'une bobine ne tournent que quand elle est à l'écran */
+  if ('IntersectionObserver' in window) {
+    var frameIO = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { e.target.classList.toggle('is-live', e.isIntersecting); });
+    }, { rootMargin: '60px 0px' });
+    $$('.frame').forEach(function (f) { frameIO.observe(f); });
+  } else $$('.frame').forEach(function (f) { f.classList.add('is-live'); });
 
   /* ---------- manifeste, bandeau ---------- */
   var lit = -1;

@@ -13,6 +13,8 @@
   function lockScroll() {
     var on = lbOpen || pjOpen;
     try { document.documentElement.style.overflow = on ? 'hidden' : ''; } catch (e) {}
+    /* fiche ou visionneuse ouverte : on fige ce qui bouge derrière (grain, compteur, traînée), invisible de toute façon */
+    try { document.documentElement.classList.toggle('is-overlay', !!on); } catch (e) {}
   }
   function giveBack(el, by) {
     if (by === 'key' && el && el.focus) { try { el.focus({ preventScroll: true }); } catch (e) {} return; }
