@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-zicnXtLC9VSLERhQCCF0gJbfOVk2P8bc6+9Z3Jetx58='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-mr8j5DCLBOrTvrM1fikjFwnjmv0wiyT0VwSFaQ/X42c='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -113,6 +113,16 @@ button{font:inherit;color:inherit}
 .tabs{display:flex;gap:clamp(18px,2.8vw,44px);margin:0;padding:0;list-style:none}
 .tab{position:relative;display:inline-flex;align-items:center;min-height:44px;text-decoration:none;font-family:var(--f-display);font-weight:500;font-size:12px;letter-spacing:.14em}
 .tab[aria-current="page"]::before{content:"";position:absolute;left:-13px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--ember)}
+/* onglet de la page en cours : le mot du rideau vient s'y poser, dans la même graphie (O en perles, I coiffé d'une perle) */
+.tab__pw,.menu-btn__pw{display:none;font-family:var(--f-display);font-weight:800;font-size:15px;letter-spacing:-.05em;line-height:1.3;white-space:nowrap}
+.tab[aria-current="page"] .roll{display:none}
+.tab[aria-current="page"] .tab__pw{display:inline-block}
+.tab[aria-current="page"]::before{display:none}
+/* écran étroit : les onglets sont dans le menu, le mot se pose à la place de « MENU » */
+html[data-page]:not([data-page="home"]) .menu-btn__pw{display:inline-block}
+html[data-page]:not([data-page="home"]) .menu-btn__t{display:none}
+.menu-btn[aria-expanded="true"] .menu-btn__pw{display:none!important}
+.menu-btn[aria-expanded="true"] .menu-btn__t{display:inline!important}
 .roll{display:inline-block;overflow:hidden;height:1.3em;line-height:1.3em}
 .roll>span{display:block;transition:transform .5s var(--ease)}
 .roll>span::after{content:attr(data-t);display:block;color:var(--ember)}
@@ -227,8 +237,10 @@ html[data-page="home"] .foot{border-top:0}
 html[data-page="home"] .foot__top{display:none}
 
 /* ---------- pages univers ---------- */
-/* en-tête compact : le mot du rideau vient se poser en haut au milieu, les projets suivent directement */
-.phead{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:calc(var(--sat) + clamp(78px,10.5vh,104px));padding-bottom:clamp(16px,2.4vw,30px)}
+/* plus d'en-tête visible : le titre vit dans l'onglet en haut à droite, les projets commencent juste sous la barre.
+   Le titre h1 reste lisible par les lecteurs d'écran ; l'en-tête ne sert plus que d'espace sous la barre fixe. */
+.phead{position:relative;z-index:1;padding-top:calc(var(--sat) + clamp(88px,11.5vh,112px));padding-bottom:0}
+.phead > *{position:absolute!important;width:1px;height:1px;margin:0;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .phead__meta{order:3;align-self:stretch;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:12px;margin:clamp(16px,2.2vw,28px) 0 0;text-align:left}
 .af{--arm:clamp(14px,1.4vw,20px);--l:-0.17;--r:-0.17;--t:0.04;--b:0.04;position:relative;display:inline-block;font-size:clamp(2.1rem,4.4vw,4.2rem);line-height:1}
 .ls0{letter-spacing:0}
@@ -247,7 +259,6 @@ html[data-page="home"] .foot__top{display:none}
 @keyframes focus{0%{filter:blur(22px);opacity:.15;transform:scale(1.04)}55%{filter:blur(3px);opacity:1}100%{filter:blur(0);opacity:1;transform:none}}
 @keyframes snap{0%{opacity:0;transform:translate(var(--dx),var(--dy))}35%{opacity:1}100%{opacity:1;transform:none}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-@media (max-width:520px) and (max-height:720px){.phead__lede{display:none}}
 .phead__lede{margin:clamp(14px,1.8vw,24px) auto 0;max-width:58ch;font-size:clamp(.98rem,1.2vw,1.15rem);color:var(--soft);text-wrap:pretty}
 
 .pn{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding-block:clamp(36px,6vw,72px);border-top:1px solid var(--line)}
@@ -529,7 +540,6 @@ html[data-page="home"] .foot__top{display:none}
         <h1 class="phead__title" data-title tabindex="-1">FILM<span class="ls0">S</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"><span class="af__tag mono" aria-hidden="true"><i></i>AF</span></span>
       </div>
-      <p class="phead__lede">Les courts-métrages du studio. Les premières bobines arrivent ici très bientôt.</p>
     </header>
     <section class="reel wrap" data-hud="Bobines" aria-label="Films">
       <article class="shot" data-reveal="scale">
@@ -568,7 +578,6 @@ html[data-page="home"] .foot__top{display:none}
         <h1 class="phead__title" data-title tabindex="-1">PHOTO<span class="ls0">S</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"><span class="af__tag mono" aria-hidden="true"><i></i>AF</span></span>
       </div>
-      <p class="phead__lede">La photographie du studio. Quelques séries déjà réalisées, d’un univers à l’autre : les rues de San Francisco, les lumières du Japon, l’argentique en noir et blanc.</p>
     </header>
     <section class="series wrap" data-hud="Séries" aria-label="Séries photo">
       <article class="serie" data-group="sf" data-layers="media/maps/layers-san-francisco.json" data-center="37.772,-122.445" data-extent="0.17" data-map="media/maps/san-francisco.svg" data-desc="Première série photographique, réalisée au Sony Alpha 7 IV dans les rues de San Francisco. Les premiers cadres, à la recherche d’une esthétique." data-title="SAN FRANCISCO" data-k1="Appareil" data-v1="Sony Alpha 7 IV" data-k2="Date" data-v2="Septembre 2024">
@@ -692,7 +701,6 @@ html[data-page="home"] .foot__top{display:none}
         <h1 class="phead__title" data-title tabindex="-1">I<span class="ls0">A</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"><span class="af__tag mono" aria-hidden="true"><i></i>AF</span></span>
       </div>
-      <p class="phead__lede">On génère des images et des vidéos, avec la même exigence de cadre et de lumière qu'en tournage.</p>
     </header>
     <section class="prompt wrap" data-hud="Prompt" aria-label="Exemple de prompt" hidden aria-hidden="true">
       <div class="prompt__box" data-reveal>
@@ -1069,7 +1077,6 @@ html[data-page="home"] .foot__top{display:none}
         <h1 class="phead__title" data-title tabindex="-1">CONTAC<span class="ls0">T</span></h1>
         <span class="af__c af__c--tl"></span><span class="af__c af__c--tr"></span><span class="af__c af__c--bl"></span><span class="af__c af__c--br"><span class="af__tag mono" aria-hidden="true"><i></i>AF</span></span>
       </div>
-      <p class="phead__lede">Un film, une série photo, un projet IA ? Écrivez au studio.</p>
     </header>
     <section class="contact wrap" data-hud="Écrire" aria-label="Coordonnées">
       <div class="mail" data-reveal>
@@ -1113,7 +1120,7 @@ html[data-page="home"] .foot__top{display:none}
 
 <script src="js/lenis.min.js"></script>
 <script src="js/ia.js?v=22" defer></script>
-<script src="js/curseur.js?v=1" defer></script>
+<script src="js/curseur.js?v=2" defer></script>
 <script>
 (function () {
   'use strict';
@@ -1165,11 +1172,23 @@ html[data-page="home"] .foot__top{display:none}
 
   /* ---------- mot « perle » : O remplacés par des perles, I coiffé d'une perle (rideau et titres de pages) ---------- */
   function pearlWord(w) { return w.replace(/O/g, '<span class="cw-o"></span>').replace(/I/g, '<span class="cw-i">I</span>'); }
+  function niceName(w) { return w.length <= 2 ? w : w.charAt(0) + w.slice(1).toLowerCase(); }
   $$('.phead__title').forEach(function (h) {
     var w = h.textContent.trim().toUpperCase();
-    h.setAttribute('aria-label', w.length <= 2 ? w : w.charAt(0) + w.slice(1).toLowerCase());
+    h.setAttribute('aria-label', niceName(w));
     h.innerHTML = pearlWord(w);
   });
+  /* onglets : chaque onglet a sa version « perle », affichée quand c'est la page en cours (le mot du rideau s'y pose) */
+  $$('.tab').forEach(function (a) {
+    var w = a.textContent.trim().toUpperCase();
+    a.setAttribute('aria-label', niceName(w));
+    var pw = d.createElement('span'); pw.className = 'tab__pw'; pw.setAttribute('aria-hidden', 'true'); pw.innerHTML = pearlWord(w);
+    a.appendChild(pw);
+  });
+  /* écran étroit : le nom de la page en cours s'affiche à la place de « MENU » */
+  var menuPw = d.createElement('span'), menuBtnEl = $('.menu-btn');
+  menuPw.className = 'menu-btn__pw'; menuPw.setAttribute('aria-hidden', 'true');
+  if (menuBtnEl) { menuBtnEl.setAttribute('aria-label', 'Menu'); menuBtnEl.insertBefore(menuPw, menuBtnEl.firstChild); }
 
   /* ---------- découpe en mots du manifeste ---------- */
   var manText = $('.manifesto__text');
@@ -1250,6 +1269,7 @@ html[data-page="home"] .foot__top{display:none}
     Object.keys(views).forEach(function (k) { views[k].hidden = k !== name; });
     current = name;
     root.setAttribute('data-page', name);
+    menuPw.innerHTML = name === 'home' ? '' : pearlWord(NAMES[name].toUpperCase());
     scrollTop(false);
     d.title = name === 'home' ? 'Flying Pearl Studio' : NAMES[name] + ' · Flying Pearl Studio';
     $$('[data-nav]').forEach(function (a) {
@@ -1260,9 +1280,17 @@ html[data-page="home"] .foot__top{display:none}
     if (hooks[name] && hooks[name].enter) hooks[name].enter();
     requestAnimationFrame(function () { measure(); buildTrail(); });
   }
-  /* le mot du rideau se détache et vole jusqu'au titre de la page (en haut au milieu), du noir au blanc */
+  /* le mot du rideau se détache et vole jusqu'à l'onglet de la page, en haut à droite (sur écran étroit : à la place
+     de « MENU »), en rapetissant et en passant du noir au blanc */
+  function flyTarget(name) {
+    if (menuPw.offsetWidth) return menuPw;
+    var a = $('.tab[data-nav="' + name + '"] .tab__pw');
+    return a && a.offsetWidth ? a : null;
+  }
   function flyTitle(name) {
-    var view = views[name], t = $('.phead__title', view);
+    var view = views[name];
+    var bar = $('.top'); bar.style.transition = 'none'; bar.classList.remove('is-hidden'); void bar.offsetWidth; bar.style.transition = '';
+    var t = flyTarget(name);
     if (!t) return false;
     var s = curtainWord.getBoundingClientRect(), r = t.getBoundingClientRect();
     if (!s.width || !r.width) return false;

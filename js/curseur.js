@@ -1,4 +1,6 @@
-/* Flying Pearl : traînée orange qui suit le curseur puis s'efface.
+/* Flying Pearl : traînée du curseur, comme la queue d'une comète.
+   Elle part toujours de la perle du curseur et s'étire exactement à l'opposé du mouvement (dans son axe),
+   d'autant plus longue qu'on va vite ; quand le curseur s'arrête, elle se rétracte dans la perle et disparaît.
    Souris uniquement (rien sur écran tactile), rien si l'utilisateur a demandé moins d'animations.
    La boucle d'affichage s'arrête d'elle-même dès que la traînée a disparu. */
 (function () {
@@ -13,9 +15,13 @@
   var ctx = cv.getContext('2d');
   if (!ctx) return;
 
-  var LIFE = 520;   /* durée de vie d'un point de la traînée, en ms */
-  var MAX = 60;     /* nombre de points gardés au maximum */
-  var R = 1, W = 0, H = 0, pts = [], raf = 0;
+  var MAXLEN = 170;   /* longueur maximale de la queue, en px */
+  var GAIN = 0.085;   /* px de queue par px/s de vitesse */
+  var SMOOTH = 0.28;  /* lissage de la vitesse (direction et longueur), par image à 60 i/s */
+  var STEPS = 14;     /* découpage de la queue pour le dégradé */
+
+  var R = 1, W = 0, H = 0, raf = 0;
+  var x = 0, y = 0, lx = 0, ly = 0, vx = 0, vy = 0, has = false, lastT = 0, len = 0;
 
   function size() {
     R = Math.min(2, window.devicePixelRatio || 1);
@@ -25,50 +31,48 @@
   size();
   window.addEventListener('resize', size);
 
-  function add(e) {
+  window.addEventListener('pointermove', function (e) {
     if (e.pointerType && e.pointerType !== 'mouse') return;
-    var last = pts[pts.length - 1];
-    if (last && Math.abs(last.x - e.clientX) + Math.abs(last.y - e.clientY) < 2) return;
-    pts.push({ x: e.clientX, y: e.clientY, t: performance.now() });
-    if (pts.length > MAX) pts.shift();
-    if (!raf) raf = requestAnimationFrame(draw);
-  }
-  window.addEventListener('pointermove', add, { passive: true });
-  document.addEventListener('mouseleave', function () { pts.length = 0; });
+    x = e.clientX; y = e.clientY;
+    if (!has) { has = true; lx = x; ly = y; lastT = performance.now(); }
+    if (!raf) raf = requestAnimationFrame(frame);
+  }, { passive: true });
+  document.addEventListener('mouseleave', function () { has = false; vx = vy = 0; len = 0; clear(); });
 
-  function seg(a, b, c, alpha, k, glow) {
-    /* courbe lissée : du milieu (a,b) au milieu (b,c), en passant par b */
-    ctx.beginPath();
-    ctx.moveTo((a.x + b.x) / 2, (a.y + b.y) / 2);
-    ctx.quadraticCurveTo(b.x, b.y, (b.x + c.x) / 2, (b.y + c.y) / 2);
-    if (glow) { ctx.strokeStyle = 'rgba(255,90,31,' + (0.16 * alpha).toFixed(3) + ')'; ctx.lineWidth = 10 * (0.35 + 0.65 * k); }
-    else { ctx.strokeStyle = 'rgba(255,90,31,' + alpha.toFixed(3) + ')'; ctx.lineWidth = 2 * (0.45 + 0.55 * k); }
-    ctx.stroke();
-  }
+  function clear() { ctx.setTransform(R, 0, 0, R, 0, 0); ctx.clearRect(0, 0, W, H); }
 
-  function draw(now) {
+  function frame(now) {
     raf = 0;
-    while (pts.length && now - pts[0].t > LIFE) pts.shift();
-    ctx.setTransform(R, 0, 0, R, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    var n = pts.length;
-    if (n > 2) {
-      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    if (!has) { clear(); return; }
+    var dt = Math.min(0.05, Math.max(0.001, (now - lastT) / 1000)); lastT = now;
+    /* vitesse instantanée depuis l'image précédente, lissée pour que la queue tourne en douceur */
+    var ivx = (x - lx) / dt, ivy = (y - ly) / dt; lx = x; ly = y;
+    var a = 1 - Math.pow(1 - SMOOTH, dt * 60);
+    vx += (ivx - vx) * a; vy += (ivy - vy) * a;
+    var sp = Math.sqrt(vx * vx + vy * vy);
+    len = Math.min(MAXLEN, sp * GAIN);
+
+    clear();
+    if (len > 1.5) {
+      var ux = -vx / sp, uy = -vy / sp;    /* direction opposée au mouvement */
+      var bend = Math.min(0.18, len / MAXLEN * 0.18);
+      var nx = -uy * len * bend, ny = ux * len * bend; /* très légère courbure, comme la comète du logo */
+      ctx.lineCap = 'round';
       for (var pass = 0; pass < 2; pass++) {
-        for (var i = 1; i < n - 1; i++) {
-          var life = 1 - (now - pts[i].t) / LIFE;
-          if (life <= 0) continue;
-          var k = i / (n - 1); /* 0 = queue, 1 = tête */
-          seg(pts[i - 1], pts[i], pts[i + 1], life * k, k, pass === 0);
+        for (var i = 0; i < STEPS; i++) {
+          var t0 = i / STEPS, t1 = (i + 1) / STEPS;
+          var p0x = x + ux * len * t0 + nx * t0 * t0, p0y = y + uy * len * t0 + ny * t0 * t0;
+          var p1x = x + ux * len * t1 + nx * t1 * t1, p1y = y + uy * len * t1 + ny * t1 * t1;
+          var f = 1 - t0;                   /* 1 contre la perle, 0 au bout de la queue */
+          ctx.beginPath(); ctx.moveTo(p0x, p0y); ctx.lineTo(p1x, p1y);
+          if (pass === 0) { ctx.strokeStyle = 'rgba(255,90,31,' + (0.18 * f).toFixed(3) + ')'; ctx.lineWidth = 3 + 9 * f; }
+          else { ctx.strokeStyle = 'rgba(255,90,31,' + f.toFixed(3) + ')'; ctx.lineWidth = 0.6 + 2.2 * f; }
+          ctx.stroke();
         }
       }
-      /* dernier bout, jusqu'à la position exacte du curseur */
-      var p = pts[n - 2], q = pts[n - 1], lq = 1 - (now - q.t) / LIFE;
-      if (lq > 0) {
-        ctx.beginPath(); ctx.moveTo((p.x + q.x) / 2, (p.y + q.y) / 2); ctx.lineTo(q.x, q.y);
-        ctx.strokeStyle = 'rgba(255,90,31,' + lq.toFixed(3) + ')'; ctx.lineWidth = 2; ctx.stroke();
-      }
     }
-    if (pts.length) raf = requestAnimationFrame(draw);
+    /* on continue tant que la queue n'est pas rétractée */
+    if (len > 0.5 || sp > 5) raf = requestAnimationFrame(frame);
+    else { vx = vy = 0; clear(); }
   }
 })();
