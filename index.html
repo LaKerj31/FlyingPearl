@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-IAMYpw6Ent/7ko6ZeXxMJVEFiWRy4tjXIKkUa/EeUdo='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-598rgDBdS3W11LpYNYZvzTmUB/pFxPAyiEUl3JlUePY='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -166,6 +166,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .view{position:relative}
 .sec{position:relative;z-index:1;padding-block:clamp(96px,14vw,200px)}
 .trail{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.series,.proj{position:relative;z-index:1}
 
 .hero{position:relative;z-index:1;min-height:calc(min(100svh,1000px) - 52px);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;isolation:isolate}
 .orbit{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
@@ -185,7 +186,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .hero__sign .pearl{font-size:1.05em;margin-left:-.1em}
 .hero__foot{display:flex;justify-content:space-between;align-items:flex-end;gap:20px 40px;flex-wrap:wrap}
 .hero__lede{margin:0;max-width:36ch;font-size:clamp(1rem,1.3vw,1.2rem);color:var(--soft);text-wrap:pretty}
-.hero__cue{display:flex;align-items:center;gap:12px;color:var(--mute)}
+.hero__cue{display:flex;align-items:center;gap:12px;color:var(--mute);margin-left:auto}
 .hero__cue i{position:relative;display:block;width:1px;height:44px;background:var(--line);overflow:hidden}
 .hero__cue i::after{content:"";position:absolute;left:0;top:-40%;width:1px;height:40%;background:var(--ember);animation:cue 1.8s var(--ease-io) infinite}
 @keyframes cue{to{top:100%}}
@@ -199,7 +200,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .manifesto{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,9fr);gap:24px clamp(24px,4vw,64px)}
 .manifesto__text{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(1.4rem,3.15vw,3rem);line-height:1.24;letter-spacing:-.03em;max-width:24em;text-wrap:pretty}
 .manifesto__text em{font-style:normal}
-.w{color:var(--dim);transition:color .5s ease}
+.w{color:var(--dim);transition:color .5s ease;white-space:nowrap}
 .w.lit{color:var(--paper)}
 .w.em.lit{color:var(--ember)}
 
@@ -490,7 +491,6 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
           <p class="hero__sign" aria-label="Studio">STUDI<span class="pearl" aria-hidden="true"></span></p>
         </div>
         <div class="hero__foot">
-          <p class="hero__lede">On tourne des films, on fait des photos et on génère des images et des vidéos avec l'IA.</p>
           <p class="hero__cue mono" aria-hidden="true"><i></i>Défiler</p>
         </div>
       </div>
@@ -505,7 +505,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 
     <section class="sec manifesto wrap" data-hud="Le studio" aria-label="Le studio">
       <p class="label mono" data-reveal>(Le studio)</p>
-      <p class="manifesto__text"><em>Flying Pearl</em> est un studio de création indépendant. On tourne des <em>courts-métrages</em>, on fait des <em>photos</em>, et on génère des images et des vidéos avec l'<em>IA</em>. Caméra ou prompt, on cherche toujours un cadre juste, une lumière qui raconte et une image qui reste.</p>
+      <p class="manifesto__text"><em>Flying Pearl</em> est un studio de création indépendant. <em>Courts-métrages</em>, <em>photos</em>, <em>création IA</em>&nbsp;: que l'outil soit la caméra ou le prompt, l'exigence artistique et narrative reste la même.</p>
     </section>
 
     <section class="sec index" data-hud="Univers" aria-labelledby="t-univers">
@@ -1256,7 +1256,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     hud.setView(NAMES[name]);
     setupReveals(views[name]);
     if (hooks[name] && hooks[name].enter) hooks[name].enter();
-    requestAnimationFrame(measure);
+    requestAnimationFrame(function () { measure(); buildTrail(); });
   }
   function go(name) {
     if (!name) return;
@@ -1400,9 +1400,9 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     };
   })();
 
-  /* ---------- traînée de la perle au défilement (accueil) : canvas fixe, rien que la partie visible ---------- */
-  var trail = (function () {
-    var landing = $('.cta__btn'), home = views.home, cv = $('.trail'), ctx = cv.getContext('2d');
+  /* ---------- traînée de la perle au défilement : un canvas fixe par vue, rien que la partie visible ---------- */
+  function makeTrail(view, points, landing) {
+    var cv = $('.trail', view), ctx = cv && cv.getContext('2d');
     var xs = [], ys = [], ls = [], env = [], total = 0, cur = 0, ready = false, R = 1, VW = 0, VH = 0, key = '';
     function cr(P, cb) {
       for (var i = 0; i < P.length - 1; i++) {
@@ -1411,17 +1411,10 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       }
     }
     function build() {
-      if (home.hidden || !ctx) return;
+      if (view.hidden || !ctx) return;
       R = Math.min(2, window.devicePixelRatio || 1); VW = window.innerWidth; VH = window.innerHeight;
       cv.width = Math.round(VW * R); cv.height = Math.round(VH * R);
-      var W = home.clientWidth;
-      var hH = $('.hero').offsetHeight, m = offIn(manText, home), ix = offIn($('.index'), home), ct = offIn($('.cta'), home), bp = offIn($('.cta__btn .pearl'), home);
-      var ex = bp.x + bp.w / 2, ey = bp.y + bp.h / 2;
-      var P = [
-        [W * 0.93, hH + 6], [W * 0.7, m.y + m.h * 0.3], [W * 0.07, m.y + m.h * 0.98],
-        [W * 0.05, ix.y + ix.h * 0.12], [W * 0.95, ix.y + ix.h * 0.88], [W * 0.965, ct.y + ct.h * 0.5],
-        [ex + Math.min(W * 0.3, 380), ey + 70], [ex + 36, ey + 8], [ex, ey]
-      ];
+      var P = points(view.clientWidth, VH);
       xs = []; ys = []; ls = []; env = []; total = 0;
       var mx = -Infinity;
       cr(P, function (p1, c1, c2, p2, i) {
@@ -1464,17 +1457,53 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
       }
     }
     function update(dt, y, vh) {
-      if (!ready || home.hidden) return;
+      if (!ready || view.hidden) return;
       var target = REDUCE ? total : lenForY(y + vh * 0.66);
       if (y >= M.max - 6) target = total;
       cur = Math.abs(target - cur) < 0.5 ? target : lerp(cur, target, 1 - Math.pow(0.84, dt * 60));
       var k = cur.toFixed(1) + '|' + y.toFixed(1);
       if (k === key) return;
       key = k; draw(y);
-      landing.classList.toggle('is-landed', cur >= total - 2);
+      if (landing) landing.classList.toggle('is-landed', cur >= total - 2);
     }
     return { build: build, update: update };
-  })();
+  }
+
+  /* accueil : tracé dessiné à la main, du héros jusqu'à la perle du bouton « Parlons-en » */
+  var trails = {
+    home: makeTrail(views.home, function (W) {
+      var home = views.home;
+      var hH = $('.hero').offsetHeight, m = offIn(manText, home), ix = offIn($('.index'), home), ct = offIn($('.cta'), home), bp = offIn($('.cta__btn .pearl'), home);
+      var ex = bp.x + bp.w / 2, ey = bp.y + bp.h / 2;
+      return [
+        [W * 0.93, hH + 6], [W * 0.7, m.y + m.h * 0.3], [W * 0.07, m.y + m.h * 0.98],
+        [W * 0.05, ix.y + ix.h * 0.12], [W * 0.95, ix.y + ix.h * 0.88], [W * 0.965, ct.y + ct.h * 0.5],
+        [ex + Math.min(W * 0.3, 380), ey + 70], [ex + 36, ey + 8], [ex, ey]
+      ];
+    }, $('.cta__btn'))
+  };
+
+  /* autres pages : zigzag d'un bord à l'autre (environ une traversée par écran), sous le titre,
+     jusqu'au filet au-dessus de « Univers suivant » ; toujours un nombre pair d'appuis pour arriver de la gauche */
+  function pagePoints(view) {
+    return function (W, VH) {
+      var h = offIn($('.phead', view), view), pn = offIn($('.pn', view), view);
+      var y0 = h.y + h.h + 6, y1 = pn.y, span = Math.max(1, y1 - y0);
+      var n = Math.max(2, 2 * Math.round(span / (VH * 1.8)));
+      var P = [[W * 0.93, y0]];
+      for (var k = 1; k < n; k++) P.push([k % 2 ? W * 0.05 : W * 0.95, y0 + span * k / n]);
+      P.push([W * 0.95, y1]);
+      return P;
+    };
+  }
+  ['films', 'photos', 'ia', 'contact'].forEach(function (k) {
+    var v = views[k];
+    if (!v || !$('.phead', v) || !$('.pn', v)) return;
+    var c = d.createElement('canvas'); c.className = 'trail'; c.setAttribute('aria-hidden', 'true');
+    v.insertBefore(c, v.firstChild);
+    trails[k] = makeTrail(v, pagePoints(v));
+  });
+  function buildTrail() { if (trails[current]) trails[current].build(); }
 
   /* ---------- manifeste, bandeau ---------- */
   var lit = -1;
@@ -1685,7 +1714,7 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
   var hero = $('.hero');
   hooks.home = {
     enter: function () {
-      requestAnimationFrame(function () { measure(); orbit.size(); mqSize(); trail.build(); lit = -1; });
+      requestAnimationFrame(function () { measure(); orbit.size(); mqSize(); lit = -1; });
       if (!root.classList.contains('is-intro')) { hero.classList.remove('is-ready'); void hero.offsetWidth; hero.classList.add('is-ready'); }
     }
   };
@@ -1711,14 +1740,15 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
     }
     lastY = y;
     hud.tick(t, clamp(y / M.max, 0, 1));
-    if (current === 'home') { orbit.step(dt, vel); trail.update(dt, y, vh); updWords(vh, y); updMq(dt, vel); }
+    if (trails[current]) trails[current].update(dt, y, vh);
+    if (current === 'home') { orbit.step(dt, vel); updWords(vh, y); updMq(dt, vel); }
     else if (current === 'ia') lab.step(dt);
     requestAnimationFrame(frame);
   }
 
   /* ---------- redimensionnement ---------- */
   var rz = null;
-  function relayout() { measure(); if (current === 'home') { orbit.size(); mqSize(); trail.build(); } if (current === 'ia') lab.size(); }
+  function relayout() { measure(); if (current === 'home') { orbit.size(); mqSize(); } buildTrail(); if (current === 'ia') lab.size(); }
   window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(relayout, 160); });
   if ('ResizeObserver' in window) { var lastH = 0; new ResizeObserver(function () { var h = $('#contenu').offsetHeight; if (h && Math.abs(h - lastH) > 2) { lastH = h; clearTimeout(rz); rz = setTimeout(relayout, 120); } }).observe($('#contenu')); }
   if (d.fonts && d.fonts.ready) d.fonts.ready.then(relayout);
