@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-WqWMuPI52fF1gwMIiGg//F/Wkl0OmoEVGwpQ9Hch52I='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-G1qLEX9JpBuIpxjT8QaKJxMPpN5niAiLN/ilc/SzXc4='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -223,16 +223,19 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .index__list{border-top:1px solid var(--line)}
 .row{position:relative;display:grid;grid-template-columns:minmax(100px,1fr) 44vw minmax(0,1.3fr) auto;align-items:center;gap:16px clamp(16px,3vw,48px);padding-block:clamp(22px,3vw,42px);padding-left:var(--gx);padding-right:var(--gx-r);border-bottom:1px solid var(--line);text-decoration:none;overflow:hidden;isolation:isolate;transition:color .45s var(--ease)}
 .row::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--ember);transform:scaleY(0);transform-origin:bottom;transition:transform .6s var(--ease)}
-.row:hover::before,.row:focus-visible::before{transform:scaleY(1)}
-.row:hover,.row:focus-visible{color:var(--ink)}
+/* survol d'une ligne : avec le curseur perle, c'est le script qui pose .is-hot sur la ligne sous le curseur (il suit
+   aussi le défilement, souris immobile : le survol natif, lui, ne se met à jour qu'au prochain geste). Sans curseur
+   perle (tactile, animations réduites), le survol natif. */
+.row.is-hot::before,.row:focus-visible::before,html:not(.has-cursor) .row:hover::before{transform:scaleY(1)}
+.row.is-hot,.row:focus-visible,html:not(.has-cursor) .row:hover{color:var(--ink)}
 .row:focus-visible{outline-offset:-4px}
 .row__fmt{color:var(--mute);transition:color .45s}
 .row__title{font-family:var(--f-display);font-weight:800;font-size:clamp(2.5rem,7vw,7rem);line-height:.92;letter-spacing:-.055em;transition:transform .7s var(--ease)}
 .row__desc{color:var(--soft);max-width:30ch;transition:color .45s}
 .row__arrow{font-family:var(--f-display);font-weight:400;font-size:clamp(1.6rem,3vw,2.8rem);line-height:1;transition:transform .6s var(--ease)}
-.row:hover .row__title,.row:focus-visible .row__title{transform:translateX(clamp(8px,2vw,32px))}
-.row:hover .row__fmt,.row:hover .row__desc,.row:focus-visible .row__fmt,.row:focus-visible .row__desc{color:var(--ink)}
-.row:hover .row__arrow,.row:focus-visible .row__arrow{transform:rotate(-45deg)}
+.row.is-hot .row__title,.row:focus-visible .row__title,html:not(.has-cursor) .row:hover .row__title{transform:translateX(clamp(8px,2vw,32px))}
+.row.is-hot .row__fmt,.row.is-hot .row__desc,.row:focus-visible .row__fmt,.row:focus-visible .row__desc,html:not(.has-cursor) .row:hover .row__fmt,html:not(.has-cursor) .row:hover .row__desc{color:var(--ink)}
+.row.is-hot .row__arrow,.row:focus-visible .row__arrow,html:not(.has-cursor) .row:hover .row__arrow{transform:rotate(-45deg)}
 
 /* accueil : la liste Univers enchaîne directement sur le grand FLYING PEARL du pied de page */
 .index{padding-top:clamp(40px,4.5vw,72px);padding-bottom:clamp(40px,5vw,72px)}
@@ -1021,7 +1024,7 @@ html[data-page="home"] .foot{background:transparent}
     <section class="proj wrap" data-hud="Projets" aria-label="Projets IA">
       <div class="proj__grid">
         <article class="card" data-reveal>
-          <button class="card__cover" type="button" data-proj="tears" data-title="TEARS" data-accent="" data-tools="Seedream 5.0 Pro" data-date="24 octobre 2026" data-desc="TEARS s&#x27;attarde sur la singularité de ces larmes qui coulent pour des raisons qui n&#x27;appartiennent qu&#x27;à elles. Derrière chaque masque, une vérité qui refuse de disparaître." data-cursor="Entrer" aria-label="Ouvrir le projet TEARS">
+          <button class="card__cover" type="button" data-proj="tears" data-title="TEARS" data-accent="" data-tools="Seedream 5.0 Pro" data-date="Octobre 2026" data-desc="TEARS s&#x27;attarde sur la singularité de ces larmes qui coulent pour des raisons qui n&#x27;appartiennent qu&#x27;à elles. Derrière chaque masque, une vérité qui refuse de disparaître." data-cursor="Entrer" aria-label="Ouvrir le projet TEARS">
             <img src="media/tears/tears-01.jpg" alt="Couverture TEARS, femme en robe blanche et quatre masques en suspension" decoding="async">
             <span class="tears-word" aria-hidden="true"><span class="tw tw--t">T</span><span class="tw tw--e">E</span><span class="tw tw--a">A</span><span class="tw tw--r">R</span><span class="tw tw--s">S</span></span>
             <span class="card__badge mono">Collection · 06</span>
@@ -1037,7 +1040,7 @@ html[data-page="home"] .foot{background:transparent}
           </div>
         </article>
         <article class="card" data-reveal>
-          <button class="card__cover" type="button" data-proj="show" data-video="media/daniel-roberto-show.mp4" data-title="THE DANIEL &amp; ROBERTO SHOW" data-accent="DANIEL &amp; ROBERTO" data-tools="Seedream 5.0 Pro, Seedance 2.5" data-date="24 octobre 2026" data-desc="Découvrez l&#x27;épisode pilote de THE DANIEL &amp; ROBERTO SHOW et plongez dans le quotidien de ces deux pirates qui vous racontent leur vie. Pilote encore au niveau de la maquette." data-cursor="Lecture" aria-label="Ouvrir le projet THE DANIEL AND ROBERTO SHOW">
+          <button class="card__cover" type="button" data-proj="show" data-video="media/daniel-roberto-show.mp4" data-title="THE DANIEL &amp; ROBERTO SHOW" data-accent="DANIEL &amp; ROBERTO" data-tools="Seedream 5.0 Pro, Seedance 2.5" data-date="Octobre 2026" data-desc="Découvrez l&#x27;épisode pilote de THE DANIEL &amp; ROBERTO SHOW et plongez dans le quotidien de ces deux pirates qui vous racontent leur vie. Pilote encore au niveau de la maquette." data-cursor="Lecture" aria-label="Ouvrir le projet THE DANIEL AND ROBERTO SHOW">
             <img src="media/daniel-roberto-poster.jpg" alt="Daniel et Roberto, selfie dans la jungle, caméra tenue à bout de bras" decoding="async">
             <span class="card__title" aria-hidden="true" style="--ts:6.4cqi"><span>THE</span><span class="card__title-b">DANIEL &amp; ROBERTO</span><span>SHOW</span></span>
             <span class="card__badge mono">Vidéo · Pilote</span>
@@ -1064,7 +1067,7 @@ html[data-page="home"] .foot{background:transparent}
           </template>
         </article>
         <article class="card" data-reveal>
-          <button class="card__cover" type="button" data-proj="shinsena" data-title="SHINSENA YAMA" data-accent="YAMA" data-tools="GPT Image 2.5 Sunburst, Seedance 2.5" data-desc="Maquette test d&#x27;un projet en cours." data-cursor="Entrer" aria-label="Ouvrir le projet SHINSENA YAMA">
+          <button class="card__cover" type="button" data-proj="shinsena" data-title="SHINSENA YAMA" data-accent="YAMA" data-tools="GPT Image 2.5 Sunburst, Seedance 2.5" data-date="Septembre 2026" data-desc="Maquette test d&#x27;un projet en cours." data-cursor="Entrer" aria-label="Ouvrir le projet SHINSENA YAMA">
             <img src="media/shinsena-yama/mystere-poster.jpg" alt="Le père pose la main sur une paroi de roche gravée d&#x27;inscriptions" width="1600" height="900" decoding="async">
             <span class="card__title" aria-hidden="true" style="--ts:10.5cqi"><span>SHINSENA</span><span class="card__title-b">YAMA</span></span>
             <span class="card__badge mono">Maquette · En cours</span>
@@ -1446,24 +1449,36 @@ html[data-page="home"] .foot{background:transparent}
   if (secIO) $$('[data-hud]').forEach(function (el) { secIO.observe(el); });
 
   /* ---------- curseur perle ---------- */
-  var cursor = { el: $('.cursor'), label: $('.cursor__label'), x: -100, y: -100, tx: -100, ty: -100, on: false };
+  var cursor = { el: $('.cursor'), label: $('.cursor__label'), x: -100, y: -100, tx: -100, ty: -100, px: -100, py: -100, on: false };
   var mouse = { x: 0, y: 0 };
   window.addEventListener('pointermove', function (e) {
     mouse.x = e.clientX / innerWidth * 2 - 1; mouse.y = e.clientY / innerHeight * 2 - 1;
     if (!cursor.active) return;
+    cursor.px = e.clientX; cursor.py = e.clientY;
     cursor.el.style.transform = 'translate3d(' + e.clientX + 'px,' + e.clientY + 'px,0)';
     if (!cursor.on) { cursor.on = true; cursor.el.classList.add('is-on'); }
   }, { passive: true });
+  /* élément sous le curseur (lien, bouton ou zone à mot) : il reçoit la classe is-hot, et le curseur prend sa forme
+     (anneau avec le mot, ou simple survol). Appelé au passage de la souris, mais aussi par la boucle principale
+     (syncHover) : quand la page défile sous une souris immobile, le navigateur ne signale rien, et le survol resterait
+     sur l'ancien élément jusqu'au prochain geste. */
+  var hot = null, hotLabel = '', hoverT = 0;
+  function setHover(el) {
+    var t = el && el.closest ? el.closest('a,button,[data-cursor]') : null, lb = t ? (t.dataset.cursor || '') : '';
+    if (t === hot && lb === hotLabel) return;
+    if (hot && hot !== t) hot.classList.remove('is-hot');
+    hot = t; hotLabel = lb;
+    cursor.el.classList.remove('is-hover', 'is-label');
+    if (!t) return;
+    t.classList.add('is-hot');
+    if (lb) { cursor.label.textContent = lb; cursor.el.classList.add('is-label'); }
+    else cursor.el.classList.add('is-hover');
+  }
+  function syncHover() { setHover(d.elementFromPoint(cursor.px, cursor.py)); }
   if (FINE && !REDUCE) {
     cursor.active = true; root.classList.add('has-cursor');
-    d.addEventListener('pointerover', function (e) {
-      var t = e.target.closest && e.target.closest('a,button,[data-cursor]');
-      cursor.el.classList.remove('is-hover', 'is-label');
-      if (!t) return;
-      if (t.dataset.cursor) { cursor.label.textContent = t.dataset.cursor; cursor.el.classList.add('is-label'); }
-      else cursor.el.classList.add('is-hover');
-    });
-    d.addEventListener('mouseout', function (e) { if (!e.relatedTarget) { cursor.on = false; cursor.el.classList.remove('is-on'); } });
+    d.addEventListener('pointerover', function (e) { if (!e.pointerType || e.pointerType === 'mouse') setHover(e.target); });
+    d.addEventListener('mouseout', function (e) { if (!e.relatedTarget) { cursor.on = false; cursor.el.classList.remove('is-on'); setHover(null); } });
   }
 
   /* ---------- orbite de la perle (accueil) ---------- */
@@ -1968,6 +1983,9 @@ html[data-page="home"] .foot{background:transparent}
     var dt = Math.min(0.05, (t - lastT) / 1000) || 0.016; lastT = t;
     if (lenis) lenis.raf(t);
     var y = window.scrollY, vh = M.vh, dy = y - lastY;
+    /* survol : recalculé à chaque image pendant le défilement (la page bouge sous le curseur), sinon de temps en temps
+       (changement de page, fiche qui s'ouvre) */
+    if (cursor.active && cursor.on && (dy || t - hoverT > 160)) { hoverT = t; syncHover(); }
     vel = lerp(vel, dy / dt, 0.18);
     /* le bandeau du haut reste toujours présent (il ne se cache plus quand on descend) ; il devient opaque dès qu'on défile */
     top.classList.toggle('is-solid', y > 60);
