@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-v1Jo5Wd97FBzB7xS/xurxwaeeHfhWPIzG1J9H/Wf7rs='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-VNStL5yaEMvL/QaJSQuP6gKMSsIPlKecY0+bGGs2v1I='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -105,8 +105,7 @@ button{font:inherit;color:inherit}
 @keyframes pop{to{transform:scale(1)}}
 
 /* ---------- barre du haut ---------- */
-.top{position:fixed;top:0;left:0;right:0;z-index:82;display:flex;align-items:center;justify-content:space-between;gap:24px;padding-top:calc(var(--sat) + 24px);padding-bottom:22px;padding-left:max(var(--gx),46px);padding-right:max(var(--gx-r),46px);background:linear-gradient(180deg,rgba(10,10,10,.82),rgba(10,10,10,0));transition:transform .6s var(--ease),background .4s;will-change:transform}
-.top.is-hidden{transform:translateY(-110%)}
+.top{position:fixed;top:0;left:0;right:0;z-index:82;display:flex;align-items:center;justify-content:space-between;gap:24px;padding-top:calc(var(--sat) + 24px);padding-bottom:8px;padding-left:max(var(--gx),46px);padding-right:max(var(--gx-r),46px);background:linear-gradient(180deg,rgba(10,10,10,.82),rgba(10,10,10,0));transition:background .4s}
 .top.is-solid{background:rgba(10,10,10,.92)}
 .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-family:var(--f-display);font-weight:800;font-size:14px;letter-spacing:-.03em;white-space:nowrap}
 .brand svg{width:30px;height:30px;flex:none}
@@ -158,10 +157,11 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .cursor__dot,.cursor__ring{position:absolute;border-radius:50%}
 /* queue de comète : un enfant du curseur, ancré pile au centre de la perle (le point orange). Elle se déplace donc
    exactement avec lui ; js/curseur.js ne fait que l'orienter à l'opposé du mouvement et l'allonger selon la vitesse */
-.cursor__tail{position:absolute;left:0;top:-7px;width:120px;height:14px;transform-origin:0 50%;transform:scaleX(0);pointer-events:none;will-change:transform;transition:opacity .25s}
+.cursor__tail{position:absolute;left:0;top:-7px;width:120px;height:14px;transform-origin:0 50%;transform:scaleX(0);pointer-events:none;will-change:transform;opacity:var(--to,1)}
 .cursor__tail::before,.cursor__tail::after{content:"";position:absolute;left:0;right:0;top:50%;clip-path:polygon(0 0,100% 50%,0 100%)}
-.cursor__tail::before{height:14px;margin-top:-7px;background:linear-gradient(90deg,rgba(255,90,31,.34),rgba(255,90,31,.12) 55%,rgba(255,90,31,0))}
-.cursor__tail::after{height:6px;margin-top:-3px;background:linear-gradient(90deg,var(--ember),rgba(255,90,31,.7) 40%,rgba(255,90,31,0))}
+/* dégradés longs et progressifs : la queue s'éteint en douceur vers sa pointe */
+.cursor__tail::before{height:14px;margin-top:-7px;background:linear-gradient(90deg,rgba(255,90,31,.26),rgba(255,90,31,.11) 40%,rgba(255,90,31,.04) 72%,rgba(255,90,31,0))}
+.cursor__tail::after{height:6px;margin-top:-3px;background:linear-gradient(90deg,var(--ember),rgba(255,90,31,.62) 20%,rgba(255,90,31,.3) 48%,rgba(255,90,31,.1) 76%,rgba(255,90,31,0))}
 .cursor.is-label .cursor__tail{opacity:0}
 .cursor__dot{left:-7px;top:-7px;width:14px;height:14px;background:radial-gradient(circle,var(--ember) 0 34%,var(--paper) 37%);transition:transform .35s var(--ease)}
 .cursor__ring{left:-42px;top:-42px;width:84px;height:84px;display:grid;place-items:center;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 3px var(--paper);transform:scale(0);transition:transform .45s var(--ease),background .3s,box-shadow .3s}
@@ -214,7 +214,8 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .mq .o{font-family:var(--f-outline);color:transparent;-webkit-text-stroke:1.2px var(--paper)}
 .mq .pearl{font-size:.5em}
 
-.manifesto{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,9fr);gap:24px clamp(24px,4vw,64px);padding-bottom:clamp(56px,7vw,110px)}
+/* le studio : étiquette et texte centrés */
+.manifesto{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:24px;padding-bottom:clamp(56px,7vw,110px)}
 .manifesto__text{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(1.4rem,3.15vw,3rem);line-height:1.24;letter-spacing:-.03em;max-width:24em;text-wrap:pretty}
 .manifesto__text em{font-style:normal}
 .w{color:var(--dim);transition:color .5s ease;white-space:nowrap}
@@ -245,7 +246,7 @@ html[data-page="home"] .foot__top{display:none}
 /* ---------- pages univers ---------- */
 /* plus d'en-tête visible : le titre vit dans l'onglet en haut à droite, les projets commencent juste sous la barre.
    Le titre h1 reste lisible par les lecteurs d'écran ; l'en-tête ne sert plus que d'espace sous la barre fixe. */
-.phead{position:relative;z-index:1;padding-top:calc(var(--sat) + clamp(70px,9.6vh,80px));padding-bottom:0}
+.phead{position:relative;z-index:1;padding-top:var(--ptop,calc(var(--sat) + clamp(77px,10vh,87px)));padding-bottom:0}
 .phead > *{position:absolute!important;width:1px;height:1px;margin:0;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 .phead__meta{order:3;align-self:stretch;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:12px;margin:clamp(16px,2.2vw,28px) 0 0;text-align:left}
 .af{--arm:clamp(14px,1.4vw,20px);--l:-0.17;--r:-0.17;--t:0.04;--b:0.04;position:relative;display:inline-block;font-size:clamp(2.1rem,4.4vw,4.2rem);line-height:1}
@@ -280,6 +281,15 @@ html[data-page="home"] .foot__top{display:none}
 /* films */
 .reel{position:relative;z-index:1;display:grid;gap:clamp(64px,9vw,128px);padding-bottom:clamp(80px,10vw,140px)}
 .vignette{display:grid;gap:16px;width:min(100%,1180px)}
+/* grand écran : chaque projet occupe un cadre de la hauteur disponible (--fit) et s'y centre. Un projet moins haut que
+   le cadre (limité par la largeur) garde ainsi la même marge au-dessus et au-dessous, entre les deux bandeaux. */
+@media (min-width:901px){
+  .reel > .shot{min-height:var(--fit,0px);display:flex;flex-direction:column;justify-content:center}
+  .series > .serie{min-height:var(--fit,0px);align-content:center}
+}
+@media (min-width:721px){
+  .proj{min-height:var(--fit,0px);display:grid;align-content:center}
+}
 /* une bobine entière (cadre 2.39:1 + légende) tient toujours dans la hauteur disponible --fit */
 .reel > .shot{width:min(100%,calc((var(--fit,100vh) - 42px) * 2.39))}
 .reel > .shot:nth-child(even){justify-self:end;width:min(100%,980px,calc((var(--fit,100vh) - 42px) * 2.39))}
@@ -374,6 +384,14 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
 .foot__nav a:hover,.foot__nav a:focus-visible{color:var(--ember)}
 .foot__giant{margin:clamp(30px,5vw,60px) 0 clamp(18px,3vw,30px);text-align:center;font-family:var(--f-outline);font-weight:800;font-size:11vw;line-height:.82;letter-spacing:-.06em;white-space:nowrap;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.32);user-select:none;transition:color .8s var(--ease)}
 .foot__giant:hover{color:var(--ember);-webkit-text-stroke-color:var(--ember)}
+/* une lettre par élément ; la perle de l'accueil finit sa course entre les deux mots et les allume, de proche en proche
+   (--d = distance de la lettre à la perle), comme une enseigne : contour blanc, halo orange, petit clignotement */
+.foot__giant .fg{display:inline-block;transition:color .6s var(--ease),-webkit-text-stroke-color .6s var(--ease),text-shadow .6s var(--ease)}
+.foot__giant .fg--gap{display:inline;white-space:pre}
+.foot__giant.is-landed .fg{color:var(--paper);-webkit-text-stroke-color:var(--paper);text-shadow:0 0 .1em rgba(255,90,31,.95),0 0 .38em rgba(255,90,31,.5);transition-delay:calc(var(--d,0) * 75ms);animation:enseigne .95s steps(1,end) both;animation-delay:calc(var(--d,0) * 75ms)}
+@keyframes enseigne{0%{opacity:.3}14%{opacity:1}24%{opacity:.45}36%{opacity:1}48%{opacity:.75}60%,100%{opacity:1}}
+/* sur l'accueil, le pied de page laisse voir la traînée de la perle qui vient s'y poser */
+html[data-page="home"] .foot{background:transparent}
 .foot__bottom{display:flex;justify-content:space-between;align-items:center;gap:12px 24px;flex-wrap:wrap;color:var(--mute)}
 .foot__bottom button{background:none;border:0;padding:0;min-height:44px;cursor:pointer;color:var(--mute);font:inherit;letter-spacing:inherit;text-transform:inherit}
 .foot__bottom button:hover{color:var(--paper)}
@@ -743,7 +761,7 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     /* mosaïque : la première carte (couverture carrée) occupe la colonne de gauche sur deux rangées ; les deux suivantes
        (16:9) s'empilent à droite. Les largeurs sont calculées pour que les deux colonnes aient exactement la même hauteur,
        et l'ensemble tient dans la hauteur disponible (--fit) : la grille se resserre et se centre. */
-    .proj__grid{--pg:clamp(16px,2.4vw,40px);margin:0 auto;display:grid;grid-template-columns:calc((900% - var(--pg)) / 17) minmax(0,1fr);grid-auto-rows:1fr;gap:var(--pg);max-width:calc((var(--fit,85vh) * 17 + var(--pg)) / 9)}
+    .proj__grid{--pg:clamp(16px,2.4vw,40px);width:100%;margin:0 auto;display:grid;grid-template-columns:calc((900% - var(--pg)) / 17) minmax(0,1fr);grid-auto-rows:1fr;gap:var(--pg);max-width:calc((var(--fit,85vh) * 17 + var(--pg)) / 9)}
     .proj__grid > .card:first-child{grid-row:span 2}
     .proj__grid > .card:not(:first-child) .card__cover{flex:1;min-height:0}
     .proj__grid > .card:not(:first-child) .card__cover img:not(.tears-word){position:absolute;inset:0;height:100%}
@@ -1155,7 +1173,7 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
 
 <script src="js/lenis.min.js"></script>
 <script src="js/ia.js?v=25" defer></script>
-<script src="js/curseur.js?v=5" defer></script>
+<script src="js/curseur.js?v=6" defer></script>
 <script>
 (function () {
   'use strict';
@@ -1497,9 +1515,10 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
   })();
 
   /* ---------- traînée de la perle au défilement : un canvas fixe par vue, rien que la partie visible ---------- */
-  function makeTrail(view, points, landing) {
+  /* landing : élément qui reçoit la classe is-landed quand la perle arrive au bout ; endR : rayon de la perle à l'arrivée */
+  function makeTrail(view, points, landing, endR) {
     var cv = $('.trail', view), ctx = cv && cv.getContext('2d');
-    var xs = [], ys = [], ls = [], env = [], total = 0, cur = 0, ready = false, R = 1, VW = 0, VH = 0, key = '';
+    var xs = [], ys = [], ls = [], env = [], total = 0, cur = 0, ready = false, R = 1, VW = 0, VH = 0, key = '', rEnd = 9;
     function cr(P, cb) {
       for (var i = 0; i < P.length - 1; i++) {
         var p0 = P[i - 1] || P[i], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2] || p2;
@@ -1511,7 +1530,8 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
       /* taille réelle de la toile à l'écran (sans la barre de défilement), sinon le tracé est tassé vers la gauche */
       R = Math.min(2, window.devicePixelRatio || 1); VW = cv.clientWidth || window.innerWidth; VH = cv.clientHeight || window.innerHeight;
       cv.width = Math.round(VW * R); cv.height = Math.round(VH * R);
-      var P = points(view.clientWidth, VH);
+      var W = view.clientWidth, P = points(W, VH), PAD = 22;
+      rEnd = endR ? Math.max(3.5, endR()) : 9;   /* plus grosse sur grand écran, plus petite sur mobile : elle tient entre les deux mots */
       xs = []; ys = []; ls = []; env = []; total = 0;
       var mx = -Infinity;
       cr(P, function (p1, c1, c2, p2, i) {
@@ -1520,6 +1540,7 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
         for (var k = i ? 1 : 0; k <= n; k++) {
           var t = k / n, u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, e = t * t * t;
           var x = a * p1[0] + b * c1[0] + c * c2[0] + e * p2[0], y = a * p1[1] + b * c1[1] + c * c2[1] + e * p2[1];
+          x = clamp(x, PAD, W - PAD);   /* la traînée ne sort jamais de l'écran, même quand la courbe déborde */
           if (xs.length) total += Math.hypot(x - xs[xs.length - 1], y - ys[ys.length - 1]);
           xs.push(x); ys.push(y); ls.push(total); mx = Math.max(mx, y); env.push(mx);
         }
@@ -1546,11 +1567,13 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
       ctx.strokeStyle = 'rgba(255,90,31,0.16)'; ctx.lineWidth = 10; ctx.stroke();
       ctx.strokeStyle = '#FF5A1F'; ctx.lineWidth = 2; ctx.stroke();
       if (ty > top && ty < bot) {
-        var g = ctx.createRadialGradient(tx, ty, 0, tx, ty, 34);
+        /* la perle grossit sur la fin de sa course, jusqu'à la taille de son point d'arrivée */
+        var q = rEnd !== 9 ? clamp((cur - (total - 260)) / 260, 0, 1) : 0, rr = 9 + (rEnd - 9) * q * q * (3 - 2 * q), kr = rr / 9;
+        var g = ctx.createRadialGradient(tx, ty, 0, tx, ty, 34 * kr);
         g.addColorStop(0, 'rgba(255,90,31,0.55)'); g.addColorStop(1, 'rgba(255,90,31,0)');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(tx, ty, 34, 0, 6.2832); ctx.fill();
-        ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(tx, ty, 9, 0, 6.2832); ctx.fill();
-        ctx.fillStyle = '#FF5A1F'; ctx.beginPath(); ctx.arc(tx, ty, 3.2, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(tx, ty, 34 * kr, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.arc(tx, ty, rr, 0, 6.2832); ctx.fill();
+        ctx.fillStyle = '#FF5A1F'; ctx.beginPath(); ctx.arc(tx, ty, 3.2 * kr, 0, 6.2832); ctx.fill();
       }
     }
     function update(dt, y, vh) {
@@ -1558,6 +1581,8 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
       var target = REDUCE ? total : lenForY(y + vh * 0.66);
       if (y >= M.max - 6) target = total;
       cur = Math.abs(target - cur) < 0.5 ? target : lerp(cur, target, 1 - Math.pow(0.84, dt * 60));
+      /* la perle ne sort jamais de l'écran : si le défilement va plus vite qu'elle, elle reste au bord, en haut ou en bas */
+      if (!REDUCE && target < total) { var lo = lenForY(y + 40); cur = clamp(cur, lo, Math.max(lo, lenForY(y + vh - 40))); }
       var k = cur.toFixed(1) + '|' + y.toFixed(1);
       if (k === key) return;
       key = k; draw(y);
@@ -1566,16 +1591,38 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     return { build: build, update: update };
   }
 
-  /* accueil : tracé dessiné à la main, du héros jusqu'au filet sous la dernière ligne d'Univers (CONTACT) */
+  /* grand FLYING PEARL du pied de page : une lettre par élément, numérotée depuis l'espace entre les deux mots.
+     La perle de l'accueil vient se poser dans cet espace et allume les lettres de proche en proche (CSS .is-landed). */
+  var giant = $('.foot__giant');
+  if (giant) {
+    var gt = giant.textContent.trim(), gi = gt.indexOf(' ');
+    giant.textContent = '';
+    for (var gk = 0; gk < gt.length; gk++) {
+      var gs = d.createElement('span');
+      if (gt.charAt(gk) === ' ') { gs.className = 'fg fg--gap'; gs.textContent = ' '; }
+      else { gs.className = 'fg'; gs.textContent = gt.charAt(gk); gs.style.setProperty('--d', Math.abs(gk - gi)); }
+      giant.appendChild(gs);
+    }
+  }
+
+  /* accueil : tracé dessiné à la main, du héros jusqu'au grand FLYING PEARL du pied de page, où la perle se pose
+     entre les deux mots */
   var trails = {
     home: makeTrail(views.home, function (W) {
       var home = views.home;
       var hH = $('.hero').offsetHeight, m = offIn(manText, home), ix = offIn($('.index'), home), li = offIn($('.index__list'), home);
-      return [
-        [W * 0.93, hH + 6], [W * 0.7, m.y + m.h * 0.3], [W * 0.07, m.y + m.h * 0.98],
-        [W * 0.05, ix.y + ix.h * 0.12], [W * 0.95, li.y + li.h]
+      var P = [
+        [W * 0.9, hH + 6], [W * 0.68, m.y + m.h * 0.3], [W * 0.1, m.y + m.h * 0.98],
+        [W * 0.08, ix.y + ix.h * 0.12], [W * 0.92, li.y + li.h]
       ];
-    })
+      var gap = giant && $('.fg--gap', giant);
+      if (gap) {
+        var hr = home.getBoundingClientRect(), r = gap.getBoundingClientRect();
+        var ex = r.left + r.width / 2 - hr.left, ey = r.top + r.height / 2 - hr.top, lb = li.y + li.h;
+        if (r.width > 0 && ey > lb + 40) P.push([ex + (W * 0.92 - ex) * 0.55, lb + (ey - lb) * 0.6], [ex, ey]);
+      }
+      return P;
+    }, giant, function () { return giant ? parseFloat(getComputedStyle(giant).fontSize) * 0.09 : 9; })
   };
 
   /* la traînée de défilement n'existe que sur l'accueil (retirée des onglets à la demande de Pierre-Yves) */
@@ -1795,15 +1842,22 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
      dès l'arrivée, et n'importe lequel tient à l'écran sans être coupé quand on le centre. */
   var FIRST = { films: '.reel > .shot', photos: '.series > .serie', ia: '.proj__grid > .card' }, fitKey = '';
   function fitPage() {
-    var v = views[current], sel = FIRST[current], el = v && sel ? $(sel, v) : null;
-    if (!el || v.hidden) return;
-    /* en bas, on s'arrête au-dessus du bandeau fixe (REC / position), sinon il masque la légende du projet */
-    var band = $('.hud__rec'), bt = band ? band.getBoundingClientRect().top : 0;
-    var gap = bt > 0 && bt < M.vh ? M.vh - bt + 10 : clamp(M.vh * 0.03, 14, 36);
-    var fit = Math.max(220, Math.floor(M.vh - offIn(el, v).y - gap));
-    var k = current + '|' + fit + '|' + window.innerWidth;
+    var v = views[current];
+    if (!v || v.hidden || current === 'home') return;
+    /* cadre commun à toutes les pages, entre les deux bandeaux fixes : du bas du logo (bandeau du haut, toujours présent)
+       au haut du texte du bandeau du bas (REC / position), avec exactement la même marge en haut et en bas. Le premier
+       projet y est placé dès l'arrivée ; les suivants ont la même hauteur et s'y logent de la même façon. */
+    var logo = $('.brand svg') || $('.brand'), band = $('.hud__rec');
+    var a = logo ? logo.getBoundingClientRect().bottom : 61, bt = band ? band.getBoundingClientRect().top : 0;
+    var b = bt > 0 && bt < M.vh ? bt + 6 : M.vh - 36;
+    var g = clamp(M.vh * 0.025, 16, 26);
+    var ptop = Math.round(a + g), fit = Math.max(220, Math.floor(b - g - ptop));
+    var k = current + '|' + ptop + '|' + fit + '|' + window.innerWidth;
     if (k === fitKey) return;
-    fitKey = k; v.style.setProperty('--fit', fit + 'px');
+    fitKey = k;
+    v.style.setProperty('--ptop', ptop + 'px');
+    if (!FIRST[current]) return;
+    v.style.setProperty('--fit', fit + 'px');
     try { window.dispatchEvent(new Event('fp:fit')); } catch (e) {}
   }
   function measure() {
@@ -1820,7 +1874,9 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     enter: function () {
       requestAnimationFrame(function () { measure(); orbit.size(); mqSize(); lit = -1; });
       if (!root.classList.contains('is-intro')) { hero.classList.remove('is-ready'); void hero.offsetWidth; hero.classList.add('is-ready'); }
-    }
+    },
+    /* en quittant l'accueil, l'enseigne du pied de page s'éteint (elle ne s'allume qu'à l'arrivée de la perle) */
+    leave: function () { if (giant) giant.classList.remove('is-landed'); }
   };
   hooks.films = { enter: function () { af(views.films); } };
   hooks.photos = { enter: function () { af(views.photos); } };
@@ -1837,11 +1893,8 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
     if (lenis) lenis.raf(t);
     var y = window.scrollY, vh = M.vh, dy = y - lastY;
     vel = lerp(vel, dy / dt, 0.18);
+    /* le bandeau du haut reste toujours présent (il ne se cache plus quand on descend) ; il devient opaque dès qu'on défile */
     top.classList.toggle('is-solid', y > 60);
-    if (!menu.open) {
-      if (y < 120 || dy < -3) top.classList.remove('is-hidden');
-      else if (dy > 3) top.classList.add('is-hidden');
-    }
     lastY = y;
     hud.tick(t, clamp(y / M.max, 0, 1));
     if (trails[current]) trails[current].update(dt, y, vh);
