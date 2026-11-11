@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-VNStL5yaEMvL/QaJSQuP6gKMSsIPlKecY0+bGGs2v1I='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-Pq6hYJPKLxln64XOtChCR5bCsCyuLbqZwYXtdxVYQ2I='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -155,14 +155,10 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .cursor{position:fixed;left:0;top:0;z-index:250;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .3s;will-change:transform}
 .cursor.is-on{opacity:1}
 .cursor__dot,.cursor__ring{position:absolute;border-radius:50%}
-/* queue de comète : un enfant du curseur, ancré pile au centre de la perle (le point orange). Elle se déplace donc
-   exactement avec lui ; js/curseur.js ne fait que l'orienter à l'opposé du mouvement et l'allonger selon la vitesse */
-.cursor__tail{position:absolute;left:0;top:-7px;width:120px;height:14px;transform-origin:0 50%;transform:scaleX(0);pointer-events:none;will-change:transform;opacity:var(--to,1)}
-.cursor__tail::before,.cursor__tail::after{content:"";position:absolute;left:0;right:0;top:50%;clip-path:polygon(0 0,100% 50%,0 100%)}
-/* dégradés longs et progressifs : la queue s'éteint en douceur vers sa pointe */
-.cursor__tail::before{height:14px;margin-top:-7px;background:linear-gradient(90deg,rgba(255,90,31,.26),rgba(255,90,31,.11) 40%,rgba(255,90,31,.04) 72%,rgba(255,90,31,0))}
-.cursor__tail::after{height:6px;margin-top:-3px;background:linear-gradient(90deg,var(--ember),rgba(255,90,31,.62) 20%,rgba(255,90,31,.3) 48%,rgba(255,90,31,.1) 76%,rgba(255,90,31,0))}
-.cursor.is-label .cursor__tail{opacity:0}
+/* traînée du curseur : une petite toile carrée, enfant du curseur et centrée sur la perle (le point orange). Elle se
+   déplace donc exactement avec lui ; js/curseur.js y dessine le chemin récent de la souris, courbes comprises */
+.cursor__trail{position:absolute;left:calc(var(--ts,940px) / -2);top:calc(var(--ts,940px) / -2);width:var(--ts,940px);height:var(--ts,940px);pointer-events:none}
+.cursor.is-label .cursor__trail{opacity:0}
 .cursor__dot{left:-7px;top:-7px;width:14px;height:14px;background:radial-gradient(circle,var(--ember) 0 34%,var(--paper) 37%);transition:transform .35s var(--ease)}
 .cursor__ring{left:-42px;top:-42px;width:84px;height:84px;display:grid;place-items:center;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 3px var(--paper);transform:scale(0);transition:transform .45s var(--ease),background .3s,box-shadow .3s}
 .cursor.is-hover .cursor__ring{transform:scale(.48)}
@@ -214,9 +210,10 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .mq .o{font-family:var(--f-outline);color:transparent;-webkit-text-stroke:1.2px var(--paper)}
 .mq .pearl{font-size:.5em}
 
-/* le studio : étiquette et texte centrés */
-.manifesto{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;gap:24px;padding-bottom:clamp(56px,7vw,110px)}
-.manifesto__text{margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(1.4rem,3.15vw,3rem);line-height:1.24;letter-spacing:-.03em;max-width:24em;text-wrap:pretty}
+/* le studio : étiquette à gauche, au-dessus ; texte aligné à gauche comme avant, mais le bloc est centré dans l'écran
+   (le script ajuste au pixel pour que le bord gauche et le bord droit du texte soient à la même distance des bords) */
+.manifesto{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;padding-bottom:clamp(56px,7vw,110px)}
+.manifesto__text{justify-self:center;width:fit-content;margin:0;font-family:var(--f-display);font-weight:400;font-size:clamp(1.4rem,3.15vw,3rem);line-height:1.24;letter-spacing:-.03em;max-width:24em;text-wrap:pretty}
 .manifesto__text em{font-style:normal}
 .w{color:var(--dim);transition:color .5s ease;white-space:nowrap}
 .w.lit{color:var(--paper)}
@@ -384,8 +381,13 @@ html.js .frame:not(.is-live)::before,html.js .frame:not(.is-live)::after,html.js
 .foot__nav a:hover,.foot__nav a:focus-visible{color:var(--ember)}
 .foot__giant{margin:clamp(30px,5vw,60px) 0 clamp(18px,3vw,30px);text-align:center;font-family:var(--f-outline);font-weight:800;font-size:11vw;line-height:.82;letter-spacing:-.06em;white-space:nowrap;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.32);user-select:none;transition:color .8s var(--ease)}
 .foot__giant:hover{color:var(--ember);-webkit-text-stroke-color:var(--ember)}
-/* une lettre par élément ; la perle de l'accueil finit sa course entre les deux mots et les allume, de proche en proche
-   (--d = distance de la lettre à la perle), comme une enseigne : contour blanc, halo orange, petit clignotement */
+/* une lettre par élément ; la perle de l'accueil finit sa course en touchant une lettre, y disparaît, et la lumière part
+   du point touché : un éclat (--hx, --hy), puis les lettres s'allument de proche en proche (--d = distance à la lettre
+   touchée), comme une enseigne : contour blanc, halo orange, petit clignotement */
+.foot__giant{position:relative}
+.foot__giant::after{content:"";position:absolute;left:var(--hx,50%);top:var(--hy,0);width:1.1em;height:1.1em;margin:-.55em 0 0 -.55em;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.95) 0,rgba(255,160,100,.7) 16%,rgba(255,90,31,.3) 40%,rgba(255,90,31,0) 68%);opacity:0;transform:scale(.15);pointer-events:none}
+.foot__giant.is-landed::after{animation:eclat .75s var(--ease) both}
+@keyframes eclat{0%{opacity:0;transform:scale(.15)}16%{opacity:1}100%{opacity:0;transform:scale(1)}}
 .foot__giant .fg{display:inline-block;transition:color .6s var(--ease),-webkit-text-stroke-color .6s var(--ease),text-shadow .6s var(--ease)}
 .foot__giant .fg--gap{display:inline;white-space:pre}
 .foot__giant.is-landed .fg{color:var(--paper);-webkit-text-stroke-color:var(--paper);text-shadow:0 0 .1em rgba(255,90,31,.95),0 0 .38em rgba(255,90,31,.5);transition-delay:calc(var(--d,0) * 75ms);animation:enseigne .95s steps(1,end) both;animation-delay:calc(var(--d,0) * 75ms)}
@@ -509,7 +511,7 @@ html[data-page="home"] .foot{background:transparent}
 </div>
 
 <div class="curtain" aria-hidden="true"><span class="curtain__word">F<span class="cw-i">I</span>LMS</span></div>
-<div class="cursor" aria-hidden="true"><span class="cursor__tail"></span><span class="cursor__ring"><span class="cursor__label"></span></span><span class="cursor__dot"></span></div>
+<div class="cursor" aria-hidden="true"><canvas class="cursor__trail"></canvas><span class="cursor__ring"><span class="cursor__label"></span></span><span class="cursor__dot"></span></div>
 
 <main id="contenu" tabindex="-1">
 
@@ -1173,7 +1175,7 @@ html[data-page="home"] .foot{background:transparent}
 
 <script src="js/lenis.min.js"></script>
 <script src="js/ia.js?v=25" defer></script>
-<script src="js/curseur.js?v=6" defer></script>
+<script src="js/curseur.js?v=7" defer></script>
 <script>
 (function () {
   'use strict';
@@ -1320,7 +1322,7 @@ html[data-page="home"] .foot{background:transparent}
     var prev = current;
     if (prev && hooks[prev] && hooks[prev].leave) hooks[prev].leave();
     Object.keys(views).forEach(function (k) { views[k].hidden = k !== name; });
-    current = name;
+    current = name; snapAt = null; snapAcc = 0;
     root.setAttribute('data-page', name);
     menuPw.innerHTML = name === 'home' ? '' : pearlWord(NAMES[name].toUpperCase());
     scrollTop(false);
@@ -1515,10 +1517,10 @@ html[data-page="home"] .foot{background:transparent}
   })();
 
   /* ---------- traînée de la perle au défilement : un canvas fixe par vue, rien que la partie visible ---------- */
-  /* landing : élément qui reçoit la classe is-landed quand la perle arrive au bout ; endR : rayon de la perle à l'arrivée */
-  function makeTrail(view, points, landing, endR) {
+  /* landing : élément qui reçoit la classe is-landed quand la perle arrive au bout ; absorb : la perle disparaît à l'arrivée */
+  function makeTrail(view, points, landing, absorb) {
     var cv = $('.trail', view), ctx = cv && cv.getContext('2d');
-    var xs = [], ys = [], ls = [], env = [], total = 0, cur = 0, ready = false, R = 1, VW = 0, VH = 0, key = '', rEnd = 9;
+    var xs = [], ys = [], ls = [], env = [], total = 0, cur = 0, ready = false, R = 1, VW = 0, VH = 0, key = '';
     function cr(P, cb) {
       for (var i = 0; i < P.length - 1; i++) {
         var p0 = P[i - 1] || P[i], p1 = P[i], p2 = P[i + 1], p3 = P[i + 2] || p2;
@@ -1531,7 +1533,6 @@ html[data-page="home"] .foot{background:transparent}
       R = Math.min(2, window.devicePixelRatio || 1); VW = cv.clientWidth || window.innerWidth; VH = cv.clientHeight || window.innerHeight;
       cv.width = Math.round(VW * R); cv.height = Math.round(VH * R);
       var W = view.clientWidth, P = points(W, VH), PAD = 22;
-      rEnd = endR ? Math.max(3.5, endR()) : 9;   /* plus grosse sur grand écran, plus petite sur mobile : elle tient entre les deux mots */
       xs = []; ys = []; ls = []; env = []; total = 0;
       var mx = -Infinity;
       cr(P, function (p1, c1, c2, p2, i) {
@@ -1566,9 +1567,10 @@ html[data-page="home"] .foot{background:transparent}
       ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       ctx.strokeStyle = 'rgba(255,90,31,0.16)'; ctx.lineWidth = 10; ctx.stroke();
       ctx.strokeStyle = '#FF5A1F'; ctx.lineWidth = 2; ctx.stroke();
-      if (ty > top && ty < bot) {
-        /* la perle grossit sur la fin de sa course, jusqu'à la taille de son point d'arrivée */
-        var q = rEnd !== 9 ? clamp((cur - (total - 260)) / 260, 0, 1) : 0, rr = 9 + (rEnd - 9) * q * q * (3 - 2 * q), kr = rr / 9;
+      /* au bout de sa course, la perle est absorbée par la lettre qu'elle touche : elle rétrécit sur les derniers
+         pixels et a disparu au moment du contact (c'est alors que la lumière part, CSS .is-landed) */
+      var q = absorb ? clamp((total - cur) / 46, 0, 1) : 1, kr = q * q * (3 - 2 * q), rr = 9 * kr;
+      if (kr > 0.03 && ty > top && ty < bot) {
         var g = ctx.createRadialGradient(tx, ty, 0, tx, ty, 34 * kr);
         g.addColorStop(0, 'rgba(255,90,31,0.55)'); g.addColorStop(1, 'rgba(255,90,31,0)');
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(tx, ty, 34 * kr, 0, 6.2832); ctx.fill();
@@ -1591,22 +1593,37 @@ html[data-page="home"] .foot{background:transparent}
     return { build: build, update: update };
   }
 
-  /* grand FLYING PEARL du pied de page : une lettre par élément, numérotée depuis l'espace entre les deux mots.
-     La perle de l'accueil vient se poser dans cet espace et allume les lettres de proche en proche (CSS .is-landed). */
-  var giant = $('.foot__giant');
+  /* grand FLYING PEARL du pied de page : une lettre par élément. La perle de l'accueil finit sa course en touchant le
+     haut du P ; elle disparaît au contact et la lumière part de cette lettre, de proche en proche (--d = distance en
+     lettres au point touché ; CSS .is-landed) */
+  var giant = $('.foot__giant'), giantHit = null;
   if (giant) {
-    var gt = giant.textContent.trim(), gi = gt.indexOf(' ');
+    var gt = giant.textContent.trim(), gi = Math.max(0, gt.indexOf('P'));
     giant.textContent = '';
     for (var gk = 0; gk < gt.length; gk++) {
       var gs = d.createElement('span');
       if (gt.charAt(gk) === ' ') { gs.className = 'fg fg--gap'; gs.textContent = ' '; }
       else { gs.className = 'fg'; gs.textContent = gt.charAt(gk); gs.style.setProperty('--d', Math.abs(gk - gi)); }
+      if (gk === gi) giantHit = gs;
       giant.appendChild(gs);
     }
   }
+  /* point de contact sur une lettre : le haut du glyphe, au milieu de sa largeur (coordonnées écran) */
+  function glyphTop(span) {
+    var r = span.getBoundingClientRect(), cs = getComputedStyle(span), fs = parseFloat(cs.fontSize) || 0;
+    var probe = d.createElement('i'); probe.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+    span.appendChild(probe); var base = probe.getBoundingClientRect().top; span.removeChild(probe);
+    var asc = fs * 0.7;
+    try {
+      var c = d.createElement('canvas').getContext('2d');
+      c.font = cs.fontWeight + ' ' + fs + 'px ' + cs.fontFamily;
+      var mt = c.measureText(span.textContent); if (mt.actualBoundingBoxAscent > 0) asc = mt.actualBoundingBoxAscent;
+    } catch (e) {}
+    return { x: r.left + (r.width + fs * 0.06) / 2, y: base - asc, w: r.width };
+  }
 
-  /* accueil : tracé dessiné à la main, du héros jusqu'au grand FLYING PEARL du pied de page, où la perle se pose
-     entre les deux mots */
+  /* accueil : tracé dessiné à la main, du héros jusqu'au grand FLYING PEARL du pied de page, dont la perle vient
+     toucher une lettre */
   var trails = {
     home: makeTrail(views.home, function (W) {
       var home = views.home;
@@ -1615,14 +1632,17 @@ html[data-page="home"] .foot{background:transparent}
         [W * 0.9, hH + 6], [W * 0.68, m.y + m.h * 0.3], [W * 0.1, m.y + m.h * 0.98],
         [W * 0.08, ix.y + ix.h * 0.12], [W * 0.92, li.y + li.h]
       ];
-      var gap = giant && $('.fg--gap', giant);
-      if (gap) {
-        var hr = home.getBoundingClientRect(), r = gap.getBoundingClientRect();
-        var ex = r.left + r.width / 2 - hr.left, ey = r.top + r.height / 2 - hr.top, lb = li.y + li.h;
-        if (r.width > 0 && ey > lb + 40) P.push([ex + (W * 0.92 - ex) * 0.55, lb + (ey - lb) * 0.6], [ex, ey]);
+      if (giantHit) {
+        var hr = home.getBoundingClientRect(), gr = giant.getBoundingClientRect(), c = glyphTop(giantHit);
+        var ex = c.x - hr.left, ey = c.y - hr.top, lb = li.y + li.h;
+        if (c.w > 0 && ey > lb + 40) {
+          P.push([ex + (W * 0.92 - ex) * 0.6, lb + (ey - lb) * 0.45], [ex, ey]);
+          /* point touché, pour l'éclat de lumière qui en part (CSS) */
+          giant.style.setProperty('--hx', (c.x - gr.left).toFixed(1) + 'px'); giant.style.setProperty('--hy', (c.y - gr.top).toFixed(1) + 'px');
+        }
       }
       return P;
-    }, giant, function () { return giant ? parseFloat(getComputedStyle(giant).fontSize) * 0.09 : 9; })
+    }, giant, true)
   };
 
   /* la traînée de défilement n'existe que sur l'accueil (retirée des onglets à la demande de Pierre-Yves) */
@@ -1854,18 +1874,59 @@ html[data-page="home"] .foot{background:transparent}
     var ptop = Math.round(a + g), fit = Math.max(220, Math.floor(b - g - ptop));
     var k = current + '|' + ptop + '|' + fit + '|' + window.innerWidth;
     if (k === fitKey) return;
-    fitKey = k;
+    fitKey = k; M.ptop = ptop;
     v.style.setProperty('--ptop', ptop + 'px');
     if (!FIRST[current]) return;
     v.style.setProperty('--fit', fit + 'px');
     try { window.dispatchEvent(new Event('fp:fit')); } catch (e) {}
   }
+  /* texte du studio : aligné à gauche, mais posé pour que son bord gauche et la fin de sa ligne la plus longue soient
+     exactement à la même distance des bords de l'écran */
+  function centerManifesto() {
+    manText.style.transform = '';
+    var minL = Infinity, maxR = -Infinity;
+    for (var i = 0; i < words.length; i++) { var r = words[i].getBoundingClientRect(); if (r.left < minL) minL = r.left; if (r.right > maxR) maxR = r.right; }
+    if (maxR <= minL) return;
+    var shift = ((root.clientWidth - maxR) - minL) / 2;
+    if (Math.abs(shift) > 0.5) manText.style.transform = 'translateX(' + shift.toFixed(1) + 'px)';
+  }
   function measure() {
     M.vh = window.innerHeight; fitPage(); M.max = Math.max(1, root.scrollHeight - M.vh);
     if (!views.home.hidden) {
+      centerManifesto();
       var m = offIn(manText, views.home);
       M.manTop = m.y; M.manH = m.h;
     }
+  }
+
+  /* ---------- arrêt du défilement sur un projet ---------- */
+  /* À la molette, un cran peut sauter par-dessus la position où un projet est bien centré entre les deux bandeaux.
+     Quand un cran arrive près de cette position (à moins d'un demi-cran), le défilement s'y arrête pile : en parcourant
+     une page, on passe donc toujours par une vue où chaque projet est entier et centré. Le cran suivant repart
+     normalement ; au pavé tactile, il faut dépasser la même distance pour quitter la position. */
+  var SNAPSEL = { films: '.reel > .shot', photos: '.series > .serie', ia: '.proj' }, SNAP = 64, snapAt = null, snapAcc = 0;
+  function nearestSnap(t) {
+    var v = views[current], best = null, bd = Infinity;
+    $$(SNAPSEL[current], v).forEach(function (el) {
+      var c = Math.round(el.getBoundingClientRect().top + window.scrollY - (M.ptop || 0)), dd = Math.abs(c - t);
+      if (dd < bd) { bd = dd; best = c; }
+    });
+    return best !== null && bd <= SNAP ? clamp(best, 0, M.max) : null;
+  }
+  function onWheelSnap(e) {
+    if (!lenis || !SNAPSEL[current] || e.ctrlKey || window.innerWidth < 901 || menu.open || root.classList.contains('is-overlay')) return;
+    var opts = { programmatic: false, lerp: 0.09 }, t = lenis.targetScroll;
+    if (snapAt !== null) {
+      /* déjà arrêté sur un projet : on cumule l'intention ; tant qu'elle reste petite, on ne bouge pas */
+      snapAcc += t - snapAt;
+      if (Math.abs(snapAcc) <= SNAP) { lenis.scrollTo(snapAt, opts); return; }
+      t = snapAt + snapAcc; snapAt = null; snapAcc = 0;
+      lenis.scrollTo(t, opts);
+      return;
+    }
+    var c = nearestSnap(t);
+    if (c !== null && Math.abs(c - t) > 0.5) { snapAt = c; snapAcc = 0; lenis.scrollTo(c, opts); }
+    else if (c !== null) { snapAt = c; snapAcc = 0; }
   }
 
   /* ---------- crochets d'entrée par vue ---------- */
@@ -1895,6 +1956,8 @@ html[data-page="home"] .foot{background:transparent}
     vel = lerp(vel, dy / dt, 0.18);
     /* le bandeau du haut reste toujours présent (il ne se cache plus quand on descend) ; il devient opaque dès qu'on défile */
     top.classList.toggle('is-solid', y > 60);
+    /* arrêt sur un projet : si le défilement est reparti autrement (clavier, ascenseur, lien), on oublie l'arrêt */
+    if (snapAt !== null && lenis && Math.abs(lenis.targetScroll - snapAt) > 0.5) { snapAt = null; snapAcc = 0; }
     lastY = y;
     hud.tick(t, clamp(y / M.max, 0, 1));
     if (trails[current]) trails[current].update(dt, y, vh);
@@ -1913,6 +1976,8 @@ html[data-page="home"] .foot{background:transparent}
   /* ---------- défilement fluide (Lenis) : molette lissée, tactile natif ---------- */
   if (!REDUCE && window.Lenis) {
     try { lenis = new window.Lenis({ lerp: 0.09, smoothWheel: true, wheelMultiplier: 0.95, syncTouch: false }); } catch (e) { lenis = null; }
+    /* écouteur posé après celui de Lenis : il lit la destination que Lenis vient de calculer et l'ajuste au besoin */
+    if (lenis) window.addEventListener('wheel', onWheelSnap, { passive: true });
   }
 
   /* ---------- démarrage ---------- */
