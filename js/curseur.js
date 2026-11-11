@@ -1,27 +1,42 @@
 /* Flying Pearl : traînée du curseur.
-   Une petite toile carrée (.cursor__trail), enfant du curseur perle et centrée sur lui : la traînée part donc toujours du
-   centre de la perle (le point orange), sans décalage possible. On y dessine le chemin que la souris vient de parcourir :
-   la traînée épouse les courbes du mouvement, s'affine et s'estompe vers sa pointe, puis s'efface doucement à l'arrêt.
+   Une toile fixe (.ctrail) couvre l'écran, juste sous le curseur perle. On y dessine le chemin que la souris vient de
+   parcourir : la traînée part du centre de la perle (le point orange), épouse les courbes du mouvement, s'affine et
+   s'estompe vers sa pointe, puis s'efface à l'arrêt.
+   Sa longueur n'est pas bornée : chaque point du chemin vit un temps donné (LIFE). Un geste rapide laisse donc une
+   traînée longue, un geste lent une traînée courte.
    Souris uniquement (rien sur écran tactile), rien si l'utilisateur a demandé moins d'animations.
-   La toile est petite (pas de dessin plein écran) et la boucle s'arrête dès que la traînée a disparu. */
+   La toile est dimensionnée sur sa taille réelle à l'écran (clientWidth, sans la barre de défilement) : ses coordonnées
+   sont alors exactement celles de la souris. On n'efface que la zone dessinée ; dès que la traînée a disparu, la boucle
+   s'arrête et la toile est masquée. */
 (function () {
   'use strict';
   var mq = window.matchMedia;
   if (!mq || !mq('(hover: hover) and (pointer: fine)').matches || mq('(prefers-reduced-motion: reduce)').matches) return;
-  var cv = document.querySelector('.cursor__trail');
+  var cv = document.querySelector('.ctrail');
   if (!cv || !cv.getContext) return;
   var ctx = cv.getContext('2d');
   if (!ctx) return;
 
-  var MAXLEN = 460;   /* longueur maximale de la traînée, en px */
-  var LIFE = 640;     /* durée de vie d'un point du chemin, en ms : c'est le temps que met la traînée à s'effacer */
-  var HALF = MAXLEN + 24, SIZE = HALF * 2;   /* la toile couvre la traînée la plus longue, dans toutes les directions */
-  var R = Math.min(2, window.devicePixelRatio || 1);
-  cv.style.setProperty('--ts', SIZE + 'px');
-  cv.width = cv.height = Math.round(SIZE * R);
-
+  var LIFE = 620;     /* durée de vie d'un point du chemin, en ms : c'est le temps que met la traînée à s'effacer */
+  var RING = 44;      /* rayon de l'anneau du curseur (état « mot »), en px */
+  var cur = document.querySelector('.cursor');
+  var R = 1, W = 0, H = 0;
   var pts = [];       /* chemin récent : { x, y, t }, du plus ancien au plus récent (coordonnées écran) */
   var x = 0, y = 0, raf = 0;
+  var dirty = null;   /* zone dessinée à l'image précédente : [x0, y0, x1, y1] */
+
+  function size() {
+    R = Math.min(2, window.devicePixelRatio || 1);
+    W = cv.clientWidth || window.innerWidth; H = cv.clientHeight || window.innerHeight;
+    cv.width = Math.round(W * R); cv.height = Math.round(H * R);
+    dirty = null;
+  }
+  size();
+  window.addEventListener('resize', size);
+  /* la toile n'est affichée que le temps de la traînée : au repos, aucun calque plein écran au-dessus de la page */
+  var shown = true;
+  function show(v) { if (v !== shown) { shown = v; cv.style.visibility = v ? '' : 'hidden'; } }
+  show(false);
 
   window.addEventListener('pointermove', function (e) {
     if (e.pointerType && e.pointerType !== 'mouse') return;
@@ -29,31 +44,40 @@
     var last = pts[pts.length - 1];
     if (!last || Math.abs(last.x - x) + Math.abs(last.y - y) >= 2) {
       pts.push({ x: x, y: y, t: performance.now() });
-      if (pts.length > 160) pts.shift();
+      if (pts.length > 400) pts.shift();
     }
-    if (!raf) raf = requestAnimationFrame(frame);
+    if (!raf) { show(true); raf = requestAnimationFrame(frame); }
   }, { passive: true });
-  document.addEventListener('mouseleave', function () { pts.length = 0; clear(); });
+  document.addEventListener('mouseleave', function () { pts.length = 0; clear(); show(false); });
 
-  function clear() { ctx.setTransform(R, 0, 0, R, 0, 0); ctx.clearRect(0, 0, SIZE, SIZE); }
+  function clear() {
+    ctx.setTransform(R, 0, 0, R, 0, 0);
+    if (dirty) ctx.clearRect(dirty[0], dirty[1], dirty[2] - dirty[0], dirty[3] - dirty[1]);
+    dirty = null;
+  }
 
   function frame(now) {
     raf = 0;
     while (pts.length && now - pts[0].t > LIFE) pts.shift();
     clear();
     var n = pts.length;
-    if (!n) return;
-    /* chemin vu depuis la perle : du curseur (au centre de la toile) vers le passé, avec pour chaque point sa « force »
-       f (1 près de la perle, 0 à la pointe), qui baisse avec la distance parcourue et avec l'âge du point */
-    var P = [{ x: HALF, y: HALF, f: 1 }], len = 0, px = x, py = y;
-    for (var i = n - 1; i >= 0 && len < MAXLEN; i--) {
-      var p = pts[i], d = Math.sqrt((p.x - px) * (p.x - px) + (p.y - py) * (p.y - py));
-      if (d < 0.5) continue;
-      var qx = p.x, qy = p.y;
-      if (len + d > MAXLEN) { var k = (MAXLEN - len) / d; qx = px + (p.x - px) * k; qy = py + (p.y - py) * k; d = MAXLEN - len; }
-      len += d; px = qx; py = qy;
-      var f = Math.min(1 - len / MAXLEN, 1 - (now - p.t) / LIFE);
-      P.push({ x: qx - x + HALF, y: qy - y + HALF, f: f > 0 ? f : 0 });
+    if (!n) { show(false); return; }
+    /* chemin vu depuis la perle : du curseur vers le passé, avec pour chaque point sa « force » f (1 à la perle, 0 à la
+       pointe), qui ne dépend que de son âge */
+    /* quand le curseur est un grand anneau avec un mot (« Entrer », « Lecture »…), la traînée part du bord de l'anneau
+       et non de son centre : le mot reste lisible */
+    var lab = !!cur && cur.classList.contains('is-label');
+    var P = [{ x: x, y: y, f: lab ? 0 : 1 }], px = x, py = y;
+    var x0 = x, y0 = y, x1 = x, y1 = y;
+    for (var i = n - 1; i >= 0; i--) {
+      var p = pts[i];
+      if (Math.abs(p.x - px) + Math.abs(p.y - py) < 0.5) continue;
+      var f = 1 - (now - p.t) / LIFE;
+      if (lab) { var dd = Math.sqrt((p.x - x) * (p.x - x) + (p.y - y) * (p.y - y)); f *= dd <= RING ? 0 : Math.min(1, (dd - RING) / 26); }
+      P.push({ x: p.x, y: p.y, f: f > 0 ? f : 0 });
+      px = p.x; py = p.y;
+      if (p.x < x0) x0 = p.x; else if (p.x > x1) x1 = p.x;
+      if (p.y < y0) y0 = p.y; else if (p.y > y1) y1 = p.y;
     }
     var m = P.length;
     if (m > 1) {
@@ -74,6 +98,7 @@
           ctx.stroke();
         }
       }
+      dirty = [Math.max(0, x0 - 12), Math.max(0, y0 - 12), Math.min(W, x1 + 12), Math.min(H, y1 + 12)];
     }
     raf = requestAnimationFrame(frame);
   }

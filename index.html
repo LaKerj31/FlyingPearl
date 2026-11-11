@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-Pq6hYJPKLxln64XOtChCR5bCsCyuLbqZwYXtdxVYQ2I='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9Sghh1fsAAmXCtbvRDN7xcOoWcgbxl3K3zYy7R7feWg=' 'sha256-WqWMuPI52fF1gwMIiGg//F/Wkl0OmoEVGwpQ9Hch52I='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; upgrade-insecure-requests">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Flying Pearl Studio</title>
 <meta name="description" content="Flying Pearl, studio de création : films, photos, et images et vidéos générées par IA.">
@@ -155,10 +155,9 @@ a:hover .roll>span,a:focus-visible .roll>span{transform:translateY(-1.3em)}
 .cursor{position:fixed;left:0;top:0;z-index:250;width:0;height:0;pointer-events:none;opacity:0;transition:opacity .3s;will-change:transform}
 .cursor.is-on{opacity:1}
 .cursor__dot,.cursor__ring{position:absolute;border-radius:50%}
-/* traînée du curseur : une petite toile carrée, enfant du curseur et centrée sur la perle (le point orange). Elle se
-   déplace donc exactement avec lui ; js/curseur.js y dessine le chemin récent de la souris, courbes comprises */
-.cursor__trail{position:absolute;left:calc(var(--ts,940px) / -2);top:calc(var(--ts,940px) / -2);width:var(--ts,940px);height:var(--ts,940px);pointer-events:none}
-.cursor.is-label .cursor__trail{opacity:0}
+/* traînée du curseur : une toile fixe qui couvre l'écran, juste sous le curseur. js/curseur.js y dessine le chemin
+   récent de la souris, courbes comprises ; sa longueur dépend de la vitesse du geste (chaque point vit un temps donné) */
+.ctrail{position:fixed;left:0;top:0;width:100%;height:100%;z-index:1199;pointer-events:none}
 .cursor__dot{left:-7px;top:-7px;width:14px;height:14px;background:radial-gradient(circle,var(--ember) 0 34%,var(--paper) 37%);transition:transform .35s var(--ease)}
 .cursor__ring{left:-42px;top:-42px;width:84px;height:84px;display:grid;place-items:center;background:rgba(255,255,255,.14);box-shadow:inset 0 0 0 3px var(--paper);transform:scale(0);transition:transform .45s var(--ease),background .3s,box-shadow .3s}
 .cursor.is-hover .cursor__ring{transform:scale(.48)}
@@ -511,7 +510,8 @@ html[data-page="home"] .foot{background:transparent}
 </div>
 
 <div class="curtain" aria-hidden="true"><span class="curtain__word">F<span class="cw-i">I</span>LMS</span></div>
-<div class="cursor" aria-hidden="true"><canvas class="cursor__trail"></canvas><span class="cursor__ring"><span class="cursor__label"></span></span><span class="cursor__dot"></span></div>
+<canvas class="ctrail" aria-hidden="true"></canvas>
+<div class="cursor" aria-hidden="true"><span class="cursor__ring"><span class="cursor__label"></span></span><span class="cursor__dot"></span></div>
 
 <main id="contenu" tabindex="-1">
 
@@ -899,27 +899,19 @@ html[data-page="home"] .foot{background:transparent}
     .pj__meta dt{margin:0;color:var(--mute);font-family:var(--f-mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase}
     .pj__meta dd{margin:.4em 0 0;color:var(--soft);font-size:clamp(.95rem,1.2vw,1.05rem)}
     .pj__content{margin:clamp(34px,5vw,64px) 0 0}
-    /* fiches projet (IA) : en-tête compact et remonté, identique sur toutes les fiches, pour que la première vidéo tienne
-       entière à l'écran : une petite ligne (« Projet » à gauche, outils et date à droite), le titre sur une ligne, le
-       texte dessous. Les fiches des séries photo ont leur propre mise en page (.pj--serie) et ne sont pas concernées. */
-    .pj:not(.pj--serie) .pj__panel{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:clamp(20px,3vw,48px);align-items:baseline;padding-top:clamp(18px,2.4vw,30px)}
-    .pj:not(.pj--serie) .pj__eyebrow{grid-column:1;grid-row:1}
-    .pj:not(.pj--serie) .pj__meta{grid-column:2;grid-row:1;justify-self:end;margin:0;padding:0;border:0;flex-wrap:nowrap;gap:clamp(14px,2.2vw,32px)}
-    .pj:not(.pj--serie) .pj__meta div{display:flex;align-items:baseline;gap:.7em}
-    .pj:not(.pj--serie) .pj__meta dd{margin:0;font-size:clamp(.82rem,.95vw,.92rem);white-space:nowrap}
-    .pj:not(.pj--serie) .pj__title{grid-column:1/-1;grid-row:2;margin-top:.3em;font-size:clamp(1.45rem,2.9vw,2.4rem);line-height:1;letter-spacing:-.045em}
-    .pj:not(.pj--serie) .pj__desc{grid-column:1/-1;grid-row:3;margin-top:clamp(8px,1vw,14px);max-width:84ch;font-size:clamp(.95rem,1.08vw,1.05rem);line-height:1.45}
-    .pj:not(.pj--serie) .pj__content{grid-column:1/-1;grid-row:4;min-width:0;margin-top:clamp(14px,1.8vw,24px)}
+    /* fiches projet (IA) : en-tête compact, identique sur toutes les fiches : « Projet », le titre sur une ligne, le
+       texte, puis la petite ligne des outils et de la date sous son filet. Dessous, la première vidéo (ou la grille
+       d'images) tient entière à l'écran : js/ia.js (fitFiche) règle sa taille. Sur écran haut, la fiche s'élargit pour
+       que la vidéo profite de la place. Les fiches des séries photo ont leur propre mise en page (.pj--serie). */
+    .pj:not(.pj--serie) .pj__panel{max-width:max(1100px,calc((100vh - 340px) * 16 / 9 + 2 * var(--gx)));padding-top:clamp(18px,2.4vw,30px)}
+    .pj:not(.pj--serie) .pj__title{font-size:clamp(1.45rem,2.9vw,2.4rem);line-height:1;letter-spacing:-.045em}
+    .pj:not(.pj--serie) .pj__desc{margin-top:clamp(8px,1vw,14px);max-width:84ch;font-size:clamp(.95rem,1.08vw,1.05rem);line-height:1.45}
+    .pj:not(.pj--serie) .pj__meta{margin-top:clamp(10px,1.2vw,16px);padding-top:clamp(9px,1vw,13px);gap:8px clamp(20px,3vw,48px)}
+    .pj:not(.pj--serie) .pj__meta dd{margin-top:.3em;font-size:clamp(.85rem,.98vw,.95rem)}
+    .pj:not(.pj--serie) .pj__content{margin-top:clamp(16px,1.9vw,26px)}
     .pj:not(.pj--serie) .pj__sec-title{margin-bottom:clamp(10px,1.2vw,16px)}
-    /* écran moyen : la croix de fermeture est au-dessus de la fiche, on lui laisse la place à droite des outils */
-    @media(max-width:1320px){.pj:not(.pj--serie) .pj__meta,.pj:not(.pj--serie) .pj__title{margin-right:62px}}
-    @media(max-width:760px){
-      .pj:not(.pj--serie) .pj__panel{grid-template-columns:minmax(0,1fr)}
-      .pj:not(.pj--serie) .pj__eyebrow,.pj:not(.pj--serie) .pj__title{margin-right:58px}
-      .pj:not(.pj--serie) .pj__meta{grid-column:1;grid-row:4;justify-self:start;margin:10px 0 0;flex-wrap:wrap;gap:6px 22px}
-      .pj:not(.pj--serie) .pj__meta dd{white-space:normal}
-      .pj:not(.pj--serie) .pj__content{grid-row:5}
-    }
+    /* écran moyen : la croix de fermeture est au-dessus de la fiche, on lui laisse la place à droite du titre */
+    @media(max-width:1320px){.pj:not(.pj--serie) .pj__eyebrow,.pj:not(.pj--serie) .pj__title{margin-right:62px}}
     .pj__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,1vw,14px)}
     @media(max-width:860px){.pj__grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:520px){.pj__grid{grid-template-columns:1fr}}
@@ -1037,9 +1029,9 @@ html[data-page="home"] .foot{background:transparent}
           </button>
           <div class="tears-src" hidden aria-hidden="true">
           <img data-full="media/tears/tears-01.jpg" data-tag="01" alt="Femme en robe blanche, quatre masques en suspension au-dessus de sa tête, larmes peintes">
-          <img data-full="media/tears/tears-02.jpg" data-tag="02" alt="Masque blanc versant une larme rouge devant un rideau de velours rouge">
+          <img data-full="media/tears/tears-04.jpg" data-tag="02" alt="Femme en robe rouge sur un trône blanc, masque-bandeau et larme noire">
           <img data-full="media/tears/tears-03.jpg" data-tag="03" alt="Silhouette renversée, masque blanc et larme dorée sur une estrade lumineuse">
-          <img data-full="media/tears/tears-04.jpg" data-tag="04" alt="Femme en robe rouge sur un trône blanc, masque-bandeau et larme noire">
+          <img data-full="media/tears/tears-02.jpg" data-tag="04" alt="Masque blanc versant une larme rouge devant un rideau de velours rouge">
           <img data-full="media/tears/tears-05.jpg" data-tag="05" alt="Femme masquée descendant un escalier doré, larme rouge">
           <img data-full="media/tears/tears-06.jpg" data-tag="06" alt="Femme en robe blanche allongée sur fond rouge, larmes blanches">
           </div>
@@ -1055,6 +1047,14 @@ html[data-page="home"] .foot{background:transparent}
             <section class="pj__sec">
               <h3 class="pj__sec-title mono">Ressources</h3>
               <div class="pj__res">
+                <button class="pj__res-item" type="button" data-full="media/daniel-roberto/daniel.jpg" data-cap="Character sheet · Daniel · THE DANIEL &amp; ROBERTO SHOW" data-cursor="Agrandir">
+                  <img src="media/daniel-roberto/daniel.jpg" alt="Character sheet de Daniel : visage, face et dos, manteau de pirate noir brodé d&#x27;or, chaîne au signe dollar" width="2400" height="1357" loading="lazy" decoding="async">
+                  <span class="pj__res-cap mono">Daniel</span>
+                </button>
+                <button class="pj__res-item" type="button" data-full="media/daniel-roberto/roberto.jpg" data-cap="Character sheet · Roberto · THE DANIEL &amp; ROBERTO SHOW" data-cursor="Agrandir">
+                  <img src="media/daniel-roberto/roberto.jpg" alt="Character sheet de Roberto : visage, face et dos, tricorne, manteau de cuir et ceinture rouge" width="2400" height="1357" loading="lazy" decoding="async">
+                  <span class="pj__res-cap mono">Roberto</span>
+                </button>
                 <button class="pj__res-item" type="button" data-full="media/daniel-roberto/style.jpg" data-cap="Style · image de départ de la vidéo · THE DANIEL &amp; ROBERTO SHOW" data-cursor="Agrandir">
                   <img src="media/daniel-roberto/style.jpg" alt="Image de style : Daniel en selfie dans la jungle, Roberto derrière lui devant un micro-ondes" width="2400" height="1355" loading="lazy" decoding="async">
                   <span class="pj__res-cap mono">Style · image de départ</span>
@@ -1174,8 +1174,8 @@ html[data-page="home"] .foot{background:transparent}
 </footer>
 
 <script src="js/lenis.min.js"></script>
-<script src="js/ia.js?v=25" defer></script>
-<script src="js/curseur.js?v=7" defer></script>
+<script src="js/ia.js?v=26" defer></script>
+<script src="js/curseur.js?v=8" defer></script>
 <script>
 (function () {
   'use strict';
@@ -1532,20 +1532,35 @@ html[data-page="home"] .foot{background:transparent}
       /* taille réelle de la toile à l'écran (sans la barre de défilement), sinon le tracé est tassé vers la gauche */
       R = Math.min(2, window.devicePixelRatio || 1); VW = cv.clientWidth || window.innerWidth; VH = cv.clientHeight || window.innerHeight;
       cv.width = Math.round(VW * R); cv.height = Math.round(VH * R);
-      var W = view.clientWidth, P = points(W, VH), PAD = 22;
-      xs = []; ys = []; ls = []; env = []; total = 0;
-      var mx = -Infinity;
-      cr(P, function (p1, c1, c2, p2, i) {
-        var est = Math.hypot(c1[0] - p1[0], c1[1] - p1[1]) + Math.hypot(c2[0] - c1[0], c2[1] - c1[1]) + Math.hypot(p2[0] - c2[0], p2[1] - c2[1]);
-        var n = Math.max(4, Math.ceil(est / 5));
-        for (var k = i ? 1 : 0; k <= n; k++) {
-          var t = k / n, u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, e = t * t * t;
-          var x = a * p1[0] + b * c1[0] + c * c2[0] + e * p2[0], y = a * p1[1] + b * c1[1] + c * c2[1] + e * p2[1];
-          x = clamp(x, PAD, W - PAD);   /* la traînée ne sort jamais de l'écran, même quand la courbe déborde */
-          if (xs.length) total += Math.hypot(x - xs[xs.length - 1], y - ys[ys.length - 1]);
-          xs.push(x); ys.push(y); ls.push(total); mx = Math.max(mx, y); env.push(mx);
+      var W = view.clientWidth, P = points(W, VH), PAD = Math.max(30, W * 0.04);
+      /* la traînée reste une vraie courbe et ne touche jamais les bords de l'écran : si elle dépasse la marge, on ramène
+         vers l'intérieur les points de passage de ce côté et on retrace (les deux bouts ne bougent pas). On ne rabote
+         jamais le tracé contre le bord : il deviendrait droit à cet endroit. */
+      for (var pass = 0; pass < 10; pass++) {
+        var lo = Infinity, hi = -Infinity;
+        xs = []; ys = [];
+        cr(P, function (p1, c1, c2, p2, i) {
+          var est = Math.hypot(c1[0] - p1[0], c1[1] - p1[1]) + Math.hypot(c2[0] - c1[0], c2[1] - c1[1]) + Math.hypot(p2[0] - c2[0], p2[1] - c2[1]);
+          var n = Math.max(4, Math.ceil(est / 5));
+          for (var k = i ? 1 : 0; k <= n; k++) {
+            var t = k / n, u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, e = t * t * t;
+            var x = a * p1[0] + b * c1[0] + c * c2[0] + e * p2[0], y = a * p1[1] + b * c1[1] + c * c2[1] + e * p2[1];
+            xs.push(x); ys.push(y); if (x < lo) lo = x; if (x > hi) hi = x;
+          }
+        });
+        var dl = PAD - lo, dr = hi - (W - PAD);
+        if ((dl <= 0.5 && dr <= 0.5) || pass === 9) break;
+        for (var q = 1; q < P.length - 1; q++) {
+          if (dl > 0.5 && P[q][0] < W * 0.5) P[q][0] += dl * 1.1;
+          else if (dr > 0.5 && P[q][0] >= W * 0.5) P[q][0] -= dr * 1.1;
         }
-      });
+      }
+      ls = []; env = []; total = 0;
+      var mx = -Infinity;
+      for (var s = 0; s < xs.length; s++) {
+        if (s) total += Math.hypot(xs[s] - xs[s - 1], ys[s] - ys[s - 1]);
+        ls.push(total); mx = Math.max(mx, ys[s]); env.push(mx);
+      }
       ready = true; key = '';
     }
     function search(arr, v) { var lo = 0, hi = arr.length - 1; while (lo < hi) { var mid = (lo + hi) >> 1; if (arr[mid] >= v) hi = mid; else lo = mid + 1; } return lo; }

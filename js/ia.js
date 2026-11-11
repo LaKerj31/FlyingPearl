@@ -148,6 +148,7 @@
     Array.prototype.slice.call(pjContent.querySelectorAll('video')).forEach(function (v) { try { v.pause(); } catch (e) {} });
     if (crs) { crs.destroy(); crs = null; }
     pj.classList.remove('pj--serie');
+    pjPanel.style.maxWidth = '';
     pjContent.textContent = ''; lockScroll(); restoreFocus();
   }
   pj.addEventListener('click', function (e) {
@@ -200,16 +201,66 @@
     openOverlay();
     fitFiche();
   }
-  /* fiche projet : la première vidéo et sa légende tiennent entières à l'écran, sans défilement, quelle que soit la
-     taille de l'écran ; toutes les vidéos de la fiche prennent cette taille (variable CSS --pjfit) */
+  /* fiche projet : le premier écran ne montre que des éléments entiers, quelle que soit la taille de l'écran.
+     - vidéos : la première vidéo et sa légende tiennent à l'écran (variable CSS --pjfit, taille commune à toutes les
+       vidéos de la fiche). La place qui reste est répartie autour des vidéos visibles : rien d'autre (vidéo suivante,
+       rubrique suivante) ne dépasse en bas tant qu'on n'a pas fait défiler.
+     - grille d'images (TEARS) : sur deux ou trois colonnes, la fiche se resserre pour que toutes les rangées tiennent
+       à l'écran (le texte reste aligné sur la grille). */
+  var FOLD = 20;   /* marge gardée en bas de l'écran */
+  function fitGrid(grid, H) {
+    var cs = getComputedStyle(grid), cols = cs.gridTemplateColumns.split(' ').length, n = grid.children.length;
+    if (cols < 2 || !n) return;
+    var rows = Math.ceil(n / cols), cg = parseFloat(cs.columnGap) || 0, rg = parseFloat(cs.rowGap) || 0;
+    var ps = getComputedStyle(pjPanel), padX = (parseFloat(ps.paddingLeft) || 0) + (parseFloat(ps.paddingRight) || 0);
+    var best = Infinity;
+    for (var pass = 0; pass < 3; pass++) {
+      var top = grid.getBoundingClientRect().top + pj.scrollTop;
+      var cell = Math.floor((H - top - FOLD - rg * (rows - 1)) / rows);
+      var w = cols * cell + cg * (cols - 1);
+      if (cell < 150) { pjPanel.style.maxWidth = ''; return; }   /* écran trop bas : on laisse la grille telle quelle */
+      if (w >= grid.clientWidth - 0.5) return;                     /* tout tient déjà */
+      best = Math.min(best, w);
+      pjPanel.style.maxWidth = Math.ceil(best + padX) + 'px';      /* le texte peut passer à la ligne : on remesure */
+    }
+  }
   function fitFiche() {
+    pjPanel.style.maxWidth = '';
     if (!pjOpen || pj.classList.contains('pj--serie')) return;
-    var v = pjContent.querySelector('.pj__video');
-    if (!v) { pj.style.removeProperty('--pjfit'); return; }
-    var fig = v.closest ? v.closest('.pj__vid') : null, cap = fig ? fig.querySelector('.pj__vid-cap') : null;
+    var H = window.innerHeight;
+    var figs = Array.prototype.slice.call(pjContent.querySelectorAll('.pj__vid'));
+    figs.forEach(function (f) { f.style.paddingTop = f.style.paddingBottom = ''; });
+    var grid = pjContent.querySelector('.pj__grid');
+    if (grid) fitGrid(grid, H);
+    var fig = figs[0];
+    if (!fig) { pj.style.removeProperty('--pjfit'); return; }
+    var cap = fig.querySelector('.pj__vid-cap');
     var capH = cap ? cap.offsetHeight + (parseFloat(getComputedStyle(cap).marginTop) || 0) : 0;
-    var top = v.getBoundingClientRect().top + pj.scrollTop;
-    pj.style.setProperty('--pjfit', Math.max(150, Math.floor(window.innerHeight - top - capH - 18)) + 'px');
+    var avail = H - (fig.getBoundingClientRect().top + pj.scrollTop) - FOLD;
+    pj.style.setProperty('--pjfit', Math.max(150, Math.floor(avail - capH)) + 'px');
+    /* vidéos de la première rubrique qui tiennent entières dans le premier écran, et place qui reste sous elles */
+    var sib = figs.filter(function (f) { return f.parentNode === fig.parentNode; });
+    var gap = parseFloat(getComputedStyle(fig.parentNode).rowGap) || 0, used = 0, n = 0;
+    function count() {
+      used = 0; n = 0;
+      for (var i = 0; i < sib.length; i++) {
+        var need = used + (n ? gap : 0) + sib[i].offsetHeight;
+        if (need > avail + 0.5) break;
+        used = need; n++;
+      }
+    }
+    count();
+    if (n && avail - used > avail * 0.25) {
+      /* écran en hauteur : un grand vide resterait sous la dernière vidéo entière */
+      if (n === sib.length) return;   /* plus de vidéo ensuite : la suite de la fiche vient naturellement */
+      /* sinon on réduit un peu les vidéos pour en montrer une de plus, entière */
+      var vNow = sib[0].offsetHeight - capH, vFit = Math.floor((avail - n * gap) / (n + 1) - capH);
+      if (vFit >= 150 && vFit >= vNow * 0.72) { pj.style.setProperty('--pjfit', vFit + 'px'); count(); }
+    }
+    var extra = avail - used;
+    if (!n || extra < 2) return;
+    var pad = (extra / n / 2).toFixed(1) + 'px';
+    for (var j = 0; j < n; j++) sib[j].style.paddingTop = sib[j].style.paddingBottom = pad;
   }
   window.addEventListener('resize', fitFiche);
   Array.prototype.slice.call(document.querySelectorAll('.card__cover')).forEach(function (c) {
